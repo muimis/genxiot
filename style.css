@@ -1083,12 +1083,31 @@ body {
 }
 
 /* ==========================================================================
-   PRINT STYLESHEET FOR PERFECT A4 EXPORT
+   PRINT STYLESHEET FOR PERFECT MULTI-PAGE A4 PDF EXPORT
    ========================================================================== */
+@page {
+    size: A4 portrait;
+    margin: 12mm 12mm 12mm 12mm;
+}
+
 @media print {
-    body {
-        background: #FFF !important;
-        color: #000 !important;
+    *,
+    *::before,
+    *::after {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    html, body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
     }
 
     .app-header,
@@ -1100,24 +1119,66 @@ body {
 
     .modal-overlay {
         position: static !important;
-        background: transparent !important;
+        background: #FFFFFF !important;
         padding: 0 !important;
         display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
     }
 
     .modal-container {
         border: none !important;
         box-shadow: none !important;
         max-width: 100% !important;
-        background: #FFF !important;
+        width: 100% !important;
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .print-document {
         padding: 0 !important;
-        font-size: 9pt !important;
+        background: #FFFFFF !important;
+        color: #1E293B !important;
+        font-size: 8.5pt !important;
+        line-height: 1.4 !important;
+    }
+
+    .page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+        clear: both !important;
     }
 
     .page-break-inside-avoid {
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    .doc-logo-img {
+        height: 48px !important;
+        max-width: 280px !important;
+        object-fit: contain !important;
+    }
+
+    .doc-table th {
+        background: #F1F5F9 !important;
+        color: #1E293B !important;
+    }
+
+    .comp-table th.highlight-th {
+        background: #0284C7 !important;
+        color: #FFFFFF !important;
+    }
+
+    .comp-table td.highlight-td {
+        background: #F0F9FF !important;
+        color: #0369A1 !important;
+    }
+
+    .grand-total-tr td {
+        background: #F0F9FF !important;
+        color: #0369A1 !important;
     }
 }
