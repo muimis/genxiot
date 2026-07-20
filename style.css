@@ -412,19 +412,34 @@ textarea { resize:vertical; }
    PRINT STYLES
 ════════════════════════════════════════════════════ */
 @media print {
-  body { background:#fff; }
+  body { background:#fff; margin:0; padding:0; }
   .no-print,.modal-ctrl { display:none!important; }
   .modal-bg {
     position:static!important;background:none!important;
     display:block!important;overflow:visible!important;
   }
-  .modal-wrap { max-width:100%!important;box-shadow:none!important; }
+  .modal-wrap { max-width:100%!important;box-shadow:none!important; margin:0!important; }
   #printDoc { background:#fff; }
+  
   .doc-page {
-    width:100%;min-height:0;
-    page-break-after:always;break-after:page;
-    overflow:visible;
+    width: 100%;
+    margin: 0; 
+    padding: 0;
+    page-break-after: always;
+    page-break-inside: avoid;
+    break-after: page;
+    break-inside: avoid;
+    overflow: visible; /* CRITICAL for tables breaking across pages */
+    box-sizing: border-box;
   }
-  .doc-page:last-child { page-break-after:avoid; }
+  .doc-page.cover-page {
+    height: 100vh; /* Locks the cover page to exactly one printed page height so footer rests at bottom */
+    page-break-inside: avoid;
+  }
+  .doc-page:last-child {
+    page-break-after: avoid; 
+    break-after: avoid;
+  }
+  
   @page { margin:0;size:A4; }
 }
