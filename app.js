@@ -48,11 +48,20 @@ const CATALOGUE = [
     driverKey: 'beds'
   },
   {
+    code:  'ALAMO-CP-PM3',
+    name:  'Call Point Panel Mount 3 module',
+    desc:  'Fully Assembled Panel Mount Call Point (Alternative to standard bedside point).',
+    group: 'Bed Components (1 per Bed)',
+    rate:  2400,
+    img:   'qtn_embed_p5_img0.jpeg',
+    driverKey: 'beds'
+  },
+  {
     code:  'ALAMO-PD',
-    name:  'Pendant Button M1',
+    name:  'Pendant Button M1 / Single Switch Pendant',
     desc:  'Patient-side coil-cord call switch. Connects via RJ11 to the room call point. Placed within patient reach at the bed. 1 unit per bed.',
     group: 'Bed Components (1 per Bed)',
-    rate:  400,
+    rate:  450,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'beds'
   },
@@ -117,9 +126,18 @@ const CATALOGUE = [
     driverKey: 'wards'
   },
   {
+    code:  'ALAMO-MINI-NS',
+    name:  'Alamo Mini Station Tetris V2',
+    desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable.',
+    group: 'Infrastructure & Network',
+    rate:  12000,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'wards'
+  },
+  {
     code:  'ALAMO-RPT',
     name:  'Repeater V2 (Signal Range Extender)',
-    desc:  'Extends LoRa range for large or multi-block facilities. Qty auto-estimated at ~1.5× ward count (calibrated from the reference deployment: 8 wards → 12 repeaters) — always confirm final count via an on-site RF survey.',
+    desc:  'Extends LoRa range for large or multi-block facilities. Qty auto-estimated at ~1.5× ward count.',
     group: 'Infrastructure & Network',
     rate:  2500,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -130,31 +148,53 @@ const CATALOGUE = [
   {
     code:  'ALAMO-VISION',
     name:  'Alamo Vision – Annual App License',
-    desc:  'Cloud analytics: escalation alerts, peak-time reports, nursing manager dashboard, station-wise performance tracking, and mobile notifications. NOTE: not itemized in the reference quote — confirm this price internally before quoting.',
+    desc:  'Cloud analytics: escalation alerts, peak-time reports, nursing manager dashboard.',
     group: 'Software & Services',
-    rate:  30000,
+    rate:  0,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'fixed'
+  },
+  {
+    code:  'ALAMO-MANAGER',
+    name:  'Alamo Manager Software',
+    desc:  'Call Points administration software to install, manage and reconfigure call points and lights.',
+    group: 'Software & Services',
+    rate:  0,
     img:   'qtn_embed_p6_img0.jpeg',
     driverKey: 'fixed'
   },
   {
     code:  'ALAMO-TRAIN',
     name:  'Installation, Configuration & Training',
-    desc:  'On-site installation, LoRa network calibration, staff training, go-live support. Installation Protocol signoff. 200 units can be deployed per day. NOTE: not itemized in the reference quote — confirm this price internally before quoting.',
+    desc:  'On-site installation, LoRa network calibration, staff training, go-live support.',
     group: 'Software & Services',
-    rate:  15000,
+    rate:  0,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'fixed'
+  },
+  {
+    code:  'RCEL-250M',
+    name:  'RCEL 250 M',
+    desc:  'RCEL 250 M component as specified in the proposal.',
+    group: 'Fixed Components',
+    rate:  2900,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'fixed'
+  },
+  {
+    code:  'DRIPO-MONITOR',
+    name:  'Dripo Infusion Monitor',
+    desc:  'Fully Packed Dripo Infusion Monitor.',
+    group: 'Fixed Components',
+    rate:  4000,
     img:   'qtn_embed_p6_img0.jpeg',
     driverKey: 'fixed'
   }
 ];
 
-// Default quantities matching SAL-QTN-2024-00478 (Nims Hospital) — 11 items now,
-// including the previously-missing Pendant Stand and Repeater V2.
-// 134 CP-R, 134 PD, 134 PS, 39 DL, 99 CP-B, 99 PL, 8 GW, 8 NS, 12 RPT.
-// VISION and TRAIN are 0 by default — they were NOT part of the real historical
-// quote (verified: hardware + shipping only = ₹10,19,284), so Reset exactly
-// reproduces that document. Presets below (small/medium/large) set them to 1
-// since those represent a typical NEW deal, not a replica of the Nims quote.
-const NIMS_QTY = [134, 134, 134, 39, 99, 99, 8, 8, 12, 0, 0];
+// Default quantities matching SAL-QTN-2024-00478 (Nims Hospital) — 15 items now,
+// 134 CP-R, 0 CP-PM3, 134 PD, 134 PS, 39 DL, 99 CP-B, 99 PL, 8 GW, 8 NS, 0 NS-MINI, 12 RPT, 0 VISION, 0 MANAGER, 0 TRAIN, 0 RCEL, 0 DRIPO.
+const NIMS_QTY = [134, 0, 134, 134, 39, 99, 99, 8, 8, 0, 12, 0, 0, 0, 0, 0];
 
 // ─── STATE ───────────────────────────────────────────────────────
 let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i] }));

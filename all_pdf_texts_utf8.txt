@@ -1,0 +1,62 @@
+﻿
+--- SAL-QTN-2024-00478 (1) (1).pdf ---
+Error reading SAL-QTN-2024-00478 (1) (1).pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
+
+--- SAL-QTN-2026-00004.pdf ---
+Error reading SAL-QTN-2026-00004.pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
+
+--- SAL-QTN-2026-00476.pdf ---
+Error reading SAL-QTN-2026-00476.pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
+
+--- Alamo Components.pdf ---
+Call Point / Transmitter with Bedside Button
+Patient call point with Call, Cancel, Acknowledge and Housekeeping
+buttons. This module also has 2 RJ11 ports to connect accessories and a
+power port to connect an adapter if needed.
+Patient side call switch accessories that can be connected to the main call
+point. The switch is connected to the call point via coil cord and can be
+placed near bed. It makes it easier for patients to make nurse calls.
+Room Light
+Indicator lights to be placed outside the room doors. These lights can be paired with call
+points so that they light up when a call is made.
+Alamo Nurse Call Components
+Central Reciever / Gateway
+Gateway receives messages from
+the call points and shares the data
+with other devices. It can be a
+mobile phone, tablets, android tv or
+cloud server
+Nursing Station Monitor
+Software
+Device with call system
+software installed, it can be a
+tablet, mobile phone or
+computer.
+Alamo Manager
+Call Points administration software to install manage and reconfigure call points
+and lights. It also helps see the status of each button and generate preventive
+maintenance reports.
+Alamo Vision
+Nurse call reports and escalations application for nursing Managers. Get reports
+on peak timings, and alerts if calls are not attended within the stipulated time,
+View the data nursing station-wise.
+Bed Unit
+Bathroom Unit
+Room Indicator
+Nursing Station
+Call Point / Transmitter with Pull Cord
+This module also has 2 RJ11 ports to connect accessories and a power port to
+connect an adapter if needed. As the transmitter is separate it reduces the
+risk of getting pulled off by users.Pull Cord accessory that can be connected
+to a call point for use in washrooms for ease of access.
+Nursing Managers / CNO
+Maintenance Managers
+
+--- SAL-QTN-2024-00478 (1) (1).pdf ---
+Error reading SAL-QTN-2024-00478 (1) (1).pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
+
+--- SAL-QTN-2026-00004.pdf ---
+Error reading SAL-QTN-2026-00004.pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
+
+--- SAL-QTN-2026-00476.pdf ---
+Error reading SAL-QTN-2026-00476.pdf 'charmap' codec can't encode character '\ufb00' in position 19: character maps to <undefined>
