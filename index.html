@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Genxiot Alamo - BDM Quote Builder & Commercial Calculator</title>
+    <title>Genxiot Alamo - BDM Proposal & Commercial Calculator</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,14 +19,14 @@
         <div class="header-container">
             <div class="brand-group">
                 <div class="brand-logo">
-                    <img src="logo.png" alt="Genxiot Logo" class="header-logo-img">
+                    <img src="genxiot-logo.7fba30b0.png" alt="Genxiot Logo" class="header-logo-img">
                     <div class="logo-text">
                         <h1>GENXIOT LLP</h1>
                         <span class="subtitle">INTELLIGENT HEALTHCARE IOT SOLUTIONS</span>
                     </div>
                 </div>
                 <div class="badge-distributor">
-                    <span class="dot"></span> Official Distributor • Alamo Nurse Call System
+                    <span class="dot"></span> Official Partner • Alamo Nurse Call & Dripo Ecosystem
                 </div>
             </div>
 
@@ -52,14 +52,14 @@
                 </div>
 
                 <a href="Genxiot_Alamo_Quote_Calculator.xlsx" download class="btn btn-accent" title="Download Offline Excel Sheet">
-                    <i data-lucide="file-spreadsheet"></i> Excel Sheet
+                    <i data-lucide="file-spreadsheet"></i> Excel Calculator
                 </a>
 
                 <button class="btn btn-outline" onclick="resetQuote()">
                     <i data-lucide="refresh-cw"></i> Reset
                 </button>
                 <button class="btn btn-primary" onclick="openOfferModal()">
-                    <i data-lucide="file-text"></i> Preview Formal Offer
+                    <i data-lucide="file-text"></i> Full Technical Proposal
                 </button>
             </div>
         </div>
@@ -75,7 +75,7 @@
             <div class="track-record-banner">
                 <div class="stat-item">
                     <strong>100+</strong>
-                    <span>Hospitals</span>
+                    <span>Hospitals Pan-India</span>
                 </div>
                 <div class="stat-item">
                     <strong>10L+</strong>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="stat-item">
                     <strong>4000+</strong>
-                    <span>Units Field</span>
+                    <span>Units Active</span>
                 </div>
             </div>
 
@@ -107,7 +107,7 @@
                     </div>
                     <div class="form-row-2">
                         <div class="form-group">
-                            <label for="quoteRef">Quote Ref #</label>
+                            <label for="quoteRef">Proposal Ref #</label>
                             <input type="text" id="quoteRef" value="SAL-QTN-2024-00478">
                         </div>
                         <div class="form-group">
@@ -322,7 +322,7 @@
                         <i data-lucide="file-spreadsheet"></i> Excel Calculator
                     </a>
                     <button class="btn btn-secondary btn-lg" onclick="openOfferModal()">
-                        <i data-lucide="eye"></i> View Full Offer
+                        <i data-lucide="eye"></i> Full Technical Proposal
                     </button>
                     <button class="btn btn-primary btn-lg" onclick="printQuotation()">
                         <i data-lucide="printer"></i> Print / Save PDF
@@ -334,14 +334,14 @@
 
     </main>
 
-    <!-- Formal Techno-Commercial Offer Modal / Printable Document Container -->
+    <!-- Comprehensive Techno-Commercial Proposal Deck Modal -->
     <div class="modal-overlay" id="offerModal">
         <div class="modal-container">
             <div class="modal-header no-print">
-                <h2>Genxiot Formal Techno-Commercial Offer Preview</h2>
+                <h2>Genxiot Complete Executive Technical & Commercial Proposal</h2>
                 <div class="modal-actions">
                     <button class="btn btn-primary" onclick="printQuotation()">
-                        <i data-lucide="printer"></i> Print / Download PDF
+                        <i data-lucide="printer"></i> Print / Save Full PDF
                     </button>
                     <button class="btn btn-outline" onclick="closeOfferModal()">
                         <i data-lucide="x"></i> Close
@@ -351,189 +351,332 @@
 
             <div class="modal-body print-document" id="printableOffer">
                 
-                <!-- Print Header with Official Logo -->
-                <div class="doc-header">
-                    <div class="doc-brand">
-                        <img src="logo.png" alt="Genxiot Logo" class="doc-logo-img">
-                        <h1 class="brand-title">GENXIOT LLP</h1>
-                        <p class="brand-tagline">Intelligent Healthcare & Smart IoT Solutions</p>
-                        <p class="doc-subtitle">6th Floor STPI Building, Technopark, Thiruvananthapuram, KERALA-695581</p>
-                        <p class="doc-contact">Ph: +91 9496557777 / +91 9447318527 | Email: info@genxiot.com | www.genxiot.com</p>
-                    </div>
-                    <div class="doc-meta">
-                        <div class="doc-ref-box">
-                            <span class="ref-label">TECHNO-COMMERCIAL OFFER</span>
-                            <span class="ref-no" id="docQuoteRef">SAL-QTN-2024-00478</span>
+                <!-- Print Page 1: Cover & Company Overview -->
+                <div class="doc-page">
+                    <div class="doc-header">
+                        <div class="doc-brand">
+                            <img src="genxiot-logo.7fba30b0.png" alt="Genxiot Logo" class="doc-logo-img">
+                            <h1 class="brand-title">GENXIOT LLP</h1>
+                            <p class="brand-tagline">Intelligent Healthcare & Smart IoT Solutions</p>
+                            <p class="doc-subtitle">6th Floor STPI Building, Technopark, Thiruvananthapuram, KERALA - 695581</p>
+                            <p class="doc-contact">Ph: +91 9496557777 / +91 9447318527 | info@genxiot.com | www.genxiot.com</p>
                         </div>
-                        <p><strong>Date:</strong> <span id="docDate">2026-07-20</span></p>
-                        <p><strong>Quotation Valid Till:</strong> <span id="docValidUntil">2026-08-19</span></p>
-                    </div>
-                </div>
-
-                <div class="doc-divider"></div>
-
-                <!-- Client & BDM Block -->
-                <div class="doc-parties-grid">
-                    <div class="party-box">
-                        <span class="party-title">SUBMITTED TO:</span>
-                        <h3 id="docClientName">Nims hospital tvm</h3>
-                        <p id="docClientLocation">Trivandrum, Kerala</p>
-                        <p><strong>Attn:</strong> <span id="docContactPerson">Medical Director / BioMed Team</span></p>
-                    </div>
-                    <div class="party-box">
-                        <span class="party-title">SUBMITTED BY:</span>
-                        <h3>Genxiot Healthcare Solutions</h3>
-                        <p>Authorized Sales & System Integration Partner</p>
-                        <p><strong>Representative:</strong> <span id="docBdmName">Genxiot Sales Team</span></p>
-                    </div>
-                </div>
-
-                <!-- Executive Summary & Technology Highlights -->
-                <div class="doc-section">
-                    <h3 class="section-heading">1. Executive Summary & Product Overview</h3>
-                    <p class="doc-text">
-                        Genxiot LLP is pleased to present this Techno-Commercial Proposal for the <strong>Genxiot Alamo Smart Wireless Nurse Call System</strong>. Genxiot delivers modern healthcare automation across 100+ hospital facilities with over 10 Lakh nurse calls served. Alamo is engineered for seamless clinical communication, improved patient response times, and automated operational logging for NABH compliance.
-                    </p>
-                    <div class="tech-feature-grid">
-                        <div class="feature-card">
-                            <strong><i data-lucide="wifi-off"></i> Zero-Conduit Wireless</strong>
-                            <span>Industrial LoRa long-range RF protocol eliminates complex wall chasing and wiring disruption in both operational & new hospitals.</span>
-                        </div>
-                        <div class="feature-card">
-                            <strong><i data-lucide="clock"></i> Response Audit & NABH Logging</strong>
-                            <span>Automatic timestamping of patient calls, nurse presence, and resolution times with monthly PDF email reporting.</span>
-                        </div>
-                        <div class="feature-card">
-                            <strong><i data-lucide="alert-triangle"></i> Code Blue & Ward Escalation</strong>
-                            <span>Instant emergency priority escalation across Android displays, tablets, corridor screens, and desktops.</span>
-                        </div>
-                        <div class="feature-card">
-                            <strong><i data-lucide="battery-charging"></i> Dual Power & Battery Status</strong>
-                            <span>Battery backed nodes ensure 100% operational uptime with central battery level monitoring.</span>
+                        <div class="doc-meta">
+                            <div class="doc-ref-box">
+                                <span class="ref-label">TECHNO-COMMERCIAL OFFER</span>
+                                <span class="ref-no" id="docQuoteRef">SAL-QTN-2024-00478</span>
+                            </div>
+                            <p><strong>Date:</strong> <span id="docDate">2026-07-20</span></p>
+                            <p><strong>Quotation Valid Till:</strong> <span id="docValidUntil">2026-08-19</span></p>
                         </div>
                     </div>
-                </div>
 
-                <!-- Bill of Materials Table -->
-                <div class="doc-section">
-                    <h3 class="section-heading">2. Quotation / Techno-Commercial Bill of Quantities (BOQ)</h3>
-                    <table class="doc-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 35px;">Sr</th>
-                                <th>Item Name & Description</th>
-                                <th style="width: 70px; text-align: center;">Qty</th>
-                                <th style="width: 100px; text-align: right;">Rate (₹)</th>
-                                <th style="width: 120px; text-align: right;">Amount (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="docBomTbody">
-                            <!-- Injected by JavaScript -->
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="4" class="text-right">Total:</td>
-                                <td class="text-right" id="docSubtotal">₹0.00</td>
-                            </tr>
-                            <tr id="docDiscountRow" style="display: none;">
-                                <td colspan="4" class="text-right text-danger">Additional Discount:</td>
-                                <td class="text-right text-danger" id="docDiscount">INR 0.0</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="text-right">CGST (9%):</td>
-                                <td class="text-right" id="docCGST">₹0.00</td>
-                            </tr>
-                            <tr>
-                                <td colspan="4" class="text-right">SGST (9%):</td>
-                                <td class="text-right" id="docSGST">₹0.00</td>
-                            </tr>
-                            <tr class="grand-total-tr">
-                                <td colspan="4" class="text-right"><strong>Grant total (Inclusive of GST):</strong></td>
-                                <td class="text-right"><strong id="docGrandTotal">₹0.00</strong></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                    <div class="doc-divider"></div>
 
-                <!-- Payment Terms and Schedule -->
-                <div class="doc-section page-break-inside-avoid">
-                    <h3 class="section-heading">3. Payment Terms and Schedule</h3>
-                    <table class="doc-table">
-                        <thead>
-                            <tr>
-                                <th>Term</th>
-                                <th style="width: 120px; text-align: center;">Invoice Portion %</th>
-                                <th style="width: 150px; text-align: right;">Amount (₹)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>50% Advance</strong><br><small>Payment shall be accepted via bank transfer</small></td>
-                                <td style="text-align: center;" id="docAdvPercentCell">50.0%</td>
-                                <td style="text-align: right;" id="docAdvAmountCell">₹0.00</td>
-                            </tr>
-                            <tr>
-                                <td><strong>50% post Installation</strong></td>
-                                <td style="text-align: center;" id="docPostPercentCell">50.0%</td>
-                                <td style="text-align: right;" id="docPostAmountCell">₹0.00</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <!-- Client & Submission Block -->
+                    <div class="doc-parties-grid">
+                        <div class="party-box">
+                            <span class="party-title">SUBMITTED TO:</span>
+                            <h3 id="docClientName">Nims hospital tvm</h3>
+                            <p id="docClientLocation">Trivandrum, Kerala</p>
+                            <p><strong>Attn:</strong> <span id="docContactPerson">Medical Director / BioMed Team</span></p>
+                        </div>
+                        <div class="party-box">
+                            <span class="party-title">SUBMITTED BY:</span>
+                            <h3>Genxiot Healthcare Solutions</h3>
+                            <p>Authorized Sales & System Integration Partner</p>
+                            <p><strong>Representative:</strong> <span id="docBdmName">Genxiot Sales Team</span></p>
+                        </div>
+                    </div>
 
-                <!-- Bank Details -->
-                <div class="doc-section page-break-inside-avoid">
-                    <h3 class="section-heading">4. Bank Details & Remittance Channel</h3>
-                    <div class="bank-details-box">
-                        <p><strong>NAME:</strong> M/S GENXIOT HEALTHCARE SOLUTIONS</p>
-                        <p><strong>BANK:</strong> ICICI BANK LTD, PEROORKADA</p>
-                        <p><strong>IFSC:</strong> ICIC0003230</p>
-                        <p><strong>AC No:</strong> 323005000011</p>
+                    <!-- Brochure Section 1: Executive Mission & Track Record -->
+                    <div class="doc-section">
+                        <h3 class="section-heading">1. Executive Mission & Company Credentials</h3>
+                        <p class="doc-text">
+                            <strong>"We make hospitals safe and efficient. Intelligent IoT solutions for modern healthcare."</strong>
+                        </p>
+                        <p class="doc-text">
+                            Genxiot LLP is a pioneering healthcare technology provider headquartered at STPI Building, Technopark, Thiruvananthapuram. We specialize in real-time nurse call automation, smart clinical workflows, actionable insights, and improved patient outcomes.
+                        </p>
+                        <div class="stats-counter-grid">
+                            <div class="stat-counter-box">
+                                <strong>100+</strong>
+                                <span>Hospitals Pan India</span>
+                            </div>
+                            <div class="stat-counter-box">
+                                <strong>10L+</strong>
+                                <span>Nurse Calls Served</span>
+                            </div>
+                            <div class="stat-counter-box">
+                                <strong>4000+</strong>
+                                <span>Units Active in Field</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Complete Terms & Conditions (Matching Sample Quote Verbatim) -->
-                <div class="doc-section page-break-inside-avoid">
-                    <h3 class="section-heading">5. Installation & Technical Terms</h3>
-                    <div class="terms-full-box">
-                        <p><strong>Installation & Configuration Terms:</strong> Wallmounting, Fixing & Electrical work needs to be done by hospital electrical department. Configuration & training will be done by Genxiot Team.</p>
+                <!-- Page Break for Clean Printing -->
+                <div class="page-break"></div>
+
+                <!-- Brochure Section 2: Complete Product Architecture & Technical Solutions -->
+                <div class="doc-page">
+                    <div class="doc-section">
+                        <h3 class="section-heading">2. System Architecture & Product Range</h3>
+                        
+                        <div class="product-spec-grid">
+                            
+                            <!-- Call Points -->
+                            <div class="spec-card">
+                                <h4><i data-lucide="bell"></i> Alamo Call Point Units</h4>
+                                <ul>
+                                    <li><strong>Panel-Mount Design:</strong> Sleek aesthetic for upcoming/new hospital projects.</li>
+                                    <li><strong>Battery-Operated Wall-Mount:</strong> Fast retrofitting for operational hospitals with zero wall-chasing.</li>
+                                    <li><strong>Interactive Terminal:</strong> Call, Service, Presence, and Close buttons with dual RJ11 accessory ports.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Accessories -->
+                            <div class="spec-card">
+                                <h4><i data-lucide="radio"></i> Bed & Bathroom Side Accessories</h4>
+                                <ul>
+                                    <li><strong>Pendant Button:</strong> Patient-side call switch connected via flexible coil cord, mounted on bedside holder stand.</li>
+                                    <li><strong>Pullcord Unit:</strong> Water-resistant emergency pull cord switch engineered for easy washroom access.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Displays -->
+                            <div class="spec-card">
+                                <h4><i data-lucide="tv"></i> Indicators & Nursing Displays</h4>
+                                <ul>
+                                    <li><strong>Room Indicators (Call Light V2):</strong> Multi-color door light outside rooms for instant visual alert.</li>
+                                    <li><strong>Corridor Display:</strong> Pixel matrix screen displaying call priorities in corridors.</li>
+                                    <li><strong>Nursing Station Monitors:</strong> Real-time call dashboard on Tablets, 32" Android Smart TVs, and Desktops.</li>
+                                </ul>
+                            </div>
+
+                            <!-- Analytics -->
+                            <div class="spec-card">
+                                <h4><i data-lucide="bar-chart-3"></i> Insights, Analytics & NABH Email Reports</h4>
+                                <ul>
+                                    <li><strong>Turnaround & Treatment Times:</strong> Track response latency and escalation metrics.</li>
+                                    <li><strong>Maintenance Monitoring:</strong> Auto-detect non-functional buttons and battery levels.</li>
+                                    <li><strong>Automated PDF Reports:</strong> Schedule monthly email performance summaries for nursing leadership.</li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                        <!-- Dripo Mention -->
+                        <div class="dripo-box">
+                            <strong><i data-lucide="droplet"></i> Dripo Ecosystem Integration (Optional Add-on):</strong>
+                            <span>Intelligent bystander for IV drips — accurately set IV flow rates, receive error alerts, and analyze fluid delivery workflows.</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="doc-section page-break-inside-avoid">
-                    <h3 class="section-heading">6. General Terms & Conditions</h3>
-                    <div class="terms-legal-block">
-                        <p><strong>Scope of Application:</strong> The General Terms and Conditions (“General Terms”) hereinafter set forth shall exclusively apply to all transactions with Genxiot Healthcare Solutions with registered office at 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala, India - 695581.</p>
-                        <p><strong>Buyer’s General Terms and Conditions:</strong> Any differing or conflicting general terms of the buyer shall not be applicable to any transaction and are hereby rejected. Consequently, any variations from these General Terms shall be of no effect unless agreed to in writing by Genxiot.</p>
-                        <p><strong>Payment Terms:</strong> 50 percent advance and 50 percent post-delivery of items purchased. All bank charges of Buyer Bank shall be borne by the buyer and Seller Bank charges will be borne by seller.</p>
-                        <p><strong>Delivery Period:</strong> Period of Delivery is 25 days from confirmation of order by Genxiot. The period for delivery and performance starts upon dispatch of acknowledgement and acceptance of order by Genxiot, but not before all technical details have been fully cleared up and agreed upon, all permits/clearances provided, and agreed down payment received.</p>
-                        <p><strong>Maintenance Scope:</strong> Scope covers comprehensive on-site maintenance of Devices provided by Genxiot and does not involve any other infrastructure. Complaints attended as: Minor faults immediately with telephonic support; Major faults requiring branch visit within a week; Repair carried out at production site and sent back.</p>
-                        <p><strong>Duties of Inspection and Notice of Defects:</strong> The buyer shall be obliged to inspect the packaging and products immediately upon delivery and loses the right to rely on lack of conformity if notice is not given within 5 days.</p>
-                        <p><strong>Warranty of Quality:</strong> Genxiot will provide warranty for 12 months. Start of warranty depends on return of duly completed and signed Installation Protocol. Non-return within 6 weeks invalidates warranty. Generally excluded from warranty: all wear & tear parts (pull cord, pendant button, battery). Genxiot shall not be liable for damage from non-compliance with installation/assembly instructions, improper storage/use, or electrical/atmospheric influences.</p>
-                        <p><strong>Jurisdiction & Governing Law:</strong> Exclusive place of jurisdiction for any dispute arising out of or in connection with this Agreement shall be Cochin / Thiruvananthapuram, India, governed by the laws of India.</p>
+                <div class="page-break"></div>
+
+                <!-- Brochure Section 3: Competitive Advantage Matrix -->
+                <div class="doc-page">
+                    <div class="doc-section">
+                        <h3 class="section-heading">3. Alamo Technology vs Competitor Benchmark</h3>
+                        <table class="doc-table comp-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature / Capability</th>
+                                    <th class="highlight-th">Genxiot Alamo</th>
+                                    <th>Honeywell</th>
+                                    <th>Supreme Int.</th>
+                                    <th>Norris</th>
+                                    <th>Forbix Semicon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Mode of Operation</strong></td>
+                                    <td class="highlight-td"><strong>Wireless LoRa (Long-Range)</strong></td>
+                                    <td>Wired</td>
+                                    <td>Wired</td>
+                                    <td>Wired</td>
+                                    <td>Normal RF (Lesser range)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Nursing Station Display</strong></td>
+                                    <td class="highlight-td">Android Phone, TAB, TV, Desktop</td>
+                                    <td>TAB Device</td>
+                                    <td>VGA Monitor</td>
+                                    <td>VGA Monitor</td>
+                                    <td>LCD / VGA Monitor</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Data Logger & Reports</strong></td>
+                                    <td class="highlight-td"><strong>Yes (Automated)</strong></td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                    <td>Yes</td>
+                                    <td>Option</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Automated Email Reports</strong></td>
+                                    <td class="highlight-td"><strong>Yes (Monthly PDF)</strong></td>
+                                    <td>Yes</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Code Blue Integration</strong></td>
+                                    <td class="highlight-td"><strong>Yes</strong></td>
+                                    <td>Yes</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>HIS Integration</strong></td>
+                                    <td class="highlight-td"><strong>Yes</strong></td>
+                                    <td>Yes</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                    <td>No</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Overall Cost Profile</strong></td>
+                                    <td class="highlight-td"><strong>Low / High ROI</strong></td>
+                                    <td>High</td>
+                                    <td>Medium</td>
+                                    <td>Medium</td>
+                                    <td>Low</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <!-- Signatures & Authorization -->
-                <div class="doc-signatures page-break-inside-avoid">
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <p><strong>Prepared & Authorized By</strong></p>
-                        <p>Genxiot Healthcare Solutions</p>
-                    </div>
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <p><strong>Accepted & Confirmed By</strong></p>
-                        <p id="docSigClient">Nims hospital tvm</p>
-                    </div>
-                </div>
+                <div class="page-break"></div>
 
-                <!-- Print Footer -->
-                <div class="doc-footer">
-                    <p>Genxiot LLP • 6th Floor STPI Building, Technopark, Thiruvananthapuram | Ph: +91 9496557777 | info@genxiot.com</p>
-                    <p class="partner-note">System Architecture & Core Technology Powered by Alamo LoRa Engine</p>
-                </div>
+                <!-- Quotation Section 4: Techno-Commercial BOQ -->
+                <div class="doc-page">
+                    <div class="doc-section">
+                        <h3 class="section-heading">4. Quotation / Techno-Commercial Bill of Quantities (BOQ)</h3>
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35px;">Sr</th>
+                                    <th>Item Name & Description</th>
+                                    <th style="width: 70px; text-align: center;">Qty</th>
+                                    <th style="width: 100px; text-align: right;">Rate (₹)</th>
+                                    <th style="width: 120px; text-align: right;">Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="docBomTbody">
+                                <!-- Injected by JavaScript -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-right">Total:</td>
+                                    <td class="text-right" id="docSubtotal">₹0.00</td>
+                                </tr>
+                                <tr id="docDiscountRow" style="display: none;">
+                                    <td colspan="4" class="text-right text-danger">Additional Discount:</td>
+                                    <td class="text-right text-danger" id="docDiscount">INR 0.0</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-right">CGST (9%):</td>
+                                    <td class="text-right" id="docCGST">₹0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-right">SGST (9%):</td>
+                                    <td class="text-right" id="docSGST">₹0.00</td>
+                                </tr>
+                                <tr class="grand-total-tr">
+                                    <td colspan="4" class="text-right"><strong>Grant total (Inclusive of GST):</strong></td>
+                                    <td class="text-right"><strong id="docGrandTotal">₹0.00</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
 
+                    <!-- Payment Terms and Schedule -->
+                    <div class="doc-section page-break-inside-avoid">
+                        <h3 class="section-heading">5. Payment Terms and Schedule</h3>
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Term</th>
+                                    <th style="width: 120px; text-align: center;">Invoice Portion %</th>
+                                    <th style="width: 150px; text-align: right;">Amount (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>50% Advance</strong><br><small>Payment shall be accepted via bank transfer</small></td>
+                                    <td style="text-align: center;" id="docAdvPercentCell">50.0%</td>
+                                    <td style="text-align: right;" id="docAdvAmountCell">₹0.00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>50% post Installation</strong></td>
+                                    <td style="text-align: center;" id="docPostPercentCell">50.0%</td>
+                                    <td style="text-align: right;" id="docPostAmountCell">₹0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Bank Details -->
+                    <div class="doc-section page-break-inside-avoid">
+                        <h3 class="section-heading">6. Bank Details & Remittance Channel</h3>
+                        <div class="bank-details-box">
+                            <p><strong>NAME:</strong> M/S GENXIOT HEALTHCARE SOLUTIONS</p>
+                            <p><strong>BANK:</strong> ICICI BANK LTD, PEROORKADA</p>
+                            <p><strong>IFSC:</strong> ICIC0003230</p>
+                            <p><strong>AC No:</strong> 323005000011</p>
+                        </div>
+                    </div>
+
+                    <!-- Complete Terms & Conditions (Matching Sample Quote Verbatim) -->
+                    <div class="doc-section page-break-inside-avoid">
+                        <h3 class="section-heading">7. Installation & Technical Scope</h3>
+                        <div class="terms-full-box">
+                            <p><strong>Installation & Configuration Terms:</strong> Wallmounting, Fixing & Electrical work needs to be done by hospital electrical department. Configuration & training will be done by Genxiot Team.</p>
+                        </div>
+                    </div>
+
+                    <div class="doc-section page-break-inside-avoid">
+                        <h3 class="section-heading">8. General Terms & Conditions</h3>
+                        <div class="terms-legal-block">
+                            <p><strong>Scope of Application:</strong> The General Terms and Conditions (“General Terms”) hereinafter set forth shall exclusively apply to all transactions with Genxiot Healthcare Solutions with registered office at 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala, India - 695581.</p>
+                            <p><strong>Buyer’s General Terms and Conditions:</strong> Any differing or conflicting general terms of the buyer shall not be applicable to any transaction and are hereby rejected. Consequently, any variations from these General Terms shall be of no effect unless agreed to in writing by Genxiot.</p>
+                            <p><strong>Payment Terms:</strong> 50 percent advance and 50 percent post-delivery of items purchased. All bank charges of Buyer Bank shall be borne by the buyer and Seller Bank charges will be borne by seller.</p>
+                            <p><strong>Delivery Period:</strong> Period of Delivery is 25 days from confirmation of order by Genxiot. The period for delivery and performance starts upon dispatch of acknowledgement and acceptance of order by Genxiot, but not before all technical details have been fully cleared up and agreed upon, all permits/clearances provided, and agreed down payment received.</p>
+                            <p><strong>Maintenance Scope:</strong> Scope covers comprehensive on-site maintenance of Devices provided by Genxiot and does not involve any other infrastructure. Complaints attended as: Minor faults immediately with telephonic support; Major faults requiring branch visit within a week; Repair carried out at production site and sent back.</p>
+                            <p><strong>Duties of Inspection and Notice of Defects:</strong> The buyer shall be obliged to inspect the packaging and products immediately upon delivery and loses the right to rely on lack of conformity if notice is not given within 5 days.</p>
+                            <p><strong>Warranty of Quality:</strong> Genxiot will provide warranty for 12 months. Start of warranty depends on return of duly completed and signed Installation Protocol. Non-return within 6 weeks invalidates warranty. Generally excluded from warranty: all wear & tear parts (pull cord, pendant button, battery). Genxiot shall not be liable for damage from non-compliance with installation/assembly instructions, improper storage/use, or electrical/atmospheric influences.</p>
+                            <p><strong>Jurisdiction & Governing Law:</strong> Exclusive place of jurisdiction for any dispute arising out of or in connection with this Agreement shall be Cochin / Thiruvananthapuram, India, governed by the laws of India.</p>
+                        </div>
+                    </div>
+
+                    <!-- Signatures & Authorization -->
+                    <div class="doc-signatures page-break-inside-avoid">
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <p><strong>Prepared & Authorized By</strong></p>
+                            <p>Genxiot Healthcare Solutions</p>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <p><strong>Accepted & Confirmed By</strong></p>
+                            <p id="docSigClient">Nims hospital tvm</p>
+                        </div>
+                    </div>
+
+                    <!-- Print Footer -->
+                    <div class="doc-footer">
+                        <p>Genxiot LLP • 6th Floor STPI Building, Technopark, Thiruvananthapuram | Ph: +91 9496557777 | info@genxiot.com</p>
+                        <p class="partner-note">System Architecture & Core Technology Powered by Alamo LoRa Engine</p>
+                    </div>
+
+                </div>
             </div>
         </div>
     </div>
