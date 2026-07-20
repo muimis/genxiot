@@ -32,15 +32,15 @@
         <div class="preset-drop" id="presetDrop">
           <button onclick="loadPreset('small')">
             <strong>Small Clinic / Nursing Home</strong>
-            <small>25 Rooms · 18 Bathrooms · 2 Wards · ~₹1.0L–₹1.5L</small>
+            <small>30 Beds · 15 Rooms · 18 Bathrooms · 2 Wards · ~₹2.9L (base cost)</small>
           </button>
           <button onclick="loadPreset('medium')">
             <strong>Mid Hospital – Sample Quote (Nims)</strong>
-            <small>134 Rooms · 99 Bathrooms · 8 Wards · ~₹3.5L–₹5L</small>
+            <small>134 Beds · 39 Rooms · 99 Bathrooms · 8 Wards · ~₹10.7L (base cost)</small>
           </button>
           <button onclick="loadPreset('large')">
             <strong>Super-Specialty (250+ Beds)</strong>
-            <small>250 Rooms · 180 Bathrooms · 15 Wards · ~₹10L+</small>
+            <small>250 Beds · 80 Rooms · 180 Bathrooms · 15 Wards · ~₹19.6L (base cost)</small>
           </button>
         </div>
       </div>
@@ -109,17 +109,17 @@
         <!-- Quotation Logic Explanation -->
         <div class="logic-box">
           <div class="logic-title">📐 BOM LOGIC</div>
-          <div class="logic-row"><span class="logic-key">Beds</span><span class="logic-val">→ Call Points (room) + Pendants</span></div>
+          <div class="logic-row"><span class="logic-key">Beds</span><span class="logic-val">→ Call Points (room) + Pendants + Stands</span></div>
           <div class="logic-row"><span class="logic-key">Rooms</span><span class="logic-val">→ Door Lights (1 per room door)</span></div>
           <div class="logic-row"><span class="logic-key">Bathrooms</span><span class="logic-val">→ Call Points (bathroom) + Pull Cords</span></div>
-          <div class="logic-row"><span class="logic-key">Wards</span><span class="logic-val">→ Gateways + NS Displays</span></div>
+          <div class="logic-row"><span class="logic-key">Wards</span><span class="logic-val">→ Gateways + NS Displays + Repeaters (~1.5×)</span></div>
         </div>
 
         <div class="row2">
           <div>
             <label>Patient Beds 🛏️</label>
             <input type="number" id="bedCount" value="134" min="1" oninput="calcEstimator()">
-            <div class="field-hint">1 CP + 1 Pendant per bed</div>
+            <div class="field-hint">1 CP + 1 Pendant + 1 Stand per bed</div>
           </div>
           <div>
             <label>Patient Rooms 🚪</label>
@@ -136,7 +136,7 @@
           <div>
             <label>Wards / Stations 🏥</label>
             <input type="number" id="wardCount" value="8" min="1" oninput="calcEstimator()">
-            <div class="field-hint">1 Gateway + 1 NS Display per ward</div>
+            <div class="field-hint">1 Gateway + 1 NS Display + ~1.5 Repeaters</div>
           </div>
         </div>
 
@@ -145,6 +145,7 @@
           <span class="est-section-lbl">BED-DRIVEN</span><span></span>
           <span>Room Call Points</span><strong id="estBeds">134</strong>
           <span>Pendant Buttons (M1)</span><strong id="estPendants">134</strong>
+          <span>Pendant Stands</span><strong id="estPendantStand">134</strong>
 
           <span class="est-section-lbl">ROOM-DRIVEN</span><span></span>
           <span>Door Lights</span><strong id="estRooms">39</strong>
@@ -156,10 +157,11 @@
           <span class="est-section-lbl">WARD-DRIVEN</span><span></span>
           <span>LoRa Gateways</span><strong id="estGateways">8</strong>
           <span>NS Displays (Android TV)</span><strong id="estNS">8</strong>
+          <span>Repeaters (range ext., ~1.5×)</span><strong id="estRepeaters">12</strong>
 
           <span class="est-section-lbl">TOTALS</span><span></span>
           <span><b>Total Call Points</b></span><strong id="estTotalCPs" style="color:var(--brand-cyan)">233</strong>
-          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">381</strong>
+          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">300</strong>
         </div>
 
         <button class="btn btn-primary w-full mt" onclick="applyEstimator()">
@@ -202,6 +204,20 @@
       <div class="card">
         <div class="card-hd"><i data-lucide="credit-card" size="16"></i> Financial Summary</div>
         <div class="card-bd">
+          <div class="field-hint" style="margin:0 0 .5rem;line-height:1.4">
+            ⚠️ Item rates are <strong>Evelabs base cost</strong> (verified against SAL-QTN-2024-00478), not a confirmed Genxiot sell price. Apply a margin below, or edit any rate directly in the BOM table.
+          </div>
+          <div class="row2">
+            <div>
+              <label>Apply Margin Over Cost (%)</label>
+              <input type="number" id="marginPct" value="0" oninput="">
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn btn-ghost w-full" onclick="applyMargin()">
+                <i data-lucide="trending-up" size="14"></i> Apply to All Rates
+              </button>
+            </div>
+          </div>
           <div class="fin-row"><span>Subtotal</span><strong id="calcSub">₹0.00</strong></div>
           <div class="row2">
             <div>

@@ -30,6 +30,12 @@
    ╚══════════════════════════════════════════════════════════════╝ */
 
 // ─── MASTER ITEM CATALOGUE ───────────────────────────────────────
+// Rates verified directly against SAL-QTN-2024-00478 (the real Evelabs quote
+// in this repo — see qtn_extracted.txt) and cross-checked against both
+// Genxiot_Alamo_Quote_Calculator.xlsx and Genxiot_Alamo_Quote_Calculator_2026.xlsx.
+// These are EVELABS BASE COST (ex-factory), not a confirmed Genxiot resale price.
+// Use "Apply Margin %" in the Financial Summary card to move from cost to a
+// customer-facing sell price — do not silently hardcode a markup here.
 const CATALOGUE = [
   // ── BED-DRIVEN (1 per BED) ─────────────────────────────────
   {
@@ -37,7 +43,7 @@ const CATALOGUE = [
     name:  'Alamo Call Point – Patient Room',
     desc:  'A1 Call Point: Call, Cancel, Acknowledge & Housekeeping. 2× RJ11 accessory ports. LoRa wireless, AA battery operated. 1 unit per patient bed.',
     group: 'Bed Components (1 per Bed)',
-    rate:  4500,
+    rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'beds'
   },
@@ -46,7 +52,16 @@ const CATALOGUE = [
     name:  'Pendant Button M1',
     desc:  'Patient-side coil-cord call switch. Connects via RJ11 to the room call point. Placed within patient reach at the bed. 1 unit per bed.',
     group: 'Bed Components (1 per Bed)',
-    rate:  1000,
+    rate:  400,
+    img:   'qtn_embed_p5_img0.jpeg',
+    driverKey: 'beds'
+  },
+  {
+    code:  'ALAMO-PS',
+    name:  'Pendant Stand',
+    desc:  'Wall/bedside mounting stand for the Pendant Button. Includes screws and fisher plug for assembly. 1 unit per bed.',
+    group: 'Bed Components (1 per Bed)',
+    rate:  100,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'beds'
   },
@@ -54,10 +69,10 @@ const CATALOGUE = [
   // ── ROOM-DRIVEN (1 per ROOM) ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Room Light (Door Indicator)',
+    name:  'Room Light (Call Light V2 / Door Indicator)',
     desc:  'LED corridor indicator light. Placed outside room door. Wirelessly paired with room call points – illuminates on any call from that room. 1 unit per room.',
     group: 'Room Components (1 per Room)',
-    rate:  2500,
+    rate:  2300,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'rooms'
   },
@@ -66,9 +81,9 @@ const CATALOGUE = [
   {
     code:  'ALAMO-CP-B',
     name:  'Alamo Call Point – Bathroom/Washroom',
-    desc:  'Dedicated bathroom call point. Independent LoRa unit – separate from room call points. Call & Emergency buttons. AA battery operated. 1 unit per bathroom.',
+    desc:  'Dedicated bathroom call point (same base unit as the room call point). Independent LoRa unit – separate from room call points. AA battery operated. 1 unit per bathroom.',
     group: 'Bathroom Components (1 per Bathroom)',
-    rate:  4500,
+    rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'bathrooms'
   },
@@ -77,7 +92,7 @@ const CATALOGUE = [
     name:  'Pull Cord Accessory',
     desc:  'Washroom pull cord connected to the bathroom call point via RJ11. Allows patient to call from floor level or any position – critical for fall emergencies. 1 per bathroom.',
     group: 'Bathroom Components (1 per Bathroom)',
-    rate:  500,
+    rate:  400,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'bathrooms'
   },
@@ -87,26 +102,35 @@ const CATALOGUE = [
     code:  'ALAMO-GW',
     name:  'LoRa Gateway / Central Receiver',
     desc:  'Receives all LoRa RF transmissions from call points within its zone. Forwards data to NS display, mobile apps, and cloud. Typically 1 per ward/floor nursing station.',
-    group: 'Infrastructure (1 per Ward)',
-    rate:  12000,
+    group: 'Infrastructure & Network',
+    rate:  8500,
     img:   'qtn_embed_p6_img0.jpeg',
     driverKey: 'wards'
   },
   {
     code:  'ALAMO-NS',
-    name:  'Nursing Station Display (Android TV)',
-    desc:  'Pre-configured Android Smart TV with Alamo Monitor Software. Real-time live view of all call points in the ward. Audio-visual alerts. 1 unit per nursing station.',
-    group: 'Infrastructure (1 per Ward)',
-    rate:  20000,
+    name:  'Nursing Station Display (32" Android panel)',
+    desc:  'Pre-configured Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts. 1 unit per nursing station.',
+    group: 'Infrastructure & Network',
+    rate:  12500,
     img:   'qtn_embed_p6_img0.jpeg',
     driverKey: 'wards'
+  },
+  {
+    code:  'ALAMO-RPT',
+    name:  'Repeater V2 (Signal Range Extender)',
+    desc:  'Extends LoRa range for large or multi-block facilities. Qty auto-estimated at ~1.5× ward count (calibrated from the reference deployment: 8 wards → 12 repeaters) — always confirm final count via an on-site RF survey.',
+    group: 'Infrastructure & Network',
+    rate:  2500,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'repeaters'
   },
 
   // ── FIXED (per hospital) ─────────────────────────────────────
   {
     code:  'ALAMO-VISION',
     name:  'Alamo Vision – Annual App License',
-    desc:  'Cloud analytics: escalation alerts, peak-time reports, nursing manager dashboard, station-wise performance tracking, and mobile notifications.',
+    desc:  'Cloud analytics: escalation alerts, peak-time reports, nursing manager dashboard, station-wise performance tracking, and mobile notifications. NOTE: not itemized in the reference quote — confirm this price internally before quoting.',
     group: 'Software & Services',
     rate:  30000,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -115,7 +139,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-TRAIN',
     name:  'Installation, Configuration & Training',
-    desc:  'On-site installation, LoRa network calibration, staff training, go-live support. Installation Protocol signoff. 200 units can be deployed per day.',
+    desc:  'On-site installation, LoRa network calibration, staff training, go-live support. Installation Protocol signoff. 200 units can be deployed per day. NOTE: not itemized in the reference quote — confirm this price internally before quoting.',
     group: 'Software & Services',
     rate:  15000,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -123,9 +147,14 @@ const CATALOGUE = [
   }
 ];
 
-// Default quantities matching SAL-QTN-2024-00478 (Nims Hospital)
-// Logic: 134 beds, 39 rooms, 99 bathrooms, 8 wards
-const NIMS_QTY = [134, 134, 39, 99, 99, 8, 8, 1, 1];
+// Default quantities matching SAL-QTN-2024-00478 (Nims Hospital) — 11 items now,
+// including the previously-missing Pendant Stand and Repeater V2.
+// 134 CP-R, 134 PD, 134 PS, 39 DL, 99 CP-B, 99 PL, 8 GW, 8 NS, 12 RPT.
+// VISION and TRAIN are 0 by default — they were NOT part of the real historical
+// quote (verified: hardware + shipping only = ₹10,19,284), so Reset exactly
+// reproduces that document. Presets below (small/medium/large) set them to 1
+// since those represent a typical NEW deal, not a replica of the Nims quote.
+const NIMS_QTY = [134, 134, 134, 39, 99, 99, 8, 8, 12, 0, 0];
 
 // ─── STATE ───────────────────────────────────────────────────────
 let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i] }));
@@ -239,6 +268,12 @@ function loadPreset(preset) {
   document.getElementById('clientLocation').value = p.loc;
 
   applyFacility(p.beds, p.rooms, p.bathrooms, p.wards);
+  // Presets represent a typical NEW deal (unlike Reset, which is an exact
+  // replica of the historical Nims quote) — include software licence & install/training.
+  bom.forEach(item => {
+    if (item.code === 'ALAMO-VISION' || item.code === 'ALAMO-TRAIN') item.qty = 1;
+  });
+  renderBOM();
   calcEstimator();
 }
 
@@ -248,19 +283,22 @@ function calcEstimator() {
   const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
   const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
   const wards     = parseInt(document.getElementById('wardCount').value)     || 0;
+  const repeaters = Math.ceil(wards * 1.5);
 
   // Display calculated quantities
   setText('estBeds',        beds);
   setText('estPendants',    beds);
+  setText('estPendantStand',beds);
   setText('estRooms',       rooms);
   setText('estBathCPs',     bathrooms);
   setText('estPullCords',   bathrooms);
   setText('estGateways',    wards);
   setText('estNS',          wards);
+  setText('estRepeaters',   repeaters);
 
   // Summary totals
   setText('estTotalCPs',    beds + bathrooms);
-  setText('estTotalUnits',  beds + bathrooms + rooms + (wards * 2));
+  setText('estTotalUnits',  beds + bathrooms + rooms + (wards * 2) + repeaters);
 }
 
 function applyEstimator() {
@@ -277,7 +315,22 @@ function applyFacility(beds, rooms, bathrooms, wards) {
     if (item.driverKey === 'rooms')     item.qty = rooms;
     if (item.driverKey === 'bathrooms') item.qty = bathrooms;
     if (item.driverKey === 'wards')     item.qty = wards;
+    if (item.driverKey === 'repeaters') item.qty = Math.ceil(wards * 1.5);
     // 'fixed' items keep their qty unchanged
+  });
+  renderBOM();
+}
+
+// ─── MARGIN TOOL ─────────────────────────────────────────────────
+// Catalogue rates are Evelabs BASE COST. This multiplies every current
+// rate by (1 + pct/100) in one shot so the BOM shows a real sell price
+// instead of silently-hardcoded numbers. Re-apply with pct=0 effect by
+// using Reset (which restores verified base cost) if you need to start over.
+function applyMargin() {
+  const pct = parseFloat(document.getElementById('marginPct').value) || 0;
+  if (pct === 0) return;
+  bom.forEach(item => {
+    item.rate = Math.round(item.rate * (1 + pct / 100));
   });
   renderBOM();
 }
@@ -481,6 +534,8 @@ function resetQuote() {
   document.getElementById('roomCount').value       = '39';
   document.getElementById('bathroomCount').value   = '99';
   document.getElementById('wardCount').value       = '8';
+  const marginEl = document.getElementById('marginPct');
+  if (marginEl) marginEl.value = '0';
   renderBOM();
   calcEstimator();
 }
