@@ -1,498 +1,421 @@
-/* ==========================================================================
-   GENXIOT ALAMO BDM QUOTE BUILDER & COMMERCIAL CALCULATOR LOGIC
-   ========================================================================== */
+/* ═══════════════════════════════════════════════════════════════
+   GENXIOT ALAMO PROPOSAL – app.js
+   Dynamic BOM Calculator, Proposal Populator
+   ═══════════════════════════════════════════════════════════════ */
 
-// Standard Catalog Master Data with Product Visuals (Matching exact Evelabs SAL-QTN-2024-00478 & Brochure)
-const CATALOG_MASTER = [
-    {
-        id: 'EVECPRJ03A0001A',
-        name: 'Alamo | Service and Nurse Call | Call Point',
-        code: 'EVECPRJ03A0001A',
-        desc: 'Patient call point with Call, Service, Cancel and Acknowledge buttons. 2 RJ11 ports + power port. Includes assembly screws.',
-        unitRate: 2000,
-        img: 'prod_call_point.png',
-        category: 'core'
-    },
-    {
-        id: 'EVECPRJ03A0008A',
-        name: 'Alamo | Pendant Button',
-        code: 'EVECPRJ03A0008A',
-        desc: 'Patient side call switch accessories that can be connected to the main call point. Includes product stand and screws for assembly.',
-        unitRate: 400,
-        img: 'prod_accessories.png',
-        category: 'accessory'
-    },
-    {
-        id: 'EVECPRJ03M0035A',
-        name: 'Alamo | Pendant Stand',
-        code: 'EVECPRJ03M0035A',
-        desc: 'Includes screws and fisher plug for assembly.',
-        unitRate: 100,
-        img: 'prod_accessories.png',
-        category: 'accessory'
-    },
-    {
-        id: 'EVECPRJ03A0003A',
-        name: 'Alamo | Pullcord',
-        code: 'EVECPRJ03A0003A',
-        desc: 'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly.',
-        unitRate: 400,
-        img: 'prod_accessories.png',
-        category: 'washroom'
-    },
-    {
-        id: 'EVECPRJ03A0004B',
-        name: 'Alamo|Call light V2',
-        code: 'EVECPRJ03A0004B',
-        desc: 'Alamo|Call light V2 multi-color LED door indicator light.',
-        unitRate: 2300,
-        img: 'prod_displays.png',
-        category: 'indicator'
-    },
-    {
-        id: 'EVECPRJ04A0001A',
-        name: 'Evegate Lora Gateway',
-        code: 'EVECPRJ04A0001A',
-        desc: 'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
-        unitRate: 8500,
-        img: 'prod_displays.png',
-        category: 'infrastructure'
-    },
-    {
-        id: 'EVECPRJ03A0011B',
-        name: '|REPEATER V2|',
-        code: 'EVECPRJ03A0011B',
-        desc: 'Includes B type charger, product stand and screws for assembly.',
-        unitRate: 2500,
-        img: 'prod_displays.png',
-        category: 'infrastructure'
-    },
-    {
-        id: 'EVESE0207',
-        name: 'Iffalcon 32 inch / Nursing Station Display',
-        code: 'EVESE0207',
-        desc: '32 inch Android Smart TV / Monitor for displaying nurse calls in nursing stations.',
-        unitRate: 12500,
-        img: 'prod_displays.png',
-        category: 'display'
-    }
+// ─── BOQ DATA ───────────────────────────────────────────────────
+const ITEMS = [
+  {
+    code: 'ALAMO-CP',
+    name: 'Call Point – Alamo A1',
+    desc: 'Patient Call, Cancel, Acknowledge & Housekeeping. 2× RJ11 ports, optional adapter port.',
+    qty: 134,
+    rate: 4500,
+    img: 'qtn_embed_p5_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-PD',
+    name: 'Pendant Button M1',
+    desc: 'Coil cord pendant call switch. Connects to call point, placed near patient bed.',
+    qty: 134,
+    rate: 1000,
+    img: 'qtn_embed_p5_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-PL',
+    name: 'Pull Cord Accessory',
+    desc: 'Washroom accessible pull cord for patient emergency call. Connects to call point via RJ11.',
+    qty: 99,
+    rate: 500,
+    img: 'qtn_embed_p5_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-DL',
+    name: 'Room Light (Door Indicator)',
+    desc: 'LED indicator light paired with call point. Activates on patient call. Placed outside room.',
+    qty: 39,
+    rate: 2500,
+    img: 'qtn_embed_p5_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-GW',
+    name: 'LoRa Gateway / Central Receiver',
+    desc: 'Receives LoRa RF transmissions from all call points. Forwards to nursing station and cloud.',
+    qty: 8,
+    rate: 12000,
+    img: 'qtn_embed_p6_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-NS',
+    name: 'Nursing Station Display (Android TV)',
+    desc: 'Pre-configured Android Smart TV with Alamo Monitor Software showing live call status.',
+    qty: 8,
+    rate: 20000,
+    img: 'qtn_embed_p6_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-VISION',
+    name: 'Alamo Vision App License (Annual)',
+    desc: 'Cloud-based nurse call analytics, escalation alerts, and performance reports.',
+    qty: 1,
+    rate: 30000,
+    img: 'qtn_embed_p6_img0.jpeg'
+  },
+  {
+    code: 'ALAMO-TRAIN',
+    name: 'Installation, Configuration & Training',
+    desc: 'On-site installation, LoRa network calibration, staff training, go-live support.',
+    qty: 1,
+    rate: 15000,
+    img: 'qtn_embed_p5_img0.jpeg'
+  }
 ];
 
-// Current State
-let bomItems = [];
+// ─── STATE ───────────────────────────────────────────────────────
+let bom = ITEMS.map(i => ({ ...i }));
 
-// Initialize App on DOM Load
+// ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    initDefaultQuote();
-    calculateEstimator();
-    updateDateFields();
+  renderBOM();
+  recalc();
+  setValidityDate();
+  calcEstimator();
+  fillDocDates();
 });
 
-// Set Today & Expiry Dates
-function updateDateFields() {
-    const today = new Date();
-    const isoToday = today.toISOString().split('T')[0];
-    
-    const validityDays = parseInt(document.getElementById('validityDays').value) || 30;
-    const expiryDate = new Date(today);
-    expiryDate.setDate(expiryDate.getDate() + validityDays);
-    const isoExpiry = expiryDate.toISOString().split('T')[0];
+// ─── RENDER BOM ──────────────────────────────────────────────────
+function renderBOM() {
+  const tbody = document.getElementById('bomBody');
+  tbody.innerHTML = '';
 
-    document.getElementById('docDate').textContent = isoToday;
-    document.getElementById('docValidUntil').textContent = isoExpiry;
+  bom.forEach((item, idx) => {
+    const amount = item.qty * item.rate;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <img src="${item.img}" class="prod-thumb" alt="${item.name}" onerror="this.style.display='none'">
+      </td>
+      <td>
+        <div class="prod-name">${item.name}</div>
+        <div class="prod-sub">${item.code} · ${item.desc}</div>
+      </td>
+      <td>
+        <input type="number" value="${item.qty}" min="0"
+          oninput="updateQty(${idx}, this.value)">
+      </td>
+      <td>
+        <input type="number" value="${item.rate}" min="0"
+          oninput="updateRate(${idx}, this.value)">
+      </td>
+      <td class="amount-cell">₹${fmt(amount)}</td>
+      <td>
+        <button class="del-btn" onclick="removeItem(${idx})">
+          <i data-lucide="trash-2" size="14"></i>
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  if (window.lucide) lucide.createIcons();
 }
 
-// Load Default Quote (Sample Quote SAL-QTN-2024-00478 for Nims Hospital TVM)
-function initDefaultQuote() {
-    document.getElementById('clientName').value = 'Nims hospital tvm';
-    document.getElementById('clientLocation').value = 'Trivandrum, Kerala';
-    document.getElementById('contactPerson').value = 'Medical Director / BioMed Team';
-    document.getElementById('quoteRef').value = 'SAL-QTN-2024-00478';
-    document.getElementById('shippingCharge').value = '3500';
-
-    // Exact BOM from SAL-QTN-2024-00478
-    bomItems = [
-        { ...CATALOG_MASTER[0], qty: 134 }, // Call Point 134
-        { ...CATALOG_MASTER[1], qty: 134 }, // Pendant Button 134
-        { ...CATALOG_MASTER[2], qty: 134 }, // Pendant Stand 134
-        { ...CATALOG_MASTER[0], id: 'EVECPRJ03A0001A_2', name: 'Alamo | Service and Nurse Call | Call Point (Wards)', qty: 99 }, // Call Point 99
-        { ...CATALOG_MASTER[3], qty: 99 },  // Pullcord 99
-        { ...CATALOG_MASTER[4], qty: 39 },  // Call light V2 39
-        { ...CATALOG_MASTER[5], qty: 8 },   // Gateway 8
-        { ...CATALOG_MASTER[7], qty: 8 },   // 32 inch TV 8
-        { ...CATALOG_MASTER[6], qty: 12 }   // Repeater 12
-    ];
-
-    renderBOMTable();
-    recalculateTotals();
+function updateQty(idx, val) {
+  bom[idx].qty = Math.max(0, parseInt(val) || 0);
+  refreshRow(idx);
+  recalc();
 }
 
-// Bed-to-BOM Smart Estimator Math
-function calculateEstimator() {
-    const beds = parseInt(document.getElementById('bedCount').value) || 0;
-    const washrooms = parseInt(document.getElementById('washroomCount').value) || 0;
-    const wards = parseInt(document.getElementById('wardCount').value) || 1;
-    const doorLightRatio = parseFloat(document.getElementById('doorLightOption').value) || 0;
-
-    const callPoints = beds;
-    const pendants = beds;
-    const pullcords = washrooms;
-    const doorLights = Math.ceil(beds * doorLightRatio);
-    
-    // Gateways: 1 per ~35-40 devices
-    const totalDevices = callPoints + pullcords;
-    const gateways = Math.max(1, Math.ceil(totalDevices / 35));
-    const displays = wards;
-
-    document.getElementById('estCallPoints').textContent = callPoints;
-    document.getElementById('estPendants').textContent = pendants;
-    document.getElementById('estPullcords').textContent = pullcords;
-    document.getElementById('estDoorLights').textContent = doorLights;
-    document.getElementById('estGateways').textContent = gateways;
-    document.getElementById('estDisplays').textContent = displays;
-
-    return { callPoints, pendants, pullcords, doorLights, gateways, displays, wards };
+function updateRate(idx, val) {
+  bom[idx].rate = Math.max(0, parseFloat(val) || 0);
+  refreshRow(idx);
+  recalc();
 }
 
-// Apply Estimator Calculations to BOM Table
-function applyEstimatorToBOM() {
-    const est = calculateEstimator();
-    const repeaters = Math.ceil(est.gateways * 1.5);
-
-    bomItems = [
-        { ...CATALOG_MASTER[0], qty: est.callPoints }, // Call Point
-        { ...CATALOG_MASTER[1], qty: est.pendants },   // Pendant
-        { ...CATALOG_MASTER[2], qty: est.pendants },   // Pendant Stand
-        { ...CATALOG_MASTER[3], qty: est.pullcords },  // Pullcord
-        { ...CATALOG_MASTER[4], qty: est.doorLights }, // Door Light V2
-        { ...CATALOG_MASTER[5], qty: est.gateways },   // Gateway
-        { ...CATALOG_MASTER[6], qty: repeaters },      // Repeater
-        { ...CATALOG_MASTER[7], qty: est.displays }    // 32" Display
-    ].filter(item => item.qty > 0);
-
-    renderBOMTable();
-    recalculateTotals();
+function refreshRow(idx) {
+  const rows = document.querySelectorAll('#bomBody tr');
+  if (rows[idx]) {
+    rows[idx].querySelector('.amount-cell').textContent = '₹' + fmt(bom[idx].qty * bom[idx].rate);
+  }
 }
 
-// Render BOM Table Rows
-function renderBOMTable() {
-    const tbody = document.getElementById('bomTbody');
-    tbody.innerHTML = '';
-
-    bomItems.forEach((item, index) => {
-        const row = document.createElement('tr');
-        const lineTotal = item.qty * item.unitRate;
-        const imgPath = item.img || 'prod_call_point.png';
-
-        row.innerHTML = `
-            <td style="text-align: center;">
-                <img src="${imgPath}" alt="${escapeHtml(item.name)}" class="table-prod-thumb">
-            </td>
-            <td>
-                <div class="item-info">
-                    <strong>${escapeHtml(item.name)}</strong>
-                    <small>Item Code: ${escapeHtml(item.code)} • ${escapeHtml(item.desc)}</small>
-                </div>
-            </td>
-            <td>
-                <input type="number" class="item-qty-input" value="${item.qty}" min="1" onchange="updateItemQty(${index}, this.value)">
-            </td>
-            <td>
-                <input type="number" class="item-rate-input" value="${item.unitRate}" min="0" onchange="updateItemRate(${index}, this.value)">
-            </td>
-            <td style="text-align: right;">
-                <span class="item-amount">${formatINR(lineTotal)}</span>
-            </td>
-            <td style="text-align: center;">
-                <button class="btn-icon-danger" onclick="removeItem(${index})" title="Remove Item">
-                    <i data-lucide="trash-2"></i>
-                </button>
-            </td>
-        `;
-
-        tbody.appendChild(row);
-    });
-
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+function removeItem(idx) {
+  bom.splice(idx, 1);
+  renderBOM();
+  recalc();
 }
 
-// Update Item Quantity
-function updateItemQty(index, newQty) {
-    const qty = parseInt(newQty) || 0;
-    bomItems[index].qty = qty;
-    renderBOMTable();
-    recalculateTotals();
-}
-
-// Update Item Unit Rate
-function updateItemRate(index, newRate) {
-    const rate = parseFloat(newRate) || 0;
-    bomItems[index].unitRate = rate;
-    renderBOMTable();
-    recalculateTotals();
-}
-
-// Remove Item Row
-function removeItem(index) {
-    bomItems.splice(index, 1);
-    renderBOMTable();
-    recalculateTotals();
-}
-
-// Add Custom Line Item
 function addCustomItem() {
-    const name = prompt('Enter Item Name:', 'Custom Installation / Cabling');
-    if (!name) return;
+  bom.push({
+    code: 'CUSTOM',
+    name: 'Custom Item',
+    desc: 'Tap to edit description',
+    qty: 1,
+    rate: 0,
+    img: ''
+  });
+  renderBOM();
+  recalc();
+}
 
-    const rateStr = prompt('Enter Unit Rate (₹):', '1500');
-    const rate = parseFloat(rateStr) || 0;
+// ─── PRESETS ────────────────────────────────────────────────────
+function loadPreset(preset) {
+  document.getElementById('presetDrop').classList.remove('open');
+  const presets = {
+    small: {
+      beds: 30, washrooms: 20, wards: 2,
+      qtys: [30, 30, 20, 10, 2, 2, 1, 1],
+      client: 'Small Clinic / Nursing Home', loc: 'Kerala'
+    },
+    medium: {
+      beds: 134, washrooms: 99, wards: 8,
+      qtys: [134, 134, 99, 39, 8, 8, 1, 1],
+      client: 'Nims hospital tvm', loc: 'Trivandrum, Kerala'
+    },
+    large: {
+      beds: 250, washrooms: 180, wards: 15,
+      qtys: [250, 250, 180, 80, 15, 15, 1, 1],
+      client: 'Super-Specialty Hospital', loc: 'PAN India'
+    }
+  };
+  const p = presets[preset];
+  if (!p) return;
+  document.getElementById('bedCount').value = p.beds;
+  document.getElementById('washroomCount').value = p.washrooms;
+  document.getElementById('wardCount').value = p.wards;
+  document.getElementById('clientName').value = p.client;
+  document.getElementById('clientLocation').value = p.loc;
+  p.qtys.forEach((q, i) => { if (bom[i]) bom[i].qty = q; });
+  renderBOM();
+  recalc();
+  calcEstimator();
+}
 
-    const qtyStr = prompt('Enter Quantity:', '1');
-    const qty = parseInt(qtyStr) || 1;
+// ─── ESTIMATOR ──────────────────────────────────────────────────
+function calcEstimator() {
+  const beds = parseInt(document.getElementById('bedCount').value) || 0;
+  const wc   = parseInt(document.getElementById('washroomCount').value) || 0;
+  const wards = parseInt(document.getElementById('wardCount').value) || 1;
+  const dlFac = parseFloat(document.getElementById('doorLightOpt').value) || 0;
 
-    bomItems.push({
-        id: 'CUSTOM_' + Date.now(),
-        name: name,
-        code: 'GEN-CUST-' + Math.floor(1000 + Math.random() * 9000),
-        desc: 'Custom item specified for project scope.',
-        unitRate: rate,
-        qty: qty,
-        img: 'prod_call_point.png',
-        category: 'custom'
+  const estCP = beds;
+  const estPD = beds;
+  const estPL = wc;
+  const estDL = Math.round(beds * dlFac);
+  const estGW = wards;
+  const estDS = wards;
+
+  document.getElementById('estCP').textContent = estCP;
+  document.getElementById('estPD').textContent = estPD;
+  document.getElementById('estPL').textContent = estPL;
+  document.getElementById('estDL').textContent = estDL;
+  document.getElementById('estGW').textContent = estGW;
+  document.getElementById('estDS').textContent = estDS;
+}
+
+function applyEstimator() {
+  const beds  = parseInt(document.getElementById('bedCount').value) || 0;
+  const wc    = parseInt(document.getElementById('washroomCount').value) || 0;
+  const wards = parseInt(document.getElementById('wardCount').value) || 1;
+  const dlFac = parseFloat(document.getElementById('doorLightOpt').value) || 0;
+
+  const qtys = [
+    beds,
+    beds,
+    wc,
+    Math.round(beds * dlFac),
+    wards,
+    wards,
+    bom[6] ? bom[6].qty : 1,
+    bom[7] ? bom[7].qty : 1
+  ];
+  qtys.forEach((q, i) => { if (bom[i]) bom[i].qty = q; });
+  renderBOM();
+  recalc();
+}
+
+// ─── RECALC ─────────────────────────────────────────────────────
+function recalc() {
+  const subtotal = bom.reduce((s, i) => s + i.qty * i.rate, 0);
+  const discType = document.getElementById('discType').value;
+  const discVal  = parseFloat(document.getElementById('discVal').value) || 0;
+  const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+  const advPct   = parseFloat(document.getElementById('advPct').value) || 50;
+
+  let discount = 0;
+  if (discType === 'pct')  discount = subtotal * discVal / 100;
+  if (discType === 'flat') discount = discVal;
+
+  const taxable = subtotal - discount + shipping;
+  const cgst    = taxable * 0.09;
+  const sgst    = taxable * 0.09;
+  const grand   = taxable + cgst + sgst;
+
+  document.getElementById('calcSub').textContent  = '₹' + fmt(subtotal);
+  document.getElementById('calcTax').textContent  = '₹' + fmt(taxable);
+  document.getElementById('calcCGST').textContent = '₹' + fmt(cgst);
+  document.getElementById('calcSGST').textContent = '₹' + fmt(sgst);
+  document.getElementById('calcGT').textContent   = '₹' + fmt(grand);
+  document.getElementById('stickyTotal').textContent = '₹' + fmt(grand);
+
+  const discRow = document.getElementById('discRow');
+  if (discount > 0) {
+    discRow.style.display = 'flex';
+    document.getElementById('calcDisc').textContent = '-₹' + fmt(discount);
+  } else {
+    discRow.style.display = 'none';
+  }
+
+  document.getElementById('postPct').value = (100 - advPct) + '%';
+
+  // Update proposal doc
+  syncDoc(subtotal, discount, taxable, cgst, sgst, grand, advPct);
+}
+
+// ─── SYNC DOCUMENT ──────────────────────────────────────────────
+function syncDoc(subtotal, discount, taxable, cgst, sgst, grand, advPct) {
+  const clientName    = document.getElementById('clientName').value;
+  const clientLoc     = document.getElementById('clientLocation').value;
+  const contactPerson = document.getElementById('contactPerson').value;
+  const quoteRef      = document.getElementById('quoteRef').value;
+  const bdmName       = document.getElementById('bdmName').value;
+  const beds          = document.getElementById('bedCount').value;
+  const wc            = document.getElementById('washroomCount').value;
+  const wards         = document.getElementById('wardCount').value;
+
+  // Cover page
+  setTxt('cvrClient', clientName);
+  setTxt('cvrRef', quoteRef);
+  setTxt('cvrValid', getValidDate());
+
+  // Quotation page
+  setTxt('qDocRef', quoteRef);
+  setTxt('qDocDate', new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}));
+  setTxt('qDocValid', getValidDate());
+  setTxt('qClientName', clientName);
+  setTxt('qClientLoc', clientLoc);
+  setTxt('qContactPerson', contactPerson);
+  setTxt('qBdmName', bdmName);
+  setTxt('qFacility', `${beds} Beds · ${wc} Washrooms · ${wards} Wards`);
+  setTxt('qSigClient', clientName);
+
+  // BOQ in doc
+  const tbody = document.getElementById('qBomBody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    bom.forEach((item, i) => {
+      if (item.qty === 0) return;
+      const amt = item.qty * item.rate;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align:center">${i+1}</td>
+        <td>${item.code}</td>
+        <td>${item.name}<br><small style="color:#888">${item.desc}</small></td>
+        <td style="text-align:center">${item.qty}</td>
+        <td style="text-align:right">${fmt(item.rate)}</td>
+        <td style="text-align:right">${fmt(amt)}</td>
+      `;
+      tbody.appendChild(tr);
     });
+  }
 
-    renderBOMTable();
-    recalculateTotals();
-}
+  // Totals in doc
+  setTxt('qSub', '₹' + fmt(subtotal));
+  setTxt('qCGST', '₹' + fmt(cgst));
+  setTxt('qSGST', '₹' + fmt(sgst));
+  setTxt('qGT', '₹' + fmt(grand));
 
-// Main Financial Recalculation Function
-function recalculateTotals() {
-    // 1. Hardware Subtotal
-    const subtotal = bomItems.reduce((sum, item) => sum + (item.qty * item.unitRate), 0);
-    document.getElementById('calcSubtotal').textContent = formatINR(subtotal);
-
-    // 2. Discount Calculation
-    const discountType = document.getElementById('discountType').value;
-    const discountValInput = parseFloat(document.getElementById('discountValue').value) || 0;
-    
-    let discountAmount = 0;
-    if (discountType === 'percent') {
-        discountAmount = (subtotal * discountValInput) / 100;
-    } else if (discountType === 'flat') {
-        discountAmount = discountValInput;
-    }
-
-    const discountRow = document.getElementById('discountRow');
-    if (discountAmount > 0) {
-        discountRow.style.display = 'flex';
-        document.getElementById('calcDiscountAmount').textContent = '-' + formatINR(discountAmount);
+  const qDiscRow = document.getElementById('qDiscRow');
+  if (qDiscRow) {
+    if (discount > 0) {
+      qDiscRow.style.display = '';
+      setTxt('qDisc', '-₹' + fmt(discount));
     } else {
-        discountRow.style.display = 'none';
+      qDiscRow.style.display = 'none';
     }
+  }
 
-    // 3. Shipping Charge
-    const shipping = parseFloat(document.getElementById('shippingCharge').value) || 0;
-
-    // 4. Taxable Total
-    const taxable = Math.max(0, subtotal - discountAmount + shipping);
-    document.getElementById('calcTaxable').textContent = formatINR(taxable);
-
-    // 5. GST (18%: 9% CGST + 9% SGST)
-    const cgst = taxable * 0.09;
-    const sgst = taxable * 0.09;
-    const grandTotal = taxable + cgst + sgst;
-
-    document.getElementById('calcCGST').textContent = formatINR(cgst);
-    document.getElementById('calcSGST').textContent = formatINR(sgst);
-    document.getElementById('calcGrandTotal').textContent = formatINR(grandTotal);
-    document.getElementById('stickyGrandTotal').textContent = formatINR(grandTotal);
-
-    // 6. Payment Terms Calculation
-    let advPercent = parseFloat(document.getElementById('advancePercent').value) || 50;
-    advPercent = Math.min(100, Math.max(0, advPercent));
-    const postPercent = 100 - advPercent;
-    
-    document.getElementById('advancePercent').value = advPercent;
-    document.getElementById('postInstallPercent').value = postPercent;
-
-    const advAmount = (grandTotal * advPercent) / 100;
-    const postAmount = grandTotal - advAmount;
-
-    // Store in global calculation object for Modal binding
-    window.lastCalc = {
-        subtotal,
-        discountAmount,
-        shipping,
-        taxable,
-        cgst,
-        sgst,
-        grandTotal,
-        advPercent,
-        postPercent,
-        advAmount,
-        postAmount
-    };
+  // Payment
+  const advAmt  = grand * advPct / 100;
+  const postAmt = grand - advAmt;
+  setTxt('qAdvPct', advPct + '%');
+  setTxt('qPostPct', (100 - advPct) + '%');
+  setTxt('qAdvAmt', '₹' + fmt(advAmt));
+  setTxt('qPostAmt', '₹' + fmt(postAmt));
 }
 
-// BDM Preset Configurations Loader
-function loadPreset(presetName) {
-    if (presetName === 'small') {
-        document.getElementById('clientName').value = 'Jacobs Hospital & Clinic';
-        document.getElementById('clientLocation').value = 'Kollam, Kerala';
-        document.getElementById('contactPerson').value = 'Dr. Jacob Abraham (MD)';
-        document.getElementById('bedCount').value = '25';
-        document.getElementById('washroomCount').value = '12';
-        document.getElementById('wardCount').value = '1';
-        document.getElementById('doorLightOption').value = '1';
-        document.getElementById('shippingCharge').value = '2500';
-        document.getElementById('discountType').value = 'none';
-        document.getElementById('discountValue').value = '0';
-        document.getElementById('quoteRef').value = 'GEN-QTN-2026-0105';
-        calculateEstimator();
-        applyEstimatorToBOM();
-    } else if (presetName === 'medium') {
-        initDefaultQuote();
-    } else if (presetName === 'large') {
-        document.getElementById('clientName').value = 'Travancore Medicity Super Specialty Hospital';
-        document.getElementById('clientLocation').value = 'Kollam, Kerala';
-        document.getElementById('contactPerson').value = 'Er. Rajesh V. (Head of BioMed)';
-        document.getElementById('bedCount').value = '250';
-        document.getElementById('washroomCount').value = '120';
-        document.getElementById('wardCount').value = '8';
-        document.getElementById('doorLightOption').value = '1';
-        document.getElementById('shippingCharge').value = '8500';
-        document.getElementById('discountType').value = 'percent';
-        document.getElementById('discountValue').value = '5';
-        document.getElementById('quoteRef').value = 'GEN-QTN-2026-0920';
-        calculateEstimator();
-        applyEstimatorToBOM();
-    }
+function setTxt(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
 }
 
-// Reset Quote Form
+// ─── VALIDITY DATE ───────────────────────────────────────────────
+function setValidityDate() {
+  document.getElementById('cvrValid').textContent = getValidDate();
+}
+
+function getValidDate() {
+  const days = parseInt(document.getElementById('validityDays').value) || 30;
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function fillDocDates() {
+  const today = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  setTxt('qDocDate', today);
+  setTxt('qDocValid', getValidDate());
+}
+
+// ─── FORMAT ─────────────────────────────────────────────────────
+function fmt(n) {
+  return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// ─── MODAL ──────────────────────────────────────────────────────
+function openModal() {
+  recalc();
+  const mb = document.getElementById('modalBg');
+  mb.classList.add('open');
+  mb.scrollTop = 0;
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('open');
+}
+
+function printDoc() {
+  recalc();
+  openModal();
+  setTimeout(() => {
+    window.print();
+  }, 500);
+}
+
+// ─── RESET ──────────────────────────────────────────────────────
 function resetQuote() {
-    if (confirm('Reset quotation to default sample quote?')) {
-        initDefaultQuote();
-    }
+  bom = ITEMS.map(i => ({ ...i }));
+  document.getElementById('clientName').value   = 'Nims hospital tvm';
+  document.getElementById('clientLocation').value = 'Trivandrum, Kerala';
+  document.getElementById('contactPerson').value  = 'Medical Director / BioMed Team';
+  document.getElementById('quoteRef').value      = 'SAL-QTN-2024-00478';
+  document.getElementById('bdmName').value       = 'Genxiot Sales Team';
+  document.getElementById('discType').value      = 'none';
+  document.getElementById('discVal').value       = '0';
+  document.getElementById('shipping').value      = '3500';
+  document.getElementById('advPct').value        = '50';
+  document.getElementById('bedCount').value      = '134';
+  document.getElementById('washroomCount').value = '99';
+  document.getElementById('wardCount').value     = '8';
+  renderBOM();
+  recalc();
+  calcEstimator();
 }
 
-// Bind Printable Modal Data
-function bindModalData() {
-    updateDateFields();
-
-    const clientName = document.getElementById('clientName').value || 'Client Hospital';
-    const clientLocation = document.getElementById('clientLocation').value || 'Location';
-    const contactPerson = document.getElementById('contactPerson').value || 'Concerned Authority';
-    const quoteRef = document.getElementById('quoteRef').value || 'SAL-QTN-2024-00478';
-    const bdmName = document.getElementById('bdmName').value || 'Genxiot Sales Team';
-
-    document.getElementById('docQuoteRef').textContent = quoteRef;
-    document.getElementById('docClientName').textContent = clientName;
-    document.getElementById('docClientLocation').textContent = clientLocation;
-    document.getElementById('docContactPerson').textContent = contactPerson;
-    document.getElementById('docBdmName').textContent = bdmName;
-    document.getElementById('docSigClient').textContent = clientName;
-
-    // Facility parameters summary
-    const beds = document.getElementById('bedCount').value || 0;
-    const washrooms = document.getElementById('washroomCount').value || 0;
-    const wards = document.getElementById('wardCount').value || 1;
-    document.getElementById('docFacilitySummary').textContent = `${beds} Patient Beds • ${washrooms} Washrooms • ${wards} Wards / Nursing Stations`;
-
-    // Render Modal BOQ Table with Product Thumbnails
-    const docTbody = document.getElementById('docBomTbody');
-    docTbody.innerHTML = '';
-
-    bomItems.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        const total = item.qty * item.unitRate;
-        const imgPath = item.img || 'prod_call_point.png';
-
-        tr.innerHTML = `
-            <td style="text-align: center;">${index + 1}</td>
-            <td>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <img src="${imgPath}" alt="${escapeHtml(item.name)}" style="width: 38px; height: 38px; object-fit: contain; border-radius: 4px; border: 1px solid #CBD5E1; padding: 2px; background: #FFF;">
-                    <div>
-                        <strong>${escapeHtml(item.name)}</strong><br>
-                        <span style="font-size: 7.5pt; color: #64748B;">Item Code: ${escapeHtml(item.code)} • ${escapeHtml(item.desc)}</span>
-                    </div>
-                </div>
-            </td>
-            <td style="text-align: center;">${item.qty} Nos</td>
-            <td style="text-align: right;">${formatINR(item.unitRate)}</td>
-            <td style="text-align: right;">${formatINR(total)}</td>
-        `;
-        docTbody.appendChild(tr);
-    });
-
-    // Add Shipping Charge line in table if present
-    const calc = window.lastCalc || {};
-    if (calc.shipping > 0) {
-        const trShip = document.createElement('tr');
-        trShip.innerHTML = `
-            <td style="text-align: center;">${bomItems.length + 1}</td>
-            <td><strong>Shipping Charge</strong><br><span style="font-size: 7.5pt; color: #64748B;">Freight & Logistics handling</span></td>
-            <td style="text-align: center;">1 Nos</td>
-            <td style="text-align: right;">${formatINR(calc.shipping)}</td>
-            <td style="text-align: right;">${formatINR(calc.shipping)}</td>
-        `;
-        docTbody.appendChild(trShip);
-    }
-
-    // Bind Financial Totals
-    document.getElementById('docSubtotal').textContent = formatINR(calc.subtotal + (calc.shipping || 0));
-
-    const docDiscountRow = document.getElementById('docDiscountRow');
-    if (calc.discountAmount > 0) {
-        docDiscountRow.style.display = 'table-row';
-        document.getElementById('docDiscount').textContent = '-' + formatINR(calc.discountAmount);
-    } else {
-        docDiscountRow.style.display = 'none';
-    }
-
-    document.getElementById('docCGST').textContent = formatINR(calc.cgst || 0);
-    document.getElementById('docSGST').textContent = formatINR(calc.sgst || 0);
-    document.getElementById('docGrandTotal').textContent = formatINR(calc.grandTotal || 0);
-
-    // Bind Payment Terms Table
-    document.getElementById('docAdvPercentCell').textContent = (calc.advPercent || 50) + '%';
-    document.getElementById('docAdvAmountCell').textContent = formatINR(calc.advAmount || 0);
-    document.getElementById('docPostPercentCell').textContent = (calc.postPercent || 50) + '%';
-    document.getElementById('docPostAmountCell').textContent = formatINR(calc.postAmount || 0);
-}
-
-// Modal Toggle Functions
-function openOfferModal() {
-    recalculateTotals();
-    bindModalData();
-    document.getElementById('offerModal').classList.add('active');
-}
-
-function closeOfferModal() {
-    document.getElementById('offerModal').classList.remove('active');
-}
-
-// Print / Export PDF Function
-function printQuotation() {
-    recalculateTotals();
-    bindModalData();
-    document.getElementById('offerModal').classList.add('active');
-    setTimeout(() => {
-        window.print();
-    }, 250);
-}
-
-// Helper Utilities
-function formatINR(amount) {
-    return '₹ ' + (amount || 0).toLocaleString('en-IN', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
-
-function escapeHtml(str) {
-    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
+// ─── CLOSE MODAL ON BG CLICK ────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('modalBg').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+});
