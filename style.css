@@ -423,12 +423,11 @@ textarea { resize:vertical; }
   
   .doc-page {
     width: 100%;
+    min-height: auto;
     margin: 0; 
     padding: 0;
     page-break-after: always;
-    page-break-inside: avoid;
     break-after: page;
-    break-inside: avoid;
     overflow: visible; /* CRITICAL for tables breaking across pages */
     box-sizing: border-box;
   }

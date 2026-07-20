@@ -618,3 +618,54 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('presetDrop').classList.remove('open');
   });
 });
+
+// ─── EXPORT TO CSV (EXCEL) ───────────────────────────────────────
+function exportCSV() {
+  const clientName = document.getElementById('clientName')?.value || 'Client';
+  let csv = 'Genxiot Quotation - Bill of Quantities\n\n';
+  csv += 'Item Code,Name,Description,Quantity,Unit Rate (INR),Total Amount (INR)\n';
+
+  let subtotal = 0;
+  bom.forEach(item => {
+    if (item.qty === 0) return;
+    const amt = item.qty * item.rate;
+    subtotal += amt;
+    // Escape quotes properly for CSV
+    const escName = `"${(item.name || '').replace(/"/g, '""')}"`;
+    const escDesc = `"${(item.desc || '').replace(/"/g, '""')}"`;
+    csv += `${item.code},${escName},${escDesc},${item.qty},${item.rate},${amt}\n`;
+  });
+
+  const discType = document.getElementById('discType').value;
+  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal').value) || 0);
+  const shipping = Math.max(0, parseFloat(document.getElementById('shipping').value) || 0);
+
+  let discount = 0;
+  if (discType === 'pct') discount = subtotal * (discVal / 100);
+  if (discType === 'flat') discount = Math.min(discVal, subtotal);
+
+  const taxable = subtotal - discount + shipping;
+  const cgst = taxable * 0.09;
+  const sgst = taxable * 0.09;
+  const grand = taxable + cgst + sgst;
+
+  csv += '\n,,,,,';
+  csv += `\nSubtotal,,,,,${subtotal}`;
+  if (discount > 0) csv += `\nDiscount,,,,, -${discount}`;
+  if (shipping > 0) csv += `\nShipping,,,,, ${shipping}`;
+  csv += `\nTaxable Value,,,,,${taxable}`;
+  csv += `\nCGST (9%),,,,,${cgst}`;
+  csv += `\nSGST (9%),,,,,${sgst}`;
+  csv += `\nGrand Total,,,,,${grand}`;
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Genxiot_BOQ_${clientName.replace(/\\s+/g, '_')}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
