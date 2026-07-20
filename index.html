@@ -129,11 +129,11 @@
             <!-- Smart Bed-to-BOM Wizard Card -->
             <div class="card card-glass card-accent">
                 <div class="card-header">
-                    <h3><i data-lucide="calculator"></i> Smart Bed-to-BOM Estimator</h3>
-                    <span class="badge badge-accent">Auto BOM</span>
+                    <h3><i data-lucide="calculator"></i> Facility Capacity Estimator</h3>
+                    <span class="badge badge-accent">Dynamic BOM</span>
                 </div>
                 <div class="card-body form-grid">
-                    <p class="section-desc">Input hospital room capacity to automatically calculate optimal hardware counts based on Alamo LoRa architecture.</p>
+                    <p class="section-desc">Adjust facility bed count and ward parameters below. Hardware quantities and total proposal value will update dynamically.</p>
                     
                     <div class="form-row-2">
                         <div class="form-group">
@@ -173,7 +173,7 @@
                     </div>
 
                     <button class="btn btn-accent btn-block" onclick="applyEstimatorToBOM()">
-                        <i data-lucide="wand-2"></i> Apply Estimate to BOM Table
+                        <i data-lucide="wand-2"></i> Update Proposal BOM Table
                     </button>
                 </div>
             </div>
@@ -188,7 +188,7 @@
                 <div class="card-header flex-between">
                     <div>
                         <h3><i data-lucide="layers"></i> Bill of Materials (BOM) & Line Items</h3>
-                        <span class="subtitle-text">Official Genxiot Alamo Hardware & Software Catalog</span>
+                        <span class="subtitle-text">Customizable Hardware & Software BOQ for Target Facility</span>
                     </div>
                     <button class="btn btn-sm btn-secondary" onclick="addCustomItem()">
                         <i data-lucide="plus-circle"></i> Add Custom Item
@@ -431,7 +431,7 @@
                                 <ul>
                                     <li><strong>Panel-Mount Design:</strong> Sleek aesthetic for upcoming/new hospital projects.</li>
                                     <li><strong>Battery-Operated Wall-Mount:</strong> Fast retrofitting for operational hospitals with zero wall-chasing.</li>
-                                    <li><strong>Interactive Terminal:</strong> Call, Service, Presence, and Close buttons with dual RJ11 accessory ports.</li>
+                                    <li><strong>Interactive Terminal:</strong> Call, Presence, and Close buttons with dual RJ11 accessory ports.</li>
                                 </ul>
                             </div>
 
@@ -555,10 +555,17 @@
 
                 <div class="page-break"></div>
 
-                <!-- Quotation Section 4: Techno-Commercial BOQ -->
+                <!-- Quotation Section 4: Techno-Commercial BOQ (Dynamic Facility Sizing) -->
                 <div class="doc-page">
                     <div class="doc-section">
-                        <h3 class="section-heading">4. Quotation / Techno-Commercial Bill of Quantities (BOQ)</h3>
+                        <h3 class="section-heading">4. Customized Techno-Commercial BOQ (Facility Specific)</h3>
+                        
+                        <!-- Facility Capacity Tag -->
+                        <div class="facility-spec-tag">
+                            <span class="tag-title">Facility Configuration Parameters:</span>
+                            <span id="docFacilitySummary">134 Patient Beds • 99 Washrooms • 8 Wards / Nursing Stations</span>
+                        </div>
+
                         <table class="doc-table">
                             <thead>
                                 <tr>
@@ -570,7 +577,7 @@
                                 </tr>
                             </thead>
                             <tbody id="docBomTbody">
-                                <!-- Injected by JavaScript -->
+                                <!-- Injected Dynamically by JavaScript -->
                             </tbody>
                             <tfoot>
                                 <tr>

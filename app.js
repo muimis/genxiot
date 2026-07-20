@@ -382,6 +382,12 @@ function bindModalData() {
     document.getElementById('docBdmName').textContent = bdmName;
     document.getElementById('docSigClient').textContent = clientName;
 
+    // Facility parameters summary
+    const beds = document.getElementById('bedCount').value || 0;
+    const washrooms = document.getElementById('washroomCount').value || 0;
+    const wards = document.getElementById('wardCount').value || 1;
+    document.getElementById('docFacilitySummary').textContent = `${beds} Patient Beds • ${washrooms} Washrooms • ${wards} Wards / Nursing Stations`;
+
     // Render Modal BOQ Table
     const docTbody = document.getElementById('docBomTbody');
     docTbody.innerHTML = '';

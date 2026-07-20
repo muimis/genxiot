@@ -414,6 +414,24 @@ body {
 }
 
 /* Forms */
+.facility-spec-tag {
+    background: #F0F9FF;
+    border: 1px solid #BAE6FD;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 8.5pt;
+    color: #0369A1;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.facility-spec-tag .tag-title {
+    font-weight: 600;
+    color: #0F172A;
+}
+
 .doc-brand {
     display: flex;
     flex-direction: column;
