@@ -403,9 +403,9 @@ function recalc() {
   const subtotal = bom.reduce((sum, item) => sum + (item.qty * item.rate), 0);
 
   const discType = document.getElementById('discType').value;
-  const discVal  = parseFloat(document.getElementById('discVal').value) || 0;
-  const shipping = parseFloat(document.getElementById('shipping').value) || 0;
-  const advPct   = parseFloat(document.getElementById('advPct').value)   || 50;
+  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal').value) || 0);
+  const shipping = Math.max(0, parseFloat(document.getElementById('shipping').value) || 0);
+  const advPct   = Math.max(0, Math.min(100, parseFloat(document.getElementById('advPct').value) || 50));
 
   let discount = 0;
   if (discType === 'pct')  discount = subtotal * (discVal / 100);
