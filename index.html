@@ -105,63 +105,61 @@
         <span class="chip">Auto BOM</span>
       </div>
       <div class="card-bd">
-        <p class="desc">Enter facility counts — BOM quantities update automatically when you click Apply.</p>
 
-        <!-- Quotation Logic Note -->
-        <div style="background:#eef0fc;border-left:3px solid var(--brand-indigo);padding:.5rem .7rem;border-radius:4px;font-size:.72rem;color:var(--brand-indigo);line-height:1.5">
-          <strong>Logic:</strong> Each <b>Room</b> = 1 Call Point + 1 Pendant + optional Room Light.
-          Each <b>Bathroom</b> = 1 Independent Call Point + 1 Pull Cord.
-          Each <b>Ward</b> = 1 Gateway + 1 NS Display.
+        <!-- Quotation Logic Explanation -->
+        <div class="logic-box">
+          <div class="logic-title">📐 BOM LOGIC</div>
+          <div class="logic-row"><span class="logic-key">Beds</span><span class="logic-val">→ Call Points (room) + Pendants</span></div>
+          <div class="logic-row"><span class="logic-key">Rooms</span><span class="logic-val">→ Door Lights (1 per room door)</span></div>
+          <div class="logic-row"><span class="logic-key">Bathrooms</span><span class="logic-val">→ Call Points (bathroom) + Pull Cords</span></div>
+          <div class="logic-row"><span class="logic-key">Wards</span><span class="logic-val">→ Gateways + NS Displays</span></div>
         </div>
 
-        <div class="row3">
+        <div class="row2">
           <div>
-            <label>Patient Rooms</label>
-            <input type="number" id="roomCount" value="134" min="1" oninput="calcEstimator()">
+            <label>Patient Beds 🛏️</label>
+            <input type="number" id="bedCount" value="134" min="1" oninput="calcEstimator()">
+            <div class="field-hint">1 CP + 1 Pendant per bed</div>
           </div>
           <div>
-            <label>Bathrooms</label>
+            <label>Patient Rooms 🚪</label>
+            <input type="number" id="roomCount" value="39" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 Door Light per room</div>
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label>Bathrooms 🚿</label>
             <input type="number" id="bathroomCount" value="99" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 CP + 1 Pull Cord per bathroom</div>
           </div>
           <div>
-            <label>Wards</label>
+            <label>Wards / Stations 🏥</label>
             <input type="number" id="wardCount" value="8" min="1" oninput="calcEstimator()">
+            <div class="field-hint">1 Gateway + 1 NS Display per ward</div>
           </div>
         </div>
 
-        <label>Room Lights (Door Indicators)</label>
-        <select id="doorLightOpt" onchange="calcEstimator()">
-          <option value="none">None</option>
-          <option value="half">1 per 2 Rooms</option>
-          <option value="all">1 per Room (All)</option>
-          <option value="custom" selected>Custom count</option>
-        </select>
-        <div id="dlCustomWrap">
-          <label>Custom Door Light Qty</label>
-          <input type="number" id="dlCustom" value="39" min="0" oninput="calcEstimator()">
-        </div>
+        <!-- Live Estimated Counts -->
+        <div class="est-grid" style="margin-top:.4rem">
+          <span class="est-section-lbl">BED-DRIVEN</span><span></span>
+          <span>Room Call Points</span><strong id="estBeds">134</strong>
+          <span>Pendant Buttons (M1)</span><strong id="estPendants">134</strong>
 
-        <!-- Estimated counts -->
-        <div class="est-grid" style="margin-top:.3rem">
-          <span class="est-section-lbl">Room Components</span>
-          <span></span>
-          <span>Room Call Points</span><strong id="estRoomCP">134</strong>
-          <span>Pendants (M1)</span><strong id="estPendant">134</strong>
-          <span>Door Lights</span><strong id="estRoomLight">39</strong>
+          <span class="est-section-lbl">ROOM-DRIVEN</span><span></span>
+          <span>Door Lights</span><strong id="estRooms">39</strong>
 
-          <span class="est-section-lbl">Bathroom Components</span>
-          <span></span>
-          <span>Bathroom Call Points</span><strong id="estBathCP">99</strong>
-          <span>Pull Cords</span><strong id="estPullCord">99</strong>
+          <span class="est-section-lbl">BATHROOM-DRIVEN</span><span></span>
+          <span>Bathroom Call Points</span><strong id="estBathCPs">99</strong>
+          <span>Pull Cords</span><strong id="estPullCords">99</strong>
 
-          <span class="est-section-lbl">Infrastructure</span>
-          <span></span>
-          <span>Gateways</span><strong id="estGW">8</strong>
-          <span>NS Displays</span><strong id="estDS">8</strong>
+          <span class="est-section-lbl">WARD-DRIVEN</span><span></span>
+          <span>LoRa Gateways</span><strong id="estGateways">8</strong>
+          <span>NS Displays (Android TV)</span><strong id="estNS">8</strong>
 
-          <span class="est-section-lbl">Summary</span>
-          <span></span>
-          <span><b>Total Call Points</b></span><strong id="estTotalCP" style="color:var(--brand-cyan)">233</strong>
+          <span class="est-section-lbl">TOTALS</span><span></span>
+          <span><b>Total Call Points</b></span><strong id="estTotalCPs" style="color:var(--brand-cyan)">233</strong>
+          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">381</strong>
         </div>
 
         <button class="btn btn-primary w-full mt" onclick="applyEstimator()">
@@ -446,7 +444,7 @@
 
         <div class="qtn-section-title">Bill of Quantities – Facility Specific Configuration</div>
         <div class="qtn-fac-tag">
-          <strong>Facility:</strong> <span id="qFacility">134 Rooms · 99 Bathrooms · 8 Wards/Stations</span>
+          <strong>Facility:</strong> <span id="qFacility">134 Beds · 39 Rooms · 99 Bathrooms · 8 Wards/Stations</span>
         </div>
 
         <table class="qtn-boq-tbl">
