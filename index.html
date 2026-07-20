@@ -59,7 +59,7 @@
                     <i data-lucide="refresh-cw"></i> Reset
                 </button>
                 <button class="btn btn-primary" onclick="openOfferModal()">
-                    <i data-lucide="file-text"></i> Full Technical Proposal
+                    <i data-lucide="file-text"></i> Full Executive Deck
                 </button>
             </div>
         </div>
@@ -344,7 +344,7 @@
                         <i data-lucide="file-spreadsheet"></i> Excel Calculator
                     </a>
                     <button class="btn btn-secondary btn-lg" onclick="openOfferModal()">
-                        <i data-lucide="eye"></i> Full Technical Proposal
+                        <i data-lucide="eye"></i> Full Executive Deck
                     </button>
                     <button class="btn btn-primary btn-lg" onclick="printQuotation()">
                         <i data-lucide="printer"></i> Print / Save PDF
@@ -356,11 +356,11 @@
 
     </main>
 
-    <!-- Comprehensive Techno-Commercial Proposal Deck Modal -->
+    <!-- Comprehensive Executive Techno-Commercial Presentation Deck Modal -->
     <div class="modal-overlay" id="offerModal">
         <div class="modal-container">
             <div class="modal-header no-print">
-                <h2>Genxiot Complete Executive Technical & Commercial Proposal</h2>
+                <h2>Genxiot Official Executive Proposal Deck & Techno-Commercial Offer</h2>
                 <div class="modal-actions">
                     <button class="btn btn-primary" onclick="printQuotation()">
                         <i data-lucide="printer"></i> Print / Save Full PDF
@@ -373,8 +373,8 @@
 
             <div class="modal-body print-document" id="printableOffer">
                 
-                <!-- Print Page 1: Cover & Company Overview -->
-                <div class="doc-page">
+                <!-- Page 1: Official Proposal Cover Slide -->
+                <div class="doc-page page-slide-box">
                     <div class="doc-header">
                         <div class="doc-brand">
                             <img src="genxiot-logo.7fba30b0.png" alt="Genxiot Logo" class="doc-logo-img">
@@ -395,7 +395,11 @@
 
                     <div class="doc-divider"></div>
 
-                    <!-- Client & Submission Block -->
+                    <!-- Slide Visual 1 -->
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_1.png" alt="Cover Visual" class="slide-visual-img">
+                    </div>
+
                     <div class="doc-parties-grid">
                         <div class="party-box">
                             <span class="party-title">SUBMITTED TO:</span>
@@ -410,232 +414,150 @@
                             <p><strong>Representative:</strong> <span id="docBdmName">Genxiot Sales Team</span></p>
                         </div>
                     </div>
-
-                    <!-- Brochure Section 1: Executive Mission & Track Record -->
-                    <div class="doc-section">
-                        <h3 class="section-heading">1. Executive Mission & Company Credentials</h3>
-                        <p class="doc-text">
-                            <strong>"We make hospitals safe and efficient. Intelligent IoT solutions for modern healthcare."</strong>
-                        </p>
-                        <p class="doc-text">
-                            Genxiot LLP is a pioneering healthcare technology provider headquartered at STPI Building, Technopark, Thiruvananthapuram. We specialize in real-time nurse call automation, smart clinical workflows, actionable insights, and improved patient outcomes.
-                        </p>
-                        <div class="stats-counter-grid">
-                            <div class="stat-counter-box">
-                                <strong>100+</strong>
-                                <span>Hospitals Pan India</span>
-                            </div>
-                            <div class="stat-counter-box">
-                                <strong>10L+</strong>
-                                <span>Nurse Calls Served</span>
-                            </div>
-                            <div class="stat-counter-box">
-                                <strong>4000+</strong>
-                                <span>Units Active in Field</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Page Break for Clean Printing -->
                 <div class="page-break"></div>
 
-                <!-- Brochure Section 2: Complete Product Architecture & Technical Solutions -->
-                <div class="doc-page">
-                    <div class="doc-section">
-                        <h3 class="section-heading">2. System Architecture & Product Range</h3>
-                        
-                        <div class="product-spec-grid">
-                            
-                            <!-- Call Points with Image -->
-                            <div class="spec-card">
-                                <img src="prod_call_point.png" alt="Call Point Unit" class="doc-prod-img">
-                                <h4><i data-lucide="bell"></i> Alamo Call Point Units</h4>
-                                <ul>
-                                    <li><strong>Panel-Mount Design:</strong> Sleek aesthetic for upcoming/new hospital projects.</li>
-                                    <li><strong>Battery-Operated Wall-Mount:</strong> Fast retrofitting for operational hospitals with zero wall-chasing.</li>
-                                    <li><strong>Interactive Terminal:</strong> Call, Presence, and Close buttons with dual RJ11 accessory ports.</li>
-                                </ul>
-                            </div>
-
-                            <!-- Accessories with Image -->
-                            <div class="spec-card">
-                                <img src="prod_accessories.png" alt="Pendant & Pullcord" class="doc-prod-img">
-                                <h4><i data-lucide="radio"></i> Bed & Bathroom Accessories</h4>
-                                <ul>
-                                    <li><strong>Pendant Button:</strong> Patient-side call switch connected via flexible coil cord, mounted on bedside holder stand.</li>
-                                    <li><strong>Pullcord Unit:</strong> Water-resistant emergency pull cord switch engineered for easy washroom access.</li>
-                                </ul>
-                            </div>
-
-                            <!-- Displays with Image -->
-                            <div class="spec-card">
-                                <img src="prod_displays.png" alt="Door Light & Displays" class="doc-prod-img">
-                                <h4><i data-lucide="tv"></i> Indicators & Nursing Displays</h4>
-                                <ul>
-                                    <li><strong>Room Indicators (Call Light V2):</strong> Multi-color door light outside rooms for instant visual alert.</li>
-                                    <li><strong>Corridor Display:</strong> Pixel matrix screen displaying call priorities in corridors.</li>
-                                    <li><strong>Nursing Station Monitors:</strong> Real-time call dashboard on Tablets, 32" Android Smart TVs, and Desktops.</li>
-                                </ul>
-                            </div>
-
-                            <!-- Analytics with Image -->
-                            <div class="spec-card">
-                                <img src="prod_insights.png" alt="Insights Dashboard" class="doc-prod-img">
-                                <h4><i data-lucide="bar-chart-3"></i> Analytics & NABH Email Reports</h4>
-                                <ul>
-                                    <li><strong>Turnaround & Treatment Times:</strong> Track response latency and escalation metrics.</li>
-                                    <li><strong>Maintenance Monitoring:</strong> Auto-detect non-functional buttons and battery levels.</li>
-                                    <li><strong>Automated PDF Reports:</strong> Schedule monthly email performance summaries for nursing leadership.</li>
-                                </ul>
-                            </div>
-
-                        </div>
-
-                        <!-- Dripo Mention with Image -->
-                        <div class="dripo-box dripo-box-with-img">
-                            <img src="prod_dripo.png" alt="Dripo IV Monitor" class="dripo-thumb-img">
-                            <div>
-                                <strong><i data-lucide="droplet"></i> Dripo Ecosystem Integration (Optional Add-on):</strong>
-                                <p>Intelligent bystander for IV drips — accurately set IV flow rates, receive error alerts, and analyze fluid delivery workflows.</p>
-                            </div>
-                        </div>
+                <!-- Page 2: Product Slide 1 - Call Points -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 02</span>
+                        <h3>Alamo Smart Call Point Terminal Solutions</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_2.png" alt="Call Point Slide" class="slide-visual-img">
                     </div>
                 </div>
 
                 <div class="page-break"></div>
 
-                <!-- Brochure Section 3: Competitive Advantage Matrix -->
-                <div class="doc-page">
-                    <div class="doc-section">
-                        <h3 class="section-heading">3. Alamo Technology vs Competitor Benchmark</h3>
-                        <table class="doc-table comp-table">
-                            <thead>
-                                <tr>
-                                    <th>Feature / Capability</th>
-                                    <th class="highlight-th">Genxiot Alamo</th>
-                                    <th>Honeywell</th>
-                                    <th>Supreme Int.</th>
-                                    <th>Norris</th>
-                                    <th>Forbix Semicon</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong>Mode of Operation</strong></td>
-                                    <td class="highlight-td"><strong>Wireless LoRa (Long-Range)</strong></td>
-                                    <td>Wired</td>
-                                    <td>Wired</td>
-                                    <td>Wired</td>
-                                    <td>Normal RF (Lesser range)</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Nursing Station Display</strong></td>
-                                    <td class="highlight-td">Android Phone, TAB, TV, Desktop</td>
-                                    <td>TAB Device</td>
-                                    <td>VGA Monitor</td>
-                                    <td>VGA Monitor</td>
-                                    <td>LCD / VGA Monitor</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Data Logger & Reports</strong></td>
-                                    <td class="highlight-td"><strong>Yes (Automated)</strong></td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                    <td>Yes</td>
-                                    <td>Option</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Automated Email Reports</strong></td>
-                                    <td class="highlight-td"><strong>Yes (Monthly PDF)</strong></td>
-                                    <td>Yes</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Code Blue Integration</strong></td>
-                                    <td class="highlight-td"><strong>Yes</strong></td>
-                                    <td>Yes</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>HIS Integration</strong></td>
-                                    <td class="highlight-td"><strong>Yes</strong></td>
-                                    <td>Yes</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                    <td>No</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Overall Cost Profile</strong></td>
-                                    <td class="highlight-td"><strong>Low / High ROI</strong></td>
-                                    <td>High</td>
-                                    <td>Medium</td>
-                                    <td>Medium</td>
-                                    <td>Low</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <!-- Page 3: Product Slide 2 - Bed & Bathroom Accessories -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 03</span>
+                        <h3>Bedside Pendant Button & Washroom Emergency Pullcord</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_3.png" alt="Accessories Slide" class="slide-visual-img">
                     </div>
                 </div>
 
                 <div class="page-break"></div>
 
-                <!-- Quotation Section 4: Techno-Commercial BOQ (Dynamic Facility Sizing) -->
-                <div class="doc-page">
-                    <div class="doc-section">
-                        <h3 class="section-heading">4. Customized Techno-Commercial BOQ (Facility Specific)</h3>
-                        
-                        <!-- Facility Capacity Tag -->
-                        <div class="facility-spec-tag">
-                            <span class="tag-title">Facility Configuration Parameters:</span>
-                            <span id="docFacilitySummary">134 Patient Beds • 99 Washrooms • 8 Wards / Nursing Stations</span>
-                        </div>
+                <!-- Page 4: Product Slide 3 - Display & Corridor Indicators -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 04</span>
+                        <h3>Corridor Call Light V2 & Nursing Station Monitors</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_4.png" alt="Displays Slide" class="slide-visual-img">
+                    </div>
+                </div>
 
-                        <table class="doc-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 35px;">Sr</th>
-                                    <th>Item Name & Description</th>
-                                    <th style="width: 70px; text-align: center;">Qty</th>
-                                    <th style="width: 100px; text-align: right;">Rate (₹)</th>
-                                    <th style="width: 120px; text-align: right;">Amount (₹)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="docBomTbody">
-                                <!-- Injected Dynamically by JavaScript -->
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="4" class="text-right">Total:</td>
-                                    <td class="text-right" id="docSubtotal">₹0.00</td>
-                                </tr>
-                                <tr id="docDiscountRow" style="display: none;">
-                                    <td colspan="4" class="text-right text-danger">Additional Discount:</td>
-                                    <td class="text-right text-danger" id="docDiscount">INR 0.0</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4" class="text-right">CGST (9%):</td>
-                                    <td class="text-right" id="docCGST">₹0.00</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4" class="text-right">SGST (9%):</td>
-                                    <td class="text-right" id="docSGST">₹0.00</td>
-                                </tr>
-                                <tr class="grand-total-tr">
-                                    <td colspan="4" class="text-right"><strong>Grant total (Inclusive of GST):</strong></td>
-                                    <td class="text-right"><strong id="docGrandTotal">₹0.00</strong></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                <div class="page-break"></div>
+
+                <!-- Page 5: Product Slide 4 - Insights & Reports -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 05</span>
+                        <h3>Clinical Insights, Turnaround Times & NABH Reports</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_5.png" alt="Insights Slide" class="slide-visual-img">
+                    </div>
+                </div>
+
+                <div class="page-break"></div>
+
+                <!-- Page 6: Product Slide 5 - Dripo IV Ecosystem -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 06</span>
+                        <h3>Dripo Intelligent Bystander for IV Drips</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_6.png" alt="Dripo Slide" class="slide-visual-img">
+                    </div>
+                </div>
+
+                <div class="page-break"></div>
+
+                <!-- Page 7: Competitor Benchmark Matrix -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SLIDE 07</span>
+                        <h3>Alamo Technology vs Industry Competitor Benchmark</h3>
+                    </div>
+                    <div class="slide-visual-container">
+                        <img src="slide_brochure_7.png" alt="Competitor Benchmark Slide" class="slide-visual-img">
+                    </div>
+                </div>
+
+                <div class="page-break"></div>
+
+                <!-- Page 8: Techno-Commercial BOQ (Dynamic Facility Sizing) -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SECTION 08</span>
+                        <h3>Customized Techno-Commercial BOQ (Facility Specific)</h3>
                     </div>
 
-                    <!-- Payment Terms and Schedule -->
+                    <!-- Facility Capacity Tag -->
+                    <div class="facility-spec-tag">
+                        <span class="tag-title">Facility Configuration Parameters:</span>
+                        <span id="docFacilitySummary">134 Patient Beds • 99 Washrooms • 8 Wards / Nursing Stations</span>
+                    </div>
+
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35px;">Sr</th>
+                                <th>Item Name & Description</th>
+                                <th style="width: 70px; text-align: center;">Qty</th>
+                                <th style="width: 100px; text-align: right;">Rate (₹)</th>
+                                <th style="width: 120px; text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docBomTbody">
+                            <!-- Injected Dynamically by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right">Total:</td>
+                                <td class="text-right" id="docSubtotal">₹0.00</td>
+                            </tr>
+                            <tr id="docDiscountRow" style="display: none;">
+                                <td colspan="4" class="text-right text-danger">Additional Discount:</td>
+                                <td class="text-right text-danger" id="docDiscount">INR 0.0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">CGST (9%):</td>
+                                <td class="text-right" id="docCGST">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">SGST (9%):</td>
+                                <td class="text-right" id="docSGST">₹0.00</td>
+                            </tr>
+                            <tr class="grand-total-tr">
+                                <td colspan="4" class="text-right"><strong>Grant total (Inclusive of GST):</strong></td>
+                                <td class="text-right"><strong id="docGrandTotal">₹0.00</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="page-break"></div>
+
+                <!-- Page 9: Payment Terms & Schedule -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SECTION 09</span>
+                        <h3>Commercial Terms, Payment Schedule & Bank Remittance</h3>
+                    </div>
+
                     <div class="doc-section page-break-inside-avoid">
-                        <h3 class="section-heading">5. Payment Terms and Schedule</h3>
+                        <h3 class="section-heading">Payment Schedule</h3>
                         <table class="doc-table">
                             <thead>
                                 <tr>
@@ -660,8 +582,8 @@
                     </div>
 
                     <!-- Bank Details -->
-                    <div class="doc-section page-break-inside-avoid">
-                        <h3 class="section-heading">6. Bank Details & Remittance Channel</h3>
+                    <div class="doc-section page-break-inside-avoid" style="margin-top: 1.5rem;">
+                        <h3 class="section-heading">Bank Details & Remittance Channel</h3>
                         <div class="bank-details-box">
                             <p><strong>NAME:</strong> M/S GENXIOT HEALTHCARE SOLUTIONS</p>
                             <p><strong>BANK:</strong> ICICI BANK LTD, PEROORKADA</p>
@@ -669,17 +591,26 @@
                             <p><strong>AC No:</strong> 323005000011</p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Complete Terms & Conditions (Matching Sample Quote Verbatim) -->
+                <div class="page-break"></div>
+
+                <!-- Page 10: Complete Verbatim Terms & Conditions -->
+                <div class="doc-page page-slide-box">
+                    <div class="slide-header">
+                        <span class="slide-num">SECTION 10</span>
+                        <h3>General Terms, Maintenance SLAs & Quality Warranty</h3>
+                    </div>
+
                     <div class="doc-section page-break-inside-avoid">
-                        <h3 class="section-heading">7. Installation & Technical Scope</h3>
+                        <h3 class="section-heading">Installation & Technical Scope</h3>
                         <div class="terms-full-box">
                             <p><strong>Installation & Configuration Terms:</strong> Wallmounting, Fixing & Electrical work needs to be done by hospital electrical department. Configuration & training will be done by Genxiot Team.</p>
                         </div>
                     </div>
 
                     <div class="doc-section page-break-inside-avoid">
-                        <h3 class="section-heading">8. General Terms & Conditions</h3>
+                        <h3 class="section-heading">General Terms & Conditions</h3>
                         <div class="terms-legal-block">
                             <p><strong>Scope of Application:</strong> The General Terms and Conditions (“General Terms”) hereinafter set forth shall exclusively apply to all transactions with Genxiot Healthcare Solutions with registered office at 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala, India - 695581.</p>
                             <p><strong>Buyer’s General Terms and Conditions:</strong> Any differing or conflicting general terms of the buyer shall not be applicable to any transaction and are hereby rejected. Consequently, any variations from these General Terms shall be of no effect unless agreed to in writing by Genxiot.</p>
