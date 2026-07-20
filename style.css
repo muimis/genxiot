@@ -391,6 +391,70 @@ body {
 }
 
 /* Forms */
+.showcase-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.gallery-item {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.gallery-item img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    background: #FFF;
+    border: 1px solid var(--border-color);
+}
+
+.gallery-item span {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.table-prod-thumb {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: #FFF;
+    padding: 2px;
+}
+
+.doc-prod-img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    border: 1px solid #CBD5E1;
+}
+
+.dripo-box-with-img {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.dripo-thumb-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #A7F3D0;
+}
+
 .facility-spec-tag {
     background: #F0F9FF;
     border: 1px solid #BAE6FD;

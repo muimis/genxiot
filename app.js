@@ -2,7 +2,7 @@
    GENXIOT ALAMO BDM QUOTE BUILDER & COMMERCIAL CALCULATOR LOGIC
    ========================================================================== */
 
-// Standard Catalog Master Data (Matching exact Evelabs SAL-QTN-2024-00478)
+// Standard Catalog Master Data with Product Visuals (Matching exact Evelabs SAL-QTN-2024-00478 & Brochure)
 const CATALOG_MASTER = [
     {
         id: 'EVECPRJ03A0001A',
@@ -10,6 +10,7 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03A0001A',
         desc: 'Patient call point with Call, Service, Cancel and Acknowledge buttons. 2 RJ11 ports + power port. Includes assembly screws.',
         unitRate: 2000,
+        img: 'prod_call_point.png',
         category: 'core'
     },
     {
@@ -18,6 +19,7 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03A0008A',
         desc: 'Patient side call switch accessories that can be connected to the main call point. Includes product stand and screws for assembly.',
         unitRate: 400,
+        img: 'prod_accessories.png',
         category: 'accessory'
     },
     {
@@ -26,6 +28,7 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03M0035A',
         desc: 'Includes screws and fisher plug for assembly.',
         unitRate: 100,
+        img: 'prod_accessories.png',
         category: 'accessory'
     },
     {
@@ -34,6 +37,7 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03A0003A',
         desc: 'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly.',
         unitRate: 400,
+        img: 'prod_accessories.png',
         category: 'washroom'
     },
     {
@@ -42,14 +46,16 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03A0004B',
         desc: 'Alamo|Call light V2 multi-color LED door indicator light.',
         unitRate: 2300,
+        img: 'prod_displays.png',
         category: 'indicator'
     },
     {
         id: 'EVECPRJ04A0001A',
         name: 'Evegate Lora Gateway',
         code: 'EVECPRJ04A0001A',
-        desc: 'Gateway receives messages from call points and shares data to mobile phone, tablets, android TV or cloud server.',
+        desc: 'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
         unitRate: 8500,
+        img: 'prod_displays.png',
         category: 'infrastructure'
     },
     {
@@ -58,6 +64,7 @@ const CATALOG_MASTER = [
         code: 'EVECPRJ03A0011B',
         desc: 'Includes B type charger, product stand and screws for assembly.',
         unitRate: 2500,
+        img: 'prod_displays.png',
         category: 'infrastructure'
     },
     {
@@ -66,6 +73,7 @@ const CATALOG_MASTER = [
         code: 'EVESE0207',
         desc: '32 inch Android Smart TV / Monitor for displaying nurse calls in nursing stations.',
         unitRate: 12500,
+        img: 'prod_displays.png',
         category: 'display'
     }
 ];
@@ -174,8 +182,12 @@ function renderBOMTable() {
     bomItems.forEach((item, index) => {
         const row = document.createElement('tr');
         const lineTotal = item.qty * item.unitRate;
+        const imgPath = item.img || 'prod_call_point.png';
 
         row.innerHTML = `
+            <td style="text-align: center;">
+                <img src="${imgPath}" alt="${escapeHtml(item.name)}" class="table-prod-thumb">
+            </td>
             <td>
                 <div class="item-info">
                     <strong>${escapeHtml(item.name)}</strong>
@@ -247,6 +259,7 @@ function addCustomItem() {
         desc: 'Custom item specified for project scope.',
         unitRate: rate,
         qty: qty,
+        img: 'prod_call_point.png',
         category: 'custom'
     });
 
@@ -388,18 +401,25 @@ function bindModalData() {
     const wards = document.getElementById('wardCount').value || 1;
     document.getElementById('docFacilitySummary').textContent = `${beds} Patient Beds • ${washrooms} Washrooms • ${wards} Wards / Nursing Stations`;
 
-    // Render Modal BOQ Table
+    // Render Modal BOQ Table with Product Thumbnails
     const docTbody = document.getElementById('docBomTbody');
     docTbody.innerHTML = '';
 
     bomItems.forEach((item, index) => {
         const tr = document.createElement('tr');
         const total = item.qty * item.unitRate;
+        const imgPath = item.img || 'prod_call_point.png';
+
         tr.innerHTML = `
             <td style="text-align: center;">${index + 1}</td>
             <td>
-                <strong>${escapeHtml(item.name)}</strong><br>
-                <span style="font-size: 7.5pt; color: #64748B;">Item Code: ${escapeHtml(item.code)} • ${escapeHtml(item.desc)}</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <img src="${imgPath}" alt="${escapeHtml(item.name)}" style="width: 38px; height: 38px; object-fit: contain; border-radius: 4px; border: 1px solid #CBD5E1; padding: 2px; background: #FFF;">
+                    <div>
+                        <strong>${escapeHtml(item.name)}</strong><br>
+                        <span style="font-size: 7.5pt; color: #64748B;">Item Code: ${escapeHtml(item.code)} • ${escapeHtml(item.desc)}</span>
+                    </div>
+                </div>
             </td>
             <td style="text-align: center;">${item.qty} Nos</td>
             <td style="text-align: right;">${formatINR(item.unitRate)}</td>
