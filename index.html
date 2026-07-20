@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genxiot Alamo - BDM Quote Builder & Commercial Calculator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Main Navigation Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand-group">
+                <div class="brand-logo">
+                    <img src="logo.png" alt="Genxiot Logo" class="header-logo-img">
+                    <div class="logo-text">
+                        <h1>GENXIOT LLP</h1>
+                        <span class="subtitle">INTELLIGENT HEALTHCARE IOT SOLUTIONS</span>
+                    </div>
+                </div>
+                <div class="badge-distributor">
+                    <span class="dot"></span> Official Distributor • Alamo Nurse Call System
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="preset-dropdown">
+                    <button class="btn btn-secondary preset-trigger">
+                        <i data-lucide="zap"></i> BDM Presets <i data-lucide="chevron-down"></i>
+                    </button>
+                    <div class="preset-menu">
+                        <button onclick="loadPreset('small')">
+                            <strong>Small Hospital (25-30 Beds)</strong>
+                            <small>Clinic / Private Hospital • ~₹1.0L - ₹1.5L</small>
+                        </button>
+                        <button onclick="loadPreset('medium')">
+                            <strong>Mid-Tier Hospital (75 Beds)</strong>
+                            <small>Multi-Ward Setup • ~₹3.5L - ₹5.0L</small>
+                        </button>
+                        <button onclick="loadPreset('large')">
+                            <strong>Super-Specialty (250 Beds)</strong>
+                            <small>Enterprise Facility • ~₹10L - ₹18L</small>
+                        </button>
+                    </div>
+                </div>
+
+                <a href="Genxiot_Alamo_Quote_Calculator.xlsx" download class="btn btn-accent" title="Download Offline Excel Sheet">
+                    <i data-lucide="file-spreadsheet"></i> Excel Sheet
+                </a>
+
+                <button class="btn btn-outline" onclick="resetQuote()">
+                    <i data-lucide="refresh-cw"></i> Reset
+                </button>
+                <button class="btn btn-primary" onclick="openOfferModal()">
+                    <i data-lucide="file-text"></i> Preview Formal Offer
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="app-container">
+        
+        <!-- Left Sidebar: Client Info & Bed Estimator -->
+        <aside class="sidebar-column">
+
+            <!-- Company Track Record Banner -->
+            <div class="track-record-banner">
+                <div class="stat-item">
+                    <strong>100+</strong>
+                    <span>Hospitals</span>
+                </div>
+                <div class="stat-item">
+                    <strong>10L+</strong>
+                    <span>Calls Served</span>
+                </div>
+                <div class="stat-item">
+                    <strong>4000+</strong>
+                    <span>Units Field</span>
+                </div>
+            </div>
+
+            <!-- Client & Deal Metadata Card -->
+            <div class="card card-glass">
+                <div class="card-header">
+                    <h3><i data-lucide="building-2"></i> Hospital & Deal Info</h3>
+                </div>
+                <div class="card-body form-grid">
+                    <div class="form-group">
+                        <label for="clientName">Hospital / Client Name</label>
+                        <input type="text" id="clientName" value="Nims hospital tvm" placeholder="e.g. Nims hospital tvm">
+                    </div>
+                    <div class="form-group">
+                        <label for="clientLocation">City / Location</label>
+                        <input type="text" id="clientLocation" value="Trivandrum, Kerala" placeholder="e.g. Trivandrum, Kerala">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPerson">Contact Person & Title</label>
+                        <input type="text" id="contactPerson" value="Medical Director / BioMed Team" placeholder="Name & Position">
+                    </div>
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="quoteRef">Quote Ref #</label>
+                            <input type="text" id="quoteRef" value="SAL-QTN-2024-00478">
+                        </div>
+                        <div class="form-group">
+                            <label for="validityDays">Valid For</label>
+                            <select id="validityDays">
+                                <option value="15">15 Days</option>
+                                <option value="30" selected>30 Days</option>
+                                <option value="60">60 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bdmName">Genxiot BDM Executive</label>
+                        <input type="text" id="bdmName" value="Genxiot Sales Team" placeholder="Your Name">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Bed-to-BOM Wizard Card -->
+            <div class="card card-glass card-accent">
+                <div class="card-header">
+                    <h3><i data-lucide="calculator"></i> Smart Bed-to-BOM Estimator</h3>
+                    <span class="badge badge-accent">Auto BOM</span>
+                </div>
+                <div class="card-body form-grid">
+                    <p class="section-desc">Input hospital room capacity to automatically calculate optimal hardware counts based on Alamo LoRa architecture.</p>
+                    
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="bedCount">Total Patient Beds</label>
+                            <input type="number" id="bedCount" value="134" min="1" max="1000" oninput="calculateEstimator()">
+                        </div>
+                        <div class="form-group">
+                            <label for="washroomCount">Washroom / Toilets</label>
+                            <input type="number" id="washroomCount" value="99" min="0" max="500" oninput="calculateEstimator()">
+                        </div>
+                    </div>
+
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="wardCount">Wards / Nursing Stations</label>
+                            <input type="number" id="wardCount" value="8" min="1" max="50" oninput="calculateEstimator()">
+                        </div>
+                        <div class="form-group">
+                            <label for="doorLightOption">Door Lights / Room</label>
+                            <select id="doorLightOption" onchange="calculateEstimator()">
+                                <option value="0.3">39 Lights Total (Sample Quote)</option>
+                                <option value="1">1 Per Private Room / Ward</option>
+                                <option value="0.5">1 Per 2 Beds</option>
+                                <option value="0">None</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Estimator Breakdown Preview -->
+                    <div class="estimator-summary" id="estimatorPreview">
+                        <div class="summary-pill"><span>Call Points:</span> <strong id="estCallPoints">134</strong></div>
+                        <div class="summary-pill"><span>Pendants:</span> <strong id="estPendants">134</strong></div>
+                        <div class="summary-pill"><span>Pullcords:</span> <strong id="estPullcords">99</strong></div>
+                        <div class="summary-pill"><span>Door Lights:</span> <strong id="estDoorLights">39</strong></div>
+                        <div class="summary-pill"><span>Gateways:</span> <strong id="estGateways">8</strong></div>
+                        <div class="summary-pill"><span>Station Displays:</span> <strong id="estDisplays">8</strong></div>
+                    </div>
+
+                    <button class="btn btn-accent btn-block" onclick="applyEstimatorToBOM()">
+                        <i data-lucide="wand-2"></i> Apply Estimate to BOM Table
+                    </button>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Right Content Area: BOM Table & Financial Breakdown -->
+        <section class="main-column">
+            
+            <!-- Bill of Materials Table Card -->
+            <div class="card card-glass">
+                <div class="card-header flex-between">
+                    <div>
+                        <h3><i data-lucide="layers"></i> Bill of Materials (BOM) & Line Items</h3>
+                        <span class="subtitle-text">Official Genxiot Alamo Hardware & Software Catalog</span>
+                    </div>
+                    <button class="btn btn-sm btn-secondary" onclick="addCustomItem()">
+                        <i data-lucide="plus-circle"></i> Add Custom Item
+                    </button>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="bom-table" id="bomTable">
+                        <thead>
+                            <tr>
+                                <th>Item Name & Description</th>
+                                <th style="width: 110px;">Qty</th>
+                                <th style="width: 130px;">Rate (₹)</th>
+                                <th style="width: 140px; text-align: right;">Amount (₹)</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bomTbody">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Commercial Terms & Financial Breakdown Grid -->
+            <div class="grid-2-col">
+                
+                <!-- Financial Calculation Card -->
+                <div class="card card-glass">
+                    <div class="card-header">
+                        <h3><i data-lucide="credit-card"></i> Financial Breakdown</h3>
+                    </div>
+                    <div class="card-body form-grid">
+                        
+                        <div class="calc-row">
+                            <span>Hardware Subtotal:</span>
+                            <strong id="calcSubtotal">₹0.00</strong>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="discountType">Discount Type</label>
+                                <select id="discountType" onchange="recalculateTotals()">
+                                    <option value="none">No Discount</option>
+                                    <option value="percent">Percentage (%)</option>
+                                    <option value="flat">Flat Amount (₹)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="discountValue">Discount Value</label>
+                                <input type="number" id="discountValue" value="0" min="0" oninput="recalculateTotals()">
+                            </div>
+                        </div>
+
+                        <div class="calc-row discount-row" id="discountRow" style="display: none;">
+                            <span>Discount Applied:</span>
+                            <span class="text-danger" id="calcDiscountAmount">-₹0.00</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="shippingCharge">Shipping Charge (₹)</label>
+                            <input type="number" id="shippingCharge" value="3500" min="0" oninput="recalculateTotals()">
+                        </div>
+
+                        <div class="calc-row">
+                            <span>Taxable Value:</span>
+                            <span id="calcTaxable">₹0.00</span>
+                        </div>
+
+                        <div class="calc-row">
+                            <span>CGST (9%):</span>
+                            <span id="calcCGST">₹0.00</span>
+                        </div>
+                        <div class="calc-row">
+                            <span>SGST (9%):</span>
+                            <span id="calcSGST">₹0.00</span>
+                        </div>
+
+                        <div class="calc-divider"></div>
+
+                        <div class="calc-row grand-total-row">
+                            <span>Grand Total (Incl. 18% GST):</span>
+                            <strong id="calcGrandTotal">₹0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms & Scope Customizer Card -->
+                <div class="card card-glass">
+                    <div class="card-header">
+                        <h3><i data-lucide="shield-check"></i> Commercial Terms & Scope</h3>
+                    </div>
+                    <div class="card-body form-grid">
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label for="advancePercent">Advance Payment %</label>
+                                <input type="number" id="advancePercent" value="50" min="0" max="100" oninput="recalculateTotals()">
+                            </div>
+                            <div class="form-group">
+                                <label for="postInstallPercent">Post-Install Payment %</label>
+                                <input type="number" id="postInstallPercent" value="50" min="0" max="100" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deliveryPeriod">Delivery Period</label>
+                            <input type="text" id="deliveryPeriod" value="25 days from confirmation of order by Genxiot and receipt of advance.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="warrantyPeriod">Warranty of Quality</label>
+                            <input type="text" id="warrantyPeriod" value="12 months comprehensive warranty from date of installation protocol.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scopeNotes">Installation & Configuration Scope</label>
+                            <textarea id="scopeNotes" rows="3">Wallmounting, Fixing & Electrical work needs to be done by hospital electrical department. Configuration & training will be done by Genxiot Team.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div class="action-bar-card">
+                <div class="action-info">
+                    <span>Estimated Net Proposal Value:</span>
+                    <h2 id="stickyGrandTotal">₹0.00</h2>
+                </div>
+                <div class="action-buttons">
+                    <a href="Genxiot_Alamo_Quote_Calculator.xlsx" download class="btn btn-accent btn-lg">
+                        <i data-lucide="file-spreadsheet"></i> Excel Calculator
+                    </a>
+                    <button class="btn btn-secondary btn-lg" onclick="openOfferModal()">
+                        <i data-lucide="eye"></i> View Full Offer
+                    </button>
+                    <button class="btn btn-primary btn-lg" onclick="printQuotation()">
+                        <i data-lucide="printer"></i> Print / Save PDF
+                    </button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Formal Techno-Commercial Offer Modal / Printable Document Container -->
+    <div class="modal-overlay" id="offerModal">
+        <div class="modal-container">
+            <div class="modal-header no-print">
+                <h2>Genxiot Formal Techno-Commercial Offer Preview</h2>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="printQuotation()">
+                        <i data-lucide="printer"></i> Print / Download PDF
+                    </button>
+                    <button class="btn btn-outline" onclick="closeOfferModal()">
+                        <i data-lucide="x"></i> Close
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-body print-document" id="printableOffer">
+                
+                <!-- Print Header with Official Logo -->
+                <div class="doc-header">
+                    <div class="doc-brand">
+                        <img src="logo.png" alt="Genxiot Logo" class="doc-logo-img">
+                        <h1 class="brand-title">GENXIOT LLP</h1>
+                        <p class="brand-tagline">Intelligent Healthcare & Smart IoT Solutions</p>
+                        <p class="doc-subtitle">6th Floor STPI Building, Technopark, Thiruvananthapuram, KERALA-695581</p>
+                        <p class="doc-contact">Ph: +91 9496557777 / +91 9447318527 | Email: info@genxiot.com | www.genxiot.com</p>
+                    </div>
+                    <div class="doc-meta">
+                        <div class="doc-ref-box">
+                            <span class="ref-label">TECHNO-COMMERCIAL OFFER</span>
+                            <span class="ref-no" id="docQuoteRef">SAL-QTN-2024-00478</span>
+                        </div>
+                        <p><strong>Date:</strong> <span id="docDate">2026-07-20</span></p>
+                        <p><strong>Quotation Valid Till:</strong> <span id="docValidUntil">2026-08-19</span></p>
+                    </div>
+                </div>
+
+                <div class="doc-divider"></div>
+
+                <!-- Client & BDM Block -->
+                <div class="doc-parties-grid">
+                    <div class="party-box">
+                        <span class="party-title">SUBMITTED TO:</span>
+                        <h3 id="docClientName">Nims hospital tvm</h3>
+                        <p id="docClientLocation">Trivandrum, Kerala</p>
+                        <p><strong>Attn:</strong> <span id="docContactPerson">Medical Director / BioMed Team</span></p>
+                    </div>
+                    <div class="party-box">
+                        <span class="party-title">SUBMITTED BY:</span>
+                        <h3>Genxiot Healthcare Solutions</h3>
+                        <p>Authorized Sales & System Integration Partner</p>
+                        <p><strong>Representative:</strong> <span id="docBdmName">Genxiot Sales Team</span></p>
+                    </div>
+                </div>
+
+                <!-- Executive Summary & Technology Highlights -->
+                <div class="doc-section">
+                    <h3 class="section-heading">1. Executive Summary & Product Overview</h3>
+                    <p class="doc-text">
+                        Genxiot LLP is pleased to present this Techno-Commercial Proposal for the <strong>Genxiot Alamo Smart Wireless Nurse Call System</strong>. Genxiot delivers modern healthcare automation across 100+ hospital facilities with over 10 Lakh nurse calls served. Alamo is engineered for seamless clinical communication, improved patient response times, and automated operational logging for NABH compliance.
+                    </p>
+                    <div class="tech-feature-grid">
+                        <div class="feature-card">
+                            <strong><i data-lucide="wifi-off"></i> Zero-Conduit Wireless</strong>
+                            <span>Industrial LoRa long-range RF protocol eliminates complex wall chasing and wiring disruption in both operational & new hospitals.</span>
+                        </div>
+                        <div class="feature-card">
+                            <strong><i data-lucide="clock"></i> Response Audit & NABH Logging</strong>
+                            <span>Automatic timestamping of patient calls, nurse presence, and resolution times with monthly PDF email reporting.</span>
+                        </div>
+                        <div class="feature-card">
+                            <strong><i data-lucide="alert-triangle"></i> Code Blue & Ward Escalation</strong>
+                            <span>Instant emergency priority escalation across Android displays, tablets, corridor screens, and desktops.</span>
+                        </div>
+                        <div class="feature-card">
+                            <strong><i data-lucide="battery-charging"></i> Dual Power & Battery Status</strong>
+                            <span>Battery backed nodes ensure 100% operational uptime with central battery level monitoring.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bill of Materials Table -->
+                <div class="doc-section">
+                    <h3 class="section-heading">2. Quotation / Techno-Commercial Bill of Quantities (BOQ)</h3>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35px;">Sr</th>
+                                <th>Item Name & Description</th>
+                                <th style="width: 70px; text-align: center;">Qty</th>
+                                <th style="width: 100px; text-align: right;">Rate (₹)</th>
+                                <th style="width: 120px; text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="docBomTbody">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-right">Total:</td>
+                                <td class="text-right" id="docSubtotal">₹0.00</td>
+                            </tr>
+                            <tr id="docDiscountRow" style="display: none;">
+                                <td colspan="4" class="text-right text-danger">Additional Discount:</td>
+                                <td class="text-right text-danger" id="docDiscount">INR 0.0</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">CGST (9%):</td>
+                                <td class="text-right" id="docCGST">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-right">SGST (9%):</td>
+                                <td class="text-right" id="docSGST">₹0.00</td>
+                            </tr>
+                            <tr class="grand-total-tr">
+                                <td colspan="4" class="text-right"><strong>Grant total (Inclusive of GST):</strong></td>
+                                <td class="text-right"><strong id="docGrandTotal">₹0.00</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Payment Terms and Schedule -->
+                <div class="doc-section page-break-inside-avoid">
+                    <h3 class="section-heading">3. Payment Terms and Schedule</h3>
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Term</th>
+                                <th style="width: 120px; text-align: center;">Invoice Portion %</th>
+                                <th style="width: 150px; text-align: right;">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>50% Advance</strong><br><small>Payment shall be accepted via bank transfer</small></td>
+                                <td style="text-align: center;" id="docAdvPercentCell">50.0%</td>
+                                <td style="text-align: right;" id="docAdvAmountCell">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td><strong>50% post Installation</strong></td>
+                                <td style="text-align: center;" id="docPostPercentCell">50.0%</td>
+                                <td style="text-align: right;" id="docPostAmountCell">₹0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Bank Details -->
+                <div class="doc-section page-break-inside-avoid">
+                    <h3 class="section-heading">4. Bank Details & Remittance Channel</h3>
+                    <div class="bank-details-box">
+                        <p><strong>NAME:</strong> M/S GENXIOT HEALTHCARE SOLUTIONS</p>
+                        <p><strong>BANK:</strong> ICICI BANK LTD, PEROORKADA</p>
+                        <p><strong>IFSC:</strong> ICIC0003230</p>
+                        <p><strong>AC No:</strong> 323005000011</p>
+                    </div>
+                </div>
+
+                <!-- Complete Terms & Conditions (Matching Sample Quote Verbatim) -->
+                <div class="doc-section page-break-inside-avoid">
+                    <h3 class="section-heading">5. Installation & Technical Terms</h3>
+                    <div class="terms-full-box">
+                        <p><strong>Installation & Configuration Terms:</strong> Wallmounting, Fixing & Electrical work needs to be done by hospital electrical department. Configuration & training will be done by Genxiot Team.</p>
+                    </div>
+                </div>
+
+                <div class="doc-section page-break-inside-avoid">
+                    <h3 class="section-heading">6. General Terms & Conditions</h3>
+                    <div class="terms-legal-block">
+                        <p><strong>Scope of Application:</strong> The General Terms and Conditions (“General Terms”) hereinafter set forth shall exclusively apply to all transactions with Genxiot Healthcare Solutions with registered office at 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala, India - 695581.</p>
+                        <p><strong>Buyer’s General Terms and Conditions:</strong> Any differing or conflicting general terms of the buyer shall not be applicable to any transaction and are hereby rejected. Consequently, any variations from these General Terms shall be of no effect unless agreed to in writing by Genxiot.</p>
+                        <p><strong>Payment Terms:</strong> 50 percent advance and 50 percent post-delivery of items purchased. All bank charges of Buyer Bank shall be borne by the buyer and Seller Bank charges will be borne by seller.</p>
+                        <p><strong>Delivery Period:</strong> Period of Delivery is 25 days from confirmation of order by Genxiot. The period for delivery and performance starts upon dispatch of acknowledgement and acceptance of order by Genxiot, but not before all technical details have been fully cleared up and agreed upon, all permits/clearances provided, and agreed down payment received.</p>
+                        <p><strong>Maintenance Scope:</strong> Scope covers comprehensive on-site maintenance of Devices provided by Genxiot and does not involve any other infrastructure. Complaints attended as: Minor faults immediately with telephonic support; Major faults requiring branch visit within a week; Repair carried out at production site and sent back.</p>
+                        <p><strong>Duties of Inspection and Notice of Defects:</strong> The buyer shall be obliged to inspect the packaging and products immediately upon delivery and loses the right to rely on lack of conformity if notice is not given within 5 days.</p>
+                        <p><strong>Warranty of Quality:</strong> Genxiot will provide warranty for 12 months. Start of warranty depends on return of duly completed and signed Installation Protocol. Non-return within 6 weeks invalidates warranty. Generally excluded from warranty: all wear & tear parts (pull cord, pendant button, battery). Genxiot shall not be liable for damage from non-compliance with installation/assembly instructions, improper storage/use, or electrical/atmospheric influences.</p>
+                        <p><strong>Jurisdiction & Governing Law:</strong> Exclusive place of jurisdiction for any dispute arising out of or in connection with this Agreement shall be Cochin / Thiruvananthapuram, India, governed by the laws of India.</p>
+                    </div>
+                </div>
+
+                <!-- Signatures & Authorization -->
+                <div class="doc-signatures page-break-inside-avoid">
+                    <div class="sig-box">
+                        <div class="sig-line"></div>
+                        <p><strong>Prepared & Authorized By</strong></p>
+                        <p>Genxiot Healthcare Solutions</p>
+                    </div>
+                    <div class="sig-box">
+                        <div class="sig-line"></div>
+                        <p><strong>Accepted & Confirmed By</strong></p>
+                        <p id="docSigClient">Nims hospital tvm</p>
+                    </div>
+                </div>
+
+                <!-- Print Footer -->
+                <div class="doc-footer">
+                    <p>Genxiot LLP • 6th Floor STPI Building, Technopark, Thiruvananthapuram | Ph: +91 9496557777 | info@genxiot.com</p>
+                    <p class="partner-note">System Architecture & Core Technology Powered by Alamo LoRa Engine</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
