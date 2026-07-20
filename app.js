@@ -197,7 +197,7 @@ const CATALOGUE = [
 const NIMS_QTY = [134, 0, 134, 134, 39, 99, 99, 8, 8, 0, 12, 0, 0, 0, 0, 0];
 
 // ─── STATE ───────────────────────────────────────────────────────
-let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i] }));
+let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
 
 // ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -229,8 +229,13 @@ function renderBOM() {
           onerror="this.style.display='none'">
       </td>
       <td>
-        <div class="prod-name">${item.name}</div>
-        <div class="prod-sub">${item.code} &nbsp;·&nbsp; ${item.desc}</div>
+        ${item.code === 'CUSTOM' ? `
+          <input type="text" value="${item.name}" oninput="updateName(${idx}, this.value)" placeholder="Item Name" style="width:100%; font-weight:600; font-size:.82rem; margin-bottom:2px; border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
+          <input type="text" value="${item.desc}" oninput="updateDesc(${idx}, this.value)" placeholder="Description" style="width:100%; font-size:.7rem; color:var(--muted); border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
+        ` : `
+          <div class="prod-name">${item.name}</div>
+          <div class="prod-sub">${item.code} &nbsp;·&nbsp; ${item.desc}</div>
+        `}
       </td>
       <td>
         <input type="number" value="${item.qty}" min="0"
@@ -261,9 +266,19 @@ function updateQty(idx, val) {
   recalc();
 }
 function updateRate(idx, val) {
-  bom[idx].rate = Math.max(0, parseFloat(val) || 0);
+  const newVal = Math.max(0, parseFloat(val) || 0);
+  bom[idx].rate = newVal;
+  bom[idx].baseRate = newVal;
   const el = document.getElementById('amt-' + idx);
   if (el) el.textContent = '₹' + fmt(bom[idx].qty * bom[idx].rate);
+  recalc();
+}
+function updateName(idx, val) {
+  bom[idx].name = val;
+  recalc();
+}
+function updateDesc(idx, val) {
+  bom[idx].desc = val;
   recalc();
 }
 function removeItem(idx) {
@@ -273,7 +288,7 @@ function removeItem(idx) {
 function addCustomItem() {
   bom.push({
     code: 'CUSTOM', name: 'Custom Item', desc: 'Edit description',
-    group: 'Custom', rate: 0, qty: 1, img: '', driverKey: 'fixed'
+    group: 'Custom', rate: 0, baseRate: 0, qty: 1, img: '', driverKey: 'fixed'
   });
   renderBOM();
 }
@@ -368,9 +383,8 @@ function applyFacility(beds, rooms, bathrooms, wards) {
 // using Reset (which restores verified base cost) if you need to start over.
 function applyMargin() {
   const pct = parseFloat(document.getElementById('marginPct').value) || 0;
-  if (pct === 0) return;
   bom.forEach(item => {
-    item.rate = Math.round(item.rate * (1 + pct / 100));
+    item.rate = Math.round(item.baseRate * (1 + pct / 100));
   });
   renderBOM();
 }
@@ -438,6 +452,10 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const rooms         = (document.getElementById('roomCount')?.value)     || 0;
   const bathrooms     = (document.getElementById('bathroomCount')?.value) || 0;
   const wards         = (document.getElementById('wardCount')?.value)     || 0;
+
+  const delivery      = (document.getElementById('delivery')?.value)      || '';
+  const warranty      = (document.getElementById('warranty')?.value)      || '';
+  const scopeNotes    = (document.getElementById('scopeNotes')?.value)    || '';
 
   // Cover page
   setText('cvrClient', clientName);
@@ -512,6 +530,11 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qPostPct', Math.round(100 - advPct) + '%');
   setText('qAdvAmt',  '₹' + fmt(advAmt));
   setText('qPostAmt', '₹' + fmt(postAmt));
+
+  // T&C Updates
+  setText('qDelivery', delivery);
+  setText('qWarranty', warranty);
+  setText('qScope',    scopeNotes);
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────
@@ -560,7 +583,7 @@ function printDoc() {
 
 // ─── RESET ───────────────────────────────────────────────────────
 function resetQuote() {
-  bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i] }));
+  bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
   document.getElementById('clientName').value      = 'Nims hospital tvm';
   document.getElementById('clientLocation').value  = 'Trivandrum, Kerala';
   document.getElementById('contactPerson').value   = 'Medical Director / BioMed Team';
