@@ -426,8 +426,6 @@ textarea { resize:vertical; }
     min-height: auto;
     margin: 0; 
     padding: 0;
-    page-break-after: always;
-    break-after: page;
     overflow: visible; /* CRITICAL for tables breaking across pages */
     box-sizing: border-box;
   }

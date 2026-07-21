@@ -109,59 +109,86 @@
         <!-- Quotation Logic Explanation -->
         <div class="logic-box">
           <div class="logic-title">📐 BOM LOGIC</div>
-          <div class="logic-row"><span class="logic-key">Beds</span><span class="logic-val">→ Call Points (room) + Pendants + Stands</span></div>
-          <div class="logic-row"><span class="logic-key">Rooms</span><span class="logic-val">→ Door Lights (1 per room door)</span></div>
-          <div class="logic-row"><span class="logic-key">Bathrooms</span><span class="logic-val">→ Call Points (bathroom) + Pull Cords</span></div>
-          <div class="logic-row"><span class="logic-key">Wards</span><span class="logic-val">→ Gateways + NS Displays + Repeaters (~1.5×)</span></div>
+          <div class="logic-row"><span class="logic-key">Beds</span><span class="logic-val">→ 1 Room CP + 1 Pendant (of chosen type) per bed</span></div>
+          <div class="logic-row"><span class="logic-key">Rooms</span><span class="logic-val">→ 1 Door Indicator per room door</span></div>
+          <div class="logic-row"><span class="logic-key">Bathrooms</span><span class="logic-val">→ 1 Washroom CP + 1 Pull Cord</span></div>
+          <div class="logic-row"><span class="logic-key">Wards</span><span class="logic-val">→ NS Setup + Repeaters (~1.5×)</span></div>
         </div>
-
         <div class="row2">
           <div>
             <label>Patient Beds 🛏️</label>
-            <input type="number" id="bedCount" value="134" min="1" oninput="calcEstimator()">
-            <div class="field-hint">1 CP + 1 Pendant + 1 Stand per bed</div>
+            <input type="number" id="bedCount" value="0" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 Room CP per bed</div>
           </div>
           <div>
-            <label>Patient Rooms 🚪</label>
-            <input type="number" id="roomCount" value="39" min="0" oninput="calcEstimator()">
-            <div class="field-hint">1 Door Light per room</div>
+            <label>Pendant Type</label>
+            <select id="pendantType" onchange="calcEstimator()">
+              <option value="none">None</option>
+              <option value="single">Single Button (600)</option>
+              <option value="double">Double Button (950)</option>
+            </select>
           </div>
         </div>
         <div class="row2">
           <div>
-            <label>Bathrooms 🚿</label>
-            <input type="number" id="bathroomCount" value="99" min="0" oninput="calcEstimator()">
-            <div class="field-hint">1 CP + 1 Pull Cord per bathroom</div>
+            <label>Patient Rooms 🚪</label>
+            <input type="number" id="roomCount" value="0" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 Door Light per room</div>
           </div>
           <div>
-            <label>Wards / Stations 🏥</label>
-            <input type="number" id="wardCount" value="8" min="1" oninput="calcEstimator()">
-            <div class="field-hint">1 Gateway + 1 NS Display + ~1.5 Repeaters</div>
+            <label>Bathrooms 🚿</label>
+            <input type="number" id="bathroomCount" value="0" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 CP + 1 Pull Cord per bathroom</div>
+          </div>
+        </div>
+        <div class="row2">
+          <div>
+            <label>Nursing Stations 🏥</label>
+            <input type="number" id="wardCount" value="0" min="0" oninput="calcEstimator()">
+            <div class="field-hint">1 NS Setup per Ward</div>
+          </div>
+          <div>
+            <label>NS Setup Type</label>
+            <select id="nsSetupType" onchange="calcEstimator()">
+              <option value="basic">Setup 1: Basic Display (13000)</option>
+              <option value="tv">Setup 2: TV + Gateway (22000)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2 mt">
+          <div style="grid-column: 1 / -1; margin-top: 5px;">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" id="dataLogging" onchange="calcEstimator()"> 
+              Include Additional Data Logging &amp; Analytics
+            </label>
+            <div class="field-hint" style="margin-left: 20px;">Requires a Standalone Gateway (10000) and Annual Subscription (3000)</div>
           </div>
         </div>
 
         <!-- Live Estimated Counts -->
         <div class="est-grid" style="margin-top:.4rem">
           <span class="est-section-lbl">BED-DRIVEN</span><span></span>
-          <span>Room Call Points</span><strong id="estBeds">134</strong>
-          <span>Pendant Buttons (M1)</span><strong id="estPendants">134</strong>
-          <span>Pendant Stands</span><strong id="estPendantStand">134</strong>
+          <span>Room Call Points</span><strong id="estBeds">0</strong>
+          <span>Single Pendants</span><strong id="estPendantsSingle">0</strong>
+          <span>Double Pendants</span><strong id="estPendantsDouble">0</strong>
 
           <span class="est-section-lbl">ROOM-DRIVEN</span><span></span>
-          <span>Door Lights</span><strong id="estRooms">39</strong>
+          <span>Door Indicators</span><strong id="estRooms">0</strong>
 
           <span class="est-section-lbl">BATHROOM-DRIVEN</span><span></span>
-          <span>Bathroom Call Points</span><strong id="estBathCPs">99</strong>
-          <span>Pull Cords</span><strong id="estPullCords">99</strong>
+          <span>Washroom Call Points</span><strong id="estBathCPs">0</strong>
+          <span>Pull Cords</span><strong id="estPullCords">0</strong>
 
           <span class="est-section-lbl">WARD-DRIVEN</span><span></span>
-          <span>LoRa Gateways</span><strong id="estGateways">8</strong>
-          <span>NS Displays (Android TV)</span><strong id="estNS">8</strong>
-          <span>Repeaters (range ext., ~1.5×)</span><strong id="estRepeaters">12</strong>
+          <span>NS Basic Displays</span><strong id="estNSBasic">0</strong>
+          <span>NS TV Displays</span><strong id="estNSTV">0</strong>
+          <span>Standalone Gateways</span><strong id="estGateways">0</strong>
+          <span>Repeaters (~1.5× NS)</span><strong id="estRepeaters">0</strong>
+          <span>Data Logger Sub</span><strong id="estDataLog">0</strong>
 
           <span class="est-section-lbl">TOTALS</span><span></span>
-          <span><b>Total Call Points</b></span><strong id="estTotalCPs" style="color:var(--brand-cyan)">233</strong>
-          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">300</strong>
+          <span><b>Total Call Points</b></span><strong id="estTotalCPs" style="color:var(--brand-cyan)">0</strong>
+          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">0</strong>
         </div>
 
         <button class="btn btn-primary w-full mt" onclick="applyEstimator()">
@@ -395,58 +422,8 @@
           <h2 class="doc-h2 accent">Our Prestigious Clients</h2>
           <p class="doc-p" style="margin-bottom: 25px;">We have successfully implemented our intelligent healthcare solutions across a wide range of renowned hospitals and clinics in India.</p>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85rem; color: #444;">
-            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-              <li>INHS Sanjeevani Kochi</li>
-              <li>Baby Memorial Kozhikode & Kannur</li>
-              <li>Nanavati Max Mumbai</li>
-              <li>Fortis Mulund Mumbai</li>
-              <li>Majestic Hospital Hyderabad</li>
-              <li>Babasaheb Gawde Charitable Hospital</li>
-              <li>Shanthi Memorial Hospital</li>
-              <li>Thrikkakara Municipal Co-operative Hospital</li>
-              <li>BAPS Shastriji Maharaj Hospital Baroda</li>
-              <li>Nirmala Medical Centre</li>
-              <li>Fatima Mission Hospital Wayand</li>
-              <li>Urja Maternity Hospital</li>
-              <li>Ashiti Clinic</li>
-              <li>Aditya Medical Center Thanjavur</li>
-              <li>Anupama Hospital Hyderabad</li>
-              <li>Anil Neerukonda Hospital</li>
-              <li>Sudheendra Medical Mission</li>
-              <li>Nattathi Nadar Hospital Theni</li>
-              <li>Paduva Hospital</li>
-              <li>Providence Hospital Alappuzha</li>
-              <li>CGH Earth Ayurveda</li>
-              <li>Sree Mahalakshmi Diatone Institute</li>
-              <li>Platinum Hospital Nashik</li>
-              <li>Aurindam Hospital Mumbai</li>
-            </ul>
-            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
-              <li>Motiben Dalvi Hospital Mumbai</li>
-              <li>Indo Us Hospital Hyderabad</li>
-              <li>Mahavir Hospital Surat</li>
-              <li>Lilavati Hospital Mumbai</li>
-              <li>Tata Memorial Hospital Mumbai</li>
-              <li>Aseezia Medical College Kollam</li>
-              <li>Almas Hospital Kottakkal</li>
-              <li>Kerala Medical College Palakkad</li>
-              <li>Kokilaben Hospital</li>
-              <li>Amala Trissur Kerala</li>
-              <li>Travancore Medicity Kollam</li>
-              <li>Cosmo Hospital Trivandrum</li>
-              <li>Muthoot Hospital</li>
-              <li>Medical Trust Cochin</li>
-              <li>Bewell Hospital Chennai / Pondy</li>
-              <li>Kauvery Hospital Chennai</li>
-              <li>Global Hospitals Mumbai</li>
-              <li>BCMCH Thiruvalla</li>
-              <li>Narayana Hrudayalaya Kolkata</li>
-              <li>KR Hospital Coimbatore</li>
-              <li>HCG Eko Cancer Center Kolkata</li>
-              <li>Aurum Living Gurgoan</li>
-              <li>Femicity Hospital Hyderabad</li>
-            </ul>
+          <div id="clientsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85rem; color: #444;">
+            <!-- Rendered via JS -->
           </div>
         </div>
       </div>

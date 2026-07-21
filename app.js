@@ -29,6 +29,26 @@
    ║    Wards: 8   → 8 Gateways + 8 NS Displays                  ║
    ╚══════════════════════════════════════════════════════════════╝ */
 
+// ─── CUSTOMER LIST ───────────────────────────────────────────────
+const PRESTIGIOUS_CLIENTS = [
+  "INHS Sanjeevani Kochi", "Baby Memorial Kozhikode & Kannur", "Nanavati Max Mumbai", 
+  "Fortis Mulund Mumbai", "Majestic Hospital Hyderabad", "Babasaheb Gawde Charitable Hospital", 
+  "Shanthi Memorial Hospital", "Thrikkakara Municipal Co-operative Hospital", "BAPS Shastriji Maharaj Hospital Baroda", 
+  "Nirmala Medical Centre", "Fatima Mission Hospital Wayand", "Urja Maternity Hospital", 
+  "Ashiti Clinic", "Aditya Medical Center Thanjavur", "Anupama Hospital Hyderabad", 
+  "Anil Neerukonda Hospital", "Sudheendra Medical Mission", "Nattathi Nadar Hospital Theni", 
+  "Paduva Hospital", "Providence Hospital Alappuzha", "CGH Earth Ayurveda", 
+  "Sree Mahalakshmi Diatone Institute", "Platinum Hospital Nashik", "Aurindam Hospital Mumbai",
+  "Motiben Dalvi Hospital Mumbai", "Indo Us Hospital Hyderabad", "Mahavir Hospital Surat", 
+  "Lilavati Hospital Mumbai", "Tata Memorial Hospital Mumbai", "Aseezia Medical College Kollam", 
+  "Almas Hospital Kottakkal", "Kerala Medical College Palakkad", "Kokilaben Hospital", 
+  "Amala Trissur Kerala", "Travancore Medicity Kollam", "Cosmo Hospital Trivandrum", 
+  "Muthoot Hospital", "Medical Trust Cochin", "Bewell Hospital Chennai / Pondy", 
+  "Kauvery Hospital Chennai", "Global Hospitals Mumbai", "BCMCH Thiruvalla", 
+  "Narayana Hrudayalaya Kolkata", "KR Hospital Coimbatore", "HCG Eko Cancer Center Kolkata", 
+  "Aurum Living Gurgoan", "Femicity Hospital Hyderabad"
+];
+
 // ─── MASTER ITEM CATALOGUE ───────────────────────────────────────
 // Rates verified directly against SAL-QTN-2024-00478 (the real Evelabs quote
 // in this repo — see qtn_extracted.txt) and cross-checked against both
@@ -37,164 +57,114 @@
 // Use "Apply Margin %" in the Financial Summary card to move from cost to a
 // customer-facing sell price — do not silently hardcode a markup here.
 const CATALOGUE = [
-  // ── BED-DRIVEN (1 per BED) ─────────────────────────────────
+  // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Alamo Call Point – Patient Room',
-    desc:  'A1 Call Point: Call, Cancel, Acknowledge & Housekeeping. 2× RJ11 accessory ports. LoRa wireless, AA battery operated. 1 unit per patient bed.',
-    group: 'Bed Components (1 per Bed)',
+    name:  'Room Call Point',
+    desc:  'Room Call Point. Call, Cancel, Acknowledge & Housekeeping. LoRa wireless.',
+    group: 'Bed Components',
     rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'beds'
   },
   {
-    code:  'ALAMO-CP-PM3',
-    name:  'Call Point Panel Mount 3 module',
-    desc:  'Fully Assembled Panel Mount Call Point (Alternative to standard bedside point).',
-    group: 'Bed Components (1 per Bed)',
-    rate:  2400,
+    code:  'ALAMO-PD-S',
+    name:  'Single Button Pendant',
+    desc:  'Patient-side coil-cord single switch. Connects via RJ11 to the room call point.',
+    group: 'Bed Components',
+    rate:  600,
     img:   'qtn_embed_p5_img0.jpeg',
-    driverKey: 'beds'
+    driverKey: 'pendants_single'
   },
   {
-    code:  'ALAMO-PD',
-    name:  'Pendant Button M1 / Single Switch Pendant',
-    desc:  'Patient-side coil-cord call switch. Connects via RJ11 to the room call point. Placed within patient reach at the bed. 1 unit per bed.',
-    group: 'Bed Components (1 per Bed)',
-    rate:  450,
+    code:  'ALAMO-PD-D',
+    name:  'Double Button Pendant',
+    desc:  'Patient-side coil-cord double switch. Connects via RJ11 to the room call point.',
+    group: 'Bed Components',
+    rate:  950,
     img:   'qtn_embed_p5_img0.jpeg',
-    driverKey: 'beds'
+    driverKey: 'pendants_double'
   },
-  {
-    code:  'ALAMO-PS',
-    name:  'Pendant Stand',
-    desc:  'Wall/bedside mounting stand for the Pendant Button. Includes screws and fisher plug for assembly. 1 unit per bed.',
-    group: 'Bed Components (1 per Bed)',
-    rate:  100,
-    img:   'qtn_embed_p5_img0.jpeg',
-    driverKey: 'beds'
-  },
-
-  // ── ROOM-DRIVEN (1 per ROOM) ────────────────────────────────
+  // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Room Light (Call Light V2 / Door Indicator)',
-    desc:  'LED corridor indicator light. Placed outside room door. Wirelessly paired with room call points – illuminates on any call from that room. 1 unit per room.',
-    group: 'Room Components (1 per Room)',
-    rate:  2300,
+    name:  'Door Indicator for Room',
+    desc:  'LED corridor indicator light. Placed outside room door. Illuminates on any call from that room.',
+    group: 'Room Components',
+    rate:  2400,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'rooms'
   },
-
-  // ── BATHROOM-DRIVEN (1 per BATHROOM) ───────────────────────
+  // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Alamo Call Point – Bathroom/Washroom',
-    desc:  'Dedicated bathroom call point (same base unit as the room call point). Independent LoRa unit – separate from room call points. AA battery operated. 1 unit per bathroom.',
-    group: 'Bathroom Components (1 per Bathroom)',
+    name:  'Washroom Call Point',
+    desc:  'Dedicated washroom call point. Independent LoRa unit.',
+    group: 'Washroom Components',
     rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'bathrooms'
   },
   {
     code:  'ALAMO-PL',
-    name:  'Pull Cord Accessory',
-    desc:  'Washroom pull cord connected to the bathroom call point via RJ11. Allows patient to call from floor level or any position – critical for fall emergencies. 1 per bathroom.',
-    group: 'Bathroom Components (1 per Bathroom)',
-    rate:  400,
+    name:  'Pull Cord',
+    desc:  'Washroom pull cord connected to the bathroom call point.',
+    group: 'Washroom Components',
+    rate:  600,
     img:   'qtn_embed_p5_img0.jpeg',
     driverKey: 'bathrooms'
   },
-
-  // ── WARD-DRIVEN (1 per WARD/NURSING STATION) ────────────────
+  // ── WARD-DRIVEN ────────────────────────────────
   {
-    code:  'ALAMO-GW',
-    name:  'LoRa Gateway / Central Receiver',
-    desc:  'Receives all LoRa RF transmissions from call points within its zone. Forwards data to NS display, mobile apps, and cloud. Typically 1 per ward/floor nursing station.',
-    group: 'Infrastructure & Network',
-    rate:  8500,
+    code:  'ALAMO-NS-BASIC',
+    name:  'Nursing Station Setup 1 (Basic Display)',
+    desc:  'Basic display (6 call + sound) with built-in LoRa gateway.',
+    group: 'Nursing Station',
+    rate:  13000,
     img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'wards'
+    driverKey: 'ns_basic'
   },
   {
-    code:  'ALAMO-NS',
-    name:  'Nursing Station Display (32" Android panel)',
-    desc:  'Pre-configured Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts. 1 unit per nursing station.',
-    group: 'Infrastructure & Network',
-    rate:  12500,
-    img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'wards'
-  },
-  {
-    code:  'ALAMO-MINI-NS',
-    name:  'Alamo Mini Station Tetris V2',
-    desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable.',
-    group: 'Infrastructure & Network',
+    code:  'ALAMO-NS-TV',
+    name:  'Nursing Station Setup 2 (TV Display)',
+    desc:  'TV Display (10 call, better visual and audio).',
+    group: 'Nursing Station',
     rate:  12000,
     img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'wards'
+    driverKey: 'ns_tv'
+  },
+  {
+    code:  'ALAMO-GW',
+    name:  'Standalone LoRa Gateway',
+    desc:  'Central receiver for LoRa network. Required for TV Display or Data Logging.',
+    group: 'Infrastructure & Network',
+    rate:  10000,
+    img:   'qtn_embed_p6_img0.jpeg',
+    driverKey: 'gateways'
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater V2 (Signal Range Extender)',
-    desc:  'Extends LoRa range for large or multi-block facilities. Qty auto-estimated at ~1.5× ward count.',
+    name:  'Repeater',
+    desc:  'Extends LoRa signal range for large or multi-block facilities.',
     group: 'Infrastructure & Network',
     rate:  2500,
     img:   'qtn_embed_p6_img0.jpeg',
     driverKey: 'repeaters'
   },
-
-  // ── FIXED (per hospital) ─────────────────────────────────────
+  // ── FIXED ─────────────────────────────────────
   {
-    code:  'ALAMO-VISION',
-    name:  'Alamo Vision – Annual App License',
-    desc:  'Cloud analytics: escalation alerts, peak-time reports, nursing manager dashboard.',
+    code:  'ALAMO-DATALOG',
+    name:  'Data Logger Subscription (Annual)',
+    desc:  'Automated logging of all key data, nurse presence, response times, and emailed reports.',
     group: 'Software & Services',
-    rate:  0,
+    rate:  3000,
     img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'fixed'
-  },
-  {
-    code:  'ALAMO-MANAGER',
-    name:  'Alamo Manager Software',
-    desc:  'Call Points administration software to install, manage and reconfigure call points and lights.',
-    group: 'Software & Services',
-    rate:  0,
-    img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'fixed'
-  },
-  {
-    code:  'ALAMO-TRAIN',
-    name:  'Installation, Configuration & Training',
-    desc:  'On-site installation, LoRa network calibration, staff training, go-live support.',
-    group: 'Software & Services',
-    rate:  0,
-    img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'fixed'
-  },
-  {
-    code:  'RCEL-250M',
-    name:  'RCEL 250 M',
-    desc:  'RCEL 250 M component as specified in the proposal.',
-    group: 'Fixed Components',
-    rate:  2900,
-    img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'fixed'
-  },
-  {
-    code:  'DRIPO-MONITOR',
-    name:  'Dripo Infusion Monitor',
-    desc:  'Fully Packed Dripo Infusion Monitor.',
-    group: 'Fixed Components',
-    rate:  4000,
-    img:   'qtn_embed_p6_img0.jpeg',
-    driverKey: 'fixed'
+    driverKey: 'datalog'
   }
 ];
 
-// Default quantities matching SAL-QTN-2024-00478 (Nims Hospital) — 15 items now,
-// 134 CP-R, 0 CP-PM3, 134 PD, 134 PS, 39 DL, 99 CP-B, 99 PL, 8 GW, 8 NS, 0 NS-MINI, 12 RPT, 0 VISION, 0 MANAGER, 0 TRAIN, 0 RCEL, 0 DRIPO.
-const NIMS_QTY = [134, 0, 134, 134, 39, 99, 99, 8, 8, 0, 12, 0, 0, 0, 0, 0];
+// Default quantities (11 items)
+const NIMS_QTY = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 // ─── STATE ───────────────────────────────────────────────────────
 let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
@@ -299,16 +269,20 @@ function loadPreset(preset) {
 
   const presets = {
     small: {
-      beds:30, rooms:15, bathrooms:18, wards:2,
+      beds:30, rooms:15, bathrooms:18, wards:2, dataLog: false, pendant: 'single', ns: 'basic',
       client:'Small Clinic / Nursing Home', loc:'Kerala'
     },
     medium: {
-      beds:134, rooms:39, bathrooms:99, wards:8,
+      beds:134, rooms:39, bathrooms:99, wards:8, dataLog: false, pendant: 'single', ns: 'tv',
       client:'Nims hospital tvm', loc:'Trivandrum, Kerala'
     },
     large: {
-      beds:250, rooms:80, bathrooms:180, wards:15,
+      beds:250, rooms:80, bathrooms:180, wards:15, dataLog: true, pendant: 'double', ns: 'tv',
       client:'Super-Specialty Hospital', loc:'PAN India'
+    },
+    ref50: {
+      beds:50, rooms:25, bathrooms:50, wards:2, dataLog: true, pendant: 'single', ns: 'tv',
+      client:'50-Bed Reference Hospital', loc:'Reference Configuration'
     }
   };
 
@@ -319,15 +293,13 @@ function loadPreset(preset) {
   document.getElementById('roomCount').value     = p.rooms;
   document.getElementById('bathroomCount').value = p.bathrooms;
   document.getElementById('wardCount').value     = p.wards;
+  document.getElementById('dataLogging').checked = p.dataLog || false;
+  document.getElementById('pendantType').value   = p.pendant || 'single';
+  document.getElementById('nsSetupType').value   = p.ns || 'basic';
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
 
-  applyFacility(p.beds, p.rooms, p.bathrooms, p.wards);
-  // Presets represent a typical NEW deal (unlike Reset, which is an exact
-  // replica of the historical Nims quote) — include software licence & install/training.
-  bom.forEach(item => {
-    if (item.code === 'ALAMO-VISION' || item.code === 'ALAMO-TRAIN') item.qty = 1;
-  });
+  applyFacility(p.beds, p.rooms, p.bathrooms, p.wards, p.dataLog ? 1 : 0, p.pendant || 'single', p.ns || 'basic');
   renderBOM();
   calcEstimator();
 }
@@ -339,21 +311,41 @@ function calcEstimator() {
   const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
   const wards     = parseInt(document.getElementById('wardCount').value)     || 0;
   const repeaters = Math.ceil(wards * 1.5);
+  
+  const pendantType = document.getElementById('pendantType').value;
+  const nsSetupType = document.getElementById('nsSetupType').value;
+  const dataLog     = document.getElementById('dataLogging').checked;
+  
+  let pSingle = 0, pDouble = 0;
+  if (pendantType === 'single') pSingle = beds;
+  if (pendantType === 'double') pDouble = beds;
+  
+  let nsBasic = 0, nsTV = 0, gateways = 0;
+  if (nsSetupType === 'basic') {
+    nsBasic = wards;
+  } else if (nsSetupType === 'tv') {
+    nsTV = wards;
+    gateways += wards;
+  }
+  
+  if (dataLog) gateways += 1;
 
   // Display calculated quantities
-  setText('estBeds',        beds);
-  setText('estPendants',    beds);
-  setText('estPendantStand',beds);
-  setText('estRooms',       rooms);
-  setText('estBathCPs',     bathrooms);
-  setText('estPullCords',   bathrooms);
-  setText('estGateways',    wards);
-  setText('estNS',          wards);
-  setText('estRepeaters',   repeaters);
+  setText('estBeds',           beds);
+  setText('estPendantsSingle', pSingle);
+  setText('estPendantsDouble', pDouble);
+  setText('estRooms',          rooms);
+  setText('estBathCPs',        bathrooms);
+  setText('estPullCords',      bathrooms);
+  setText('estNSBasic',        nsBasic);
+  setText('estNSTV',           nsTV);
+  setText('estGateways',       gateways);
+  setText('estRepeaters',      repeaters);
+  setText('estDataLog',        dataLog ? 1 : 0);
 
   // Summary totals
-  setText('estTotalCPs',    beds + bathrooms);
-  setText('estTotalUnits',  beds + bathrooms + rooms + (wards * 2) + repeaters);
+  setText('estTotalCPs',       beds + bathrooms);
+  setText('estTotalUnits',     beds + pSingle + pDouble + rooms + (bathrooms * 2) + nsBasic + nsTV + gateways + repeaters);
 }
 
 function applyEstimator() {
@@ -361,17 +353,30 @@ function applyEstimator() {
   const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
   const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
   const wards     = parseInt(document.getElementById('wardCount').value)     || 0;
-  applyFacility(beds, rooms, bathrooms, wards);
+  const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
+  
+  const pendantType = document.getElementById('pendantType').value;
+  const nsSetupType = document.getElementById('nsSetupType').value;
+  
+  applyFacility(beds, rooms, bathrooms, wards, dataLog, pendantType, nsSetupType);
 }
 
-function applyFacility(beds, rooms, bathrooms, wards) {
+function applyFacility(beds, rooms, bathrooms, wards, dataLog, pendantType, nsSetupType) {
+  let gateways = 0;
+  if (nsSetupType === 'tv') gateways += wards;
+  if (dataLog > 0) gateways += 1;
+
   bom.forEach(item => {
-    if (item.driverKey === 'beds')      item.qty = beds;
-    if (item.driverKey === 'rooms')     item.qty = rooms;
+    if (item.driverKey === 'beds') item.qty = beds;
+    if (item.driverKey === 'rooms') item.qty = rooms;
     if (item.driverKey === 'bathrooms') item.qty = bathrooms;
-    if (item.driverKey === 'wards')     item.qty = wards;
     if (item.driverKey === 'repeaters') item.qty = Math.ceil(wards * 1.5);
-    // 'fixed' items keep their qty unchanged
+    if (item.driverKey === 'pendants_single') item.qty = (pendantType === 'single') ? beds : 0;
+    if (item.driverKey === 'pendants_double') item.qty = (pendantType === 'double') ? beds : 0;
+    if (item.driverKey === 'ns_basic') item.qty = (nsSetupType === 'basic') ? wards : 0;
+    if (item.driverKey === 'ns_tv') item.qty = (nsSetupType === 'tv') ? wards : 0;
+    if (item.driverKey === 'gateways') item.qty = gateways;
+    if (item.driverKey === 'datalog') item.qty = dataLog;
   });
   renderBOM();
 }
