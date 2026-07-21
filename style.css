@@ -519,3 +519,11 @@ textarea { resize:vertical; }
   img { max-width: 100% !important; page-break-inside: avoid; }
   .doc-page { page-break-after: always; }
 }
+
+@media print {
+  body.print-quote-only #pageCover,
+  body.print-quote-only #pageBrochure,
+  body.print-quote-only #pageClients {
+    display: none !important;
+  }
+}

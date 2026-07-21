@@ -303,7 +303,10 @@
           <i data-lucide="eye" size="16"></i> Preview
         </button>
         <button class="btn btn-cyan btn-lg" onclick="printDoc()">
-          <i data-lucide="printer" size="16"></i> Print / PDF
+          <i data-lucide="printer" size="16"></i> Print Full
+        </button>
+        <button class="btn btn-cyan btn-lg" onclick="printQuoteOnly()">
+          <i data-lucide="printer" size="16"></i> Print Quote Only
         </button>
       </div>
     </div>
@@ -322,7 +325,10 @@
       <span class="mctrl-title">Genxiot · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
         <button class="btn btn-cyan" onclick="printDoc()">
-          <i data-lucide="printer" size="15"></i> Print / Save PDF
+          <i data-lucide="printer" size="15"></i> Print Full PDF
+        </button>
+        <button class="btn btn-cyan" onclick="printQuoteOnly()">
+          <i data-lucide="printer" size="15"></i> Print Quote Only
         </button>
         <button class="btn btn-ghost" onclick="closeModal()">
           <i data-lucide="x" size="15"></i>
@@ -337,7 +343,7 @@
     <div id="printDoc">
 
       <!-- ── PAGE 1: COVER ──────────────── -->
-      <div class="doc-page cover-page">
+      <div class="doc-page cover-page" id="pageCover">
         <div class="cover-main">
           <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="cover-logo">
           <div class="cover-meta">
@@ -367,7 +373,7 @@
       </div>
 
       <!-- ── PAGE 2: GENXIOT BROCHURE (Features & Components) ── -->
-      <div class="doc-page page-break">
+      <div class="doc-page page-break" id="pageBrochure">
         <div class="page-brand-strip" style="margin-bottom: 20px;">
           <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
           <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Wireless Nurse Call System</span>
@@ -410,7 +416,7 @@
       </div>
 
       <!-- ── PAGE 3: CLIENTS & INSTALLATION ── -->
-      <div class="doc-page page-break">
+      <div class="doc-page page-break" id="pageClients">
         <div class="page-brand-strip" style="margin-bottom: 20px;">
           <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
           <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Prestigious Clients &amp; Service</span>
@@ -452,7 +458,7 @@
       </div>
 
       <!-- ── PAGE 10: BILL OF QUANTITIES (dynamic) ── -->
-      <div class="doc-page page-break">
+      <div class="doc-page page-break" id="pageQuote">
         <!-- Header -->
         <div class="qtn-header">
           <div class="qtn-h-left">
@@ -536,7 +542,7 @@
       </div>
 
       <!-- ── PAGE 10: PAYMENT + BANK + T&C ─── -->
-      <div class="doc-page page-break">
+      <div class="doc-page page-break" id="pageTerms">
         <div class="qtn-header" style="margin-bottom:0">
           <div class="qtn-h-left">
             <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="qtn-logo">

@@ -614,6 +614,18 @@ function printDoc() {
   setTimeout(() => window.print(), 600);
 }
 
+function printQuoteOnly() {
+  recalc();
+  document.body.classList.add('print-quote-only');
+  document.getElementById('modalBg').classList.add('open');
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove('print-quote-only');
+    }, 1000);
+  }, 600);
+}
+
 // ─── RESET ───────────────────────────────────────────────────────
 function resetQuote() {
   bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
