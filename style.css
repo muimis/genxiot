@@ -527,3 +527,8 @@ textarea { resize:vertical; }
     display: none !important;
   }
 }
+
+@page { margin: 15mm 10mm; size: A4; }
+@media print { .brochure-img { object-fit: contain !important; max-height: 180px; width: 100%; } }
+
+@media (max-width: 768px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; } table { width: 100%; } }

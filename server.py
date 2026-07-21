@@ -28,12 +28,26 @@ class QuoteHandler(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(data.encode('utf-8'))
-        elif self.path == '/api/next-qtn':
+        elif self.path.startswith('/api/next-qtn'):
+            # Parse query params
+            parsed_path = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed_path.query)
+            date_str = query_params.get('date', [None])[0]
+            
             # Generate next QTN
             with open(DB_FILE, 'r') as f:
                 quotes = json.load(f)
             
-            today = datetime.now().strftime("%Y-%m%d")
+            if date_str:
+                # Expecting YYYY-MM-DD, convert to YYYY-MMDD
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d")
+                    today = dt.strftime("%Y-%m%d")
+                except ValueError:
+                    today = datetime.now().strftime("%Y-%m%d")
+            else:
+                today = datetime.now().strftime("%Y-%m%d")
+
             count = 1
             for q in quotes:
                 if q.get('qtn', '').startswith(f"GNX-QTN-{today}"):
