@@ -266,6 +266,7 @@ let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: ite
 // ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   renderBOM();
+    renderFloors();
   recalc();
   calcEstimator();
   fillDocDates();
@@ -479,26 +480,75 @@ function loadQuotesModal() {
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
+
+let floors = [{name: 'Floor 1', beds: 0, rooms: 0, baths: 0}];
+
+function renderFloors() {
+  const container = document.getElementById('floorsContainer');
+  if (!container) return;
+  container.innerHTML = floors.map((f, i) => `
+    <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <input type="text" value="${f.name}" oninput="updateFloor(${i}, 'name', this.value)" style="flex: 1; margin-right: 10px; font-weight: bold;">
+        ${floors.length > 1 ? `<button onclick="removeFloor(${i})" style="background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 4px 8px;">X</button>` : ''}
+      </div>
+      <div class="row2">
+        <div><label>Beds</label><input type="number" value="${f.beds}" min="0" oninput="updateFloor(${i}, 'beds', this.value)"></div>
+        <div><label>Rooms</label><input type="number" value="${f.rooms}" min="0" oninput="updateFloor(${i}, 'rooms', this.value)"></div>
+      </div>
+      <div class="row2">
+        <div><label>Washrooms</label><input type="number" value="${f.baths}" min="0" oninput="updateFloor(${i}, 'baths', this.value)"></div>
+      </div>
+    </div>
+  `).join('');
+  calcEstimator();
+}
+
+function updateFloor(index, field, value) {
+  if (field === 'name') floors[index][field] = value;
+  else floors[index][field] = parseInt(value) || 0;
+  calcEstimator();
+}
+
+function addFloor() {
+  floors.push({name: `Floor ${floors.length + 1}`, beds: 0, rooms: 0, baths: 0});
+  renderFloors();
+}
+
+function removeFloor(index) {
+  floors.splice(index, 1);
+  renderFloors();
+}
+
 function calcEstimator() {
-  const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
-  const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
-  const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
-  const floors    = parseInt(document.getElementById('floorCount').value)    || 1;
+  let beds = 0, rooms = 0, bathrooms = 0;
+  floors.forEach(f => {
+    beds += f.beds;
+    rooms += f.rooms;
+    bathrooms += f.baths;
+  });
+  const floorCount = floors.length;
+
   const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
   const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
   const pendantType = document.getElementById('pendantType').value || 'none';
   
-  applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType);
+  applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog, pendantType);
 }
 
-function applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType) {
+function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog, pendantType) {
   let gateways = nsTv;
   if (dataLog > 0) gateways += 1;
   let totalWards = nsBasic + nsTv;
   
-  // Dynamic repeater logic: 1 per floor + 1 per 10 rooms
-  let repeaters = floors + Math.ceil(rooms / 10);
+  // Dynamic repeater logic per floor
+  let repeaters = 0;
+  floors.forEach(f => {
+    if (f.rooms > 0) {
+      repeaters += Math.ceil(f.rooms / 10) + 1; // 1 extra for coverage as requested
+    }
+  });
 
   bom.forEach(item => {
     if (item.driverKey === 'beds') item.qty = beds;

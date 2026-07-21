@@ -532,3 +532,16 @@ textarea { resize:vertical; }
 @media print { .brochure-img { object-fit: contain !important; max-height: 180px; width: 100%; } }
 
 @media (max-width: 768px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; } table { width: 100%; } }
+
+@media print {
+  /* Clean up layout for print */
+  body, html { margin: 0; padding: 0; background: #fff; }
+  .app-layout { display: block; }
+  .sidebar { display: none !important; }
+  .app-main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible; }
+  .page-container { background: transparent; box-shadow: none; padding: 0; gap: 0; }
+  .doc-page { margin: 0; box-shadow: none; border-radius: 0; }
+  
+  /* Hide the web-like borders from tables */
+  .bom-tbl th, .bom-tbl td { border: 1px solid #ddd; }
+}
