@@ -143,16 +143,17 @@
         </div>
         <div class="row2">
           <div>
-            <label>Nursing Stations 🏥</label>
-            <input type="number" id="wardCount" value="0" min="0" oninput="calcEstimator()">
-            <div class="field-hint">1 NS Setup per Ward</div>
+            <label>Floors / Blocks 🏢</label>
+            <input type="number" id="floorCount" value="1" min="1" oninput="calcEstimator()">
+            <div class="field-hint">Used for repeater calcs</div>
           </div>
           <div>
-            <label>NS Setup Type</label>
-            <select id="nsSetupType" onchange="calcEstimator()">
-              <option value="basic">Setup 1: Basic Display (13000)</option>
-              <option value="tv">Setup 2: TV + Gateway (22000)</option>
-            </select>
+            <label>Basic NS Displays (13000)</label>
+            <input type="number" id="nsBasicCount" value="0" min="0" oninput="calcEstimator()">
+          </div>
+          <div>
+            <label>TV NS Displays (12000)</label>
+            <input type="number" id="nsTvCount" value="0" min="0" oninput="calcEstimator()">
           </div>
         </div>
         <div class="row2 mt">
@@ -377,53 +378,77 @@
         </div>
       </div>
 
-      <!-- ── PAGE 2: ABOUT US ───────────── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_1.png" alt="Healthcare IoT" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 3: AWARDS & CUSTOMERS ─── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_2.png" alt="Awards and Customers" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 4: WHY ALAMO ──────────── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_3.png" alt="Why Alamo" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 5: COMPONENTS ─────────── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_4.png" alt="Components" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 6: GATEWAY & SOFTWARE ─── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_5.png" alt="Gateway and Software" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 7: SMART HOSPITAL ──────── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_6.png" alt="Smart Hospital" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 8: INFRASTRUCTURE ──────── -->
-      <div class="doc-page full-img-page page-break">
-        <img src="brochure_page_7.png" alt="Infrastructure" class="ref-page-img">
-      </div>
-
-      <!-- ── PAGE 9: OUR PRESTIGIOUS CLIENTS ──────────── -->
+      <!-- ── PAGE 2: GENXIOT BROCHURE (Features & Components) ── -->
       <div class="doc-page page-break">
-        <div class="page-brand-strip" style="margin-bottom: 30px;">
+        <div class="page-brand-strip" style="margin-bottom: 20px;">
           <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
-          <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Prestigious Clients</span>
+          <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Wireless Nurse Call System</span>
         </div>
         <div style="padding: 0 40px;">
-          <h2 class="doc-h2 accent">Our Prestigious Clients</h2>
-          <p class="doc-p" style="margin-bottom: 25px;">We have successfully implemented our intelligent healthcare solutions across a wide range of renowned hospitals and clinics in India.</p>
+          <h1 class="doc-h2 accent" style="font-size: 1.4rem; margin-bottom: 10px;">We make hospitals safe and efficient.</h1>
+          <p class="doc-p" style="font-size: 0.9rem; margin-bottom: 20px;">Intelligent IoT solutions for modern healthcare. Real-time Nurse Calling, Smart Workflows, Actionable Insights, and Better Patient Outcomes.</p>
+
+          <div class="brochure-grid">
+            <div class="brochure-item">
+              <img src="qtn_embed_p5_img0.jpeg" alt="Call Points" class="brochure-img">
+              <h4>Patient Call Points</h4>
+              <p>Battery-operated wall-mount solutions with Call, Service, Cancel, and Acknowledge options. Sleek design for new or operational hospitals.</p>
+            </div>
+            <div class="brochure-item">
+              <h4>Bed/Bathroom Accessories</h4>
+              <p><strong>Pendant Button:</strong> Coil-cord switch placed near the bed for convenient access.<br><br><strong>Pull Cord:</strong> Easily accessible string cord designed for washroom safety.</p>
+            </div>
+            <div class="brochure-item">
+              <img src="qtn_embed_p6_img0.jpeg" alt="Displays" class="brochure-img">
+              <h4>Indicators &amp; Displays</h4>
+              <p><strong>Room Indicators:</strong> Corridor LED lights that illuminate on call.<br><strong>Corridor Displays:</strong> Pixel matrix boards for high visibility.<br><strong>NS Monitors:</strong> Real-time Android/TV displays at nursing stations.</p>
+            </div>
+            <div class="brochure-item">
+              <h4>Gateways &amp; Software</h4>
+              <p>Standalone LoRa Gateways receive RF signals and route them to cloud/displays. The Alamo Software provides actionable insights, response-time tracking, and automated PDF reports for managers.</p>
+            </div>
+            <div class="brochure-item" style="grid-column: 1 / -1; display: flex; gap: 15px; align-items: center;">
+              <div style="flex:1;">
+                <h4>Dripo: Intelligent Bystander for IV Drips</h4>
+                <p>Alerts errors in IV, helps set IV flow rates accurately, and provides data to analyze and improve processes for better patient safety.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE 3: CLIENTS & INSTALLATION ── -->
+      <div class="doc-page page-break">
+        <div class="page-brand-strip" style="margin-bottom: 20px;">
+          <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
+          <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Prestigious Clients &amp; Service</span>
+        </div>
+        <div style="padding: 0 40px;">
+          <h2 class="doc-h2 accent">Our Service Promise</h2>
+          <p class="doc-p" style="margin-bottom: 15px; font-size: 0.8rem;">We ensure every installation is smooth. We provide Pre-Installation Site Readiness Guidance, Onsite Configuration, Staff Training &amp; Handover, and Dedicated After-Sales Support.</p>
           
-          <div id="clientsGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 0.85rem; color: #444;">
-            <!-- Rendered via JS -->
+          <h2 class="doc-h2 accent" style="margin-top:25px;">Our Prestigious Clients</h2>
+          <p class="doc-p" style="margin-bottom: 15px; font-size: 0.8rem;">Trusted by 100+ Hospitals across India, serving over 10 Lakh nurse calls from 4000+ field units.</p>
+          
+          <div class="clients-grid">
+            <span>INHS Sanjeevani, Kochi</span>
+            <span>Baby Memorial, Kozhikode</span>
+            <span>Nanavati Max, Mumbai</span>
+            <span>Fortis Mulund, Mumbai</span>
+            <span>Tata Memorial Hospital, Mumbai</span>
+            <span>Kokilaben Hospital</span>
+            <span>Narayana Hrudayalaya, Kolkata</span>
+            <span>Kauvery Hospital, Chennai</span>
+            <span>Travancore Medicity, Kollam</span>
+            <span>Medical Trust, Cochin</span>
+            <span>Amala Hospital, Thrissur</span>
+            <span>Global Hospitals, Mumbai</span>
+            <span>Majestic Hospital, Hyderabad</span>
+            <span>BAPS Shastriji Maharaj, Baroda</span>
+            <span>CGH Earth Ayurveda</span>
+            <span>Platinum Hospital, Nashik</span>
+            <span>Anupama Hospital, Hyderabad</span>
+            <span>Bewell Hospital, Chennai</span>
           </div>
         </div>
       </div>

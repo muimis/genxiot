@@ -10,30 +10,29 @@ pdf_files = [
     "page1_merged (3).pdf"
 ]
 
-results = {}
 for pdf_file in pdf_files:
-    print(f"\n{'='*60}")
-    print(f"Processing: {pdf_file}")
-    print('='*60)
+    print(f"\n{'='*80}")
+    print(f"FILE: {pdf_file}")
+    print('='*80)
     if not os.path.exists(pdf_file):
         print(f"File not found: {pdf_file}")
         continue
     
     try:
         with pdfplumber.open(pdf_file) as pdf:
-            full_text = ""
             for i, page in enumerate(pdf.pages):
                 text = page.extract_text()
                 if text:
-                    full_text += f"\n--- Page {i+1} ---\n{text}"
-            results[pdf_file] = full_text
-            print(full_text[:3000])  # Print first 3000 chars
-            print("\n...[truncated for display]...")
+                    print(f"\n--- Page {i+1} ---")
+                    print(text)
+                    
+                # Also try to extract tables
+                tables = page.extract_tables()
+                if tables:
+                    print(f"\n--- Tables on Page {i+1} ---")
+                    for ti, table in enumerate(tables):
+                        print(f"Table {ti+1}:")
+                        for row in table:
+                            print(row)
     except Exception as e:
         print(f"Error: {e}")
-
-# Save full text to file for inspection
-with open("extracted_texts.json", "w", encoding="utf-8") as f:
-    json.dump(results, f, ensure_ascii=False, indent=2)
-
-print("\n\nAll texts saved to extracted_texts.json")

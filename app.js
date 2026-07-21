@@ -60,8 +60,8 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Room Call Point',
-    desc:  'Room Call Point. Call, Cancel, Acknowledge & Housekeeping. LoRa wireless.',
+    name:  'Alamo Call Point – Patient Room',
+    desc:  'Patient call point with Call, Service, Cancel and Acknowledge buttons. This module also has 2 RJ11 ports to connect accessories and a power port to connect an adapter if needed. Include screws for assembly',
     group: 'Bed Components',
     rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -69,8 +69,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Single Button Pendant',
-    desc:  'Patient-side coil-cord single switch. Connects via RJ11 to the room call point.',
+    name:  'Alamo | Pendant Button',
+    desc:  'Patient side single-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  600,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -78,8 +78,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-D',
-    name:  'Double Button Pendant',
-    desc:  'Patient-side coil-cord double switch. Connects via RJ11 to the room call point.',
+    name:  'Alamo | Double Button Pendant',
+    desc:  'Patient side double-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  950,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -88,8 +88,8 @@ const CATALOGUE = [
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Door Indicator for Room',
-    desc:  'LED corridor indicator light. Placed outside room door. Illuminates on any call from that room.',
+    name:  'Alamo | Call light V2 (Door Indicator)',
+    desc:  'LED corridor indicator light (Alamo Call light V2). Placed outside room door. Illuminates on any call from that room.',
     group: 'Room Components',
     rate:  2400,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -98,8 +98,8 @@ const CATALOGUE = [
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Washroom Call Point',
-    desc:  'Dedicated washroom call point. Independent LoRa unit.',
+    name:  'Alamo | Bathroom Call Point',
+    desc:  'Dedicated bathroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
     group: 'Washroom Components',
     rate:  2000,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -107,8 +107,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PL',
-    name:  'Pull Cord',
-    desc:  'Washroom pull cord connected to the bathroom call point.',
+    name:  'Alamo | Pullcord',
+    desc:  'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly',
     group: 'Washroom Components',
     rate:  600,
     img:   'qtn_embed_p5_img0.jpeg',
@@ -117,8 +117,8 @@ const CATALOGUE = [
   // ── WARD-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-NS-BASIC',
-    name:  'Nursing Station Setup 1 (Basic Display)',
-    desc:  'Basic display (6 call + sound) with built-in LoRa gateway.',
+    name:  'Alamo Mini Station Tetris V2',
+    desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable. Includes built-in LoRa gateway.',
     group: 'Nursing Station',
     rate:  13000,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -126,8 +126,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  'Nursing Station Setup 2 (TV Display)',
-    desc:  'TV Display (10 call, better visual and audio).',
+    name:  'Nursing Station Display (32" Android panel)',
+    desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
     rate:  12000,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -135,8 +135,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Standalone LoRa Gateway',
-    desc:  'Central receiver for LoRa network. Required for TV Display or Data Logging.',
+    name:  'Evegate Lora Gateway',
+    desc:  'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
     group: 'Infrastructure & Network',
     rate:  10000,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -144,8 +144,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater',
-    desc:  'Extends LoRa signal range for large or multi-block facilities.',
+    name:  '|REPEATER V2|',
+    desc:  'Extends LoRa signal range. Includes B type charger, product stand and screws for assembly',
     group: 'Infrastructure & Network',
     rate:  2500,
     img:   'qtn_embed_p6_img0.jpeg',
@@ -154,7 +154,7 @@ const CATALOGUE = [
   // ── FIXED ─────────────────────────────────────
   {
     code:  'ALAMO-DATALOG',
-    name:  'Data Logger Subscription (Annual)',
+    name:  'Alamo Additional Data Logging & Analytics',
     desc:  'Automated logging of all key data, nurse presence, response times, and emailed reports.',
     group: 'Software & Services',
     rate:  3000,
@@ -269,19 +269,19 @@ function loadPreset(preset) {
 
   const presets = {
     small: {
-      beds:30, rooms:15, bathrooms:18, wards:2, dataLog: false, pendant: 'single', ns: 'basic',
+      beds:30, rooms:15, bathrooms:18, floors:1, nsBasic:1, nsTv:0, dataLog: false, pendant: 'single',
       client:'Small Clinic / Nursing Home', loc:'Kerala'
     },
     medium: {
-      beds:134, rooms:39, bathrooms:99, wards:8, dataLog: false, pendant: 'single', ns: 'tv',
+      beds:134, rooms:39, bathrooms:99, floors:3, nsBasic:0, nsTv:8, dataLog: false, pendant: 'single',
       client:'Nims hospital tvm', loc:'Trivandrum, Kerala'
     },
     large: {
-      beds:250, rooms:80, bathrooms:180, wards:15, dataLog: true, pendant: 'double', ns: 'tv',
+      beds:250, rooms:80, bathrooms:180, floors:6, nsBasic:5, nsTv:10, dataLog: true, pendant: 'double',
       client:'Super-Specialty Hospital', loc:'PAN India'
     },
     ref50: {
-      beds:50, rooms:25, bathrooms:50, wards:2, dataLog: true, pendant: 'single', ns: 'tv',
+      beds:50, rooms:25, bathrooms:50, floors:1, nsBasic:0, nsTv:2, dataLog: true, pendant: 'single',
       client:'50-Bed Reference Hospital', loc:'Reference Configuration'
     }
   };
@@ -292,14 +292,15 @@ function loadPreset(preset) {
   document.getElementById('bedCount').value      = p.beds;
   document.getElementById('roomCount').value     = p.rooms;
   document.getElementById('bathroomCount').value = p.bathrooms;
-  document.getElementById('wardCount').value     = p.wards;
+  document.getElementById('floorCount').value    = p.floors || 1;
+  document.getElementById('nsBasicCount').value  = p.nsBasic || 0;
+  document.getElementById('nsTvCount').value     = p.nsTv || 0;
   document.getElementById('dataLogging').checked = p.dataLog || false;
   document.getElementById('pendantType').value   = p.pendant || 'single';
-  document.getElementById('nsSetupType').value   = p.ns || 'basic';
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
 
-  applyFacility(p.beds, p.rooms, p.bathrooms, p.wards, p.dataLog ? 1 : 0, p.pendant || 'single', p.ns || 'basic');
+  applyFacility(p.beds, p.rooms, p.bathrooms, p.floors, p.nsBasic, p.nsTv, p.dataLog ? 1 : 0, p.pendant || 'single');
   renderBOM();
   calcEstimator();
 }
@@ -352,29 +353,31 @@ function applyEstimator() {
   const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
   const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
   const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
-  const wards     = parseInt(document.getElementById('wardCount').value)     || 0;
+  const floors    = parseInt(document.getElementById('floorCount').value)    || 0;
+  const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
+  const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
-  
   const pendantType = document.getElementById('pendantType').value;
-  const nsSetupType = document.getElementById('nsSetupType').value;
   
-  applyFacility(beds, rooms, bathrooms, wards, dataLog, pendantType, nsSetupType);
+  applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType);
 }
 
-function applyFacility(beds, rooms, bathrooms, wards, dataLog, pendantType, nsSetupType) {
-  let gateways = 0;
-  if (nsSetupType === 'tv') gateways += wards;
+function applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType) {
+  let gateways = nsTv;
   if (dataLog > 0) gateways += 1;
+  let totalWards = nsBasic + nsTv;
+  // Dynamic repeater logic: average of 1.5 repeaters per (ward + floor impact)
+  let repeaters = Math.ceil((totalWards * 1.5) + (floors * 0.5));
 
   bom.forEach(item => {
     if (item.driverKey === 'beds') item.qty = beds;
     if (item.driverKey === 'rooms') item.qty = rooms;
     if (item.driverKey === 'bathrooms') item.qty = bathrooms;
-    if (item.driverKey === 'repeaters') item.qty = Math.ceil(wards * 1.5);
+    if (item.driverKey === 'repeaters') item.qty = repeaters;
     if (item.driverKey === 'pendants_single') item.qty = (pendantType === 'single') ? beds : 0;
     if (item.driverKey === 'pendants_double') item.qty = (pendantType === 'double') ? beds : 0;
-    if (item.driverKey === 'ns_basic') item.qty = (nsSetupType === 'basic') ? wards : 0;
-    if (item.driverKey === 'ns_tv') item.qty = (nsSetupType === 'tv') ? wards : 0;
+    if (item.driverKey === 'ns_basic') item.qty = nsBasic;
+    if (item.driverKey === 'ns_tv') item.qty = nsTv;
     if (item.driverKey === 'gateways') item.qty = gateways;
     if (item.driverKey === 'datalog') item.qty = dataLog;
   });
