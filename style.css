@@ -485,3 +485,37 @@ textarea { resize:vertical; }
   
   @page { margin:0;size:A4; }
 }
+
+
+/* -------------------- MOBILE RESPONSIVE -------------------- */
+@media (max-width: 768px) {
+  .app-main {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  .row2, .row3 {
+    grid-template-columns: 1fr;
+  }
+  .clients-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .bom-tbl th, .bom-tbl td {
+    padding: 0.3rem;
+    font-size: 0.7rem;
+  }
+  .modal-wrap {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+@media print {
+  .brochure-grid, .clients-grid { display: block !important; }
+  .brochure-grid > div, .clients-grid > div { display: inline-block; width: 48%; vertical-align: top; padding: 10px; page-break-inside: avoid; }
+  .clients-grid > div { width: 32%; }
+  table, tr, td, th { page-break-inside: avoid; }
+  img { max-width: 100% !important; page-break-inside: avoid; }
+  .doc-page { page-break-after: always; }
+}

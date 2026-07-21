@@ -299,10 +299,78 @@ function loadPreset(preset) {
   document.getElementById('pendantType').value   = p.pendant || 'single';
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
+  
+  const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
+  const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
+  const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
+  const floors    = parseInt(document.getElementById('floorCount').value)    || 1;
+  const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
+  const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
+  const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
+  const pendantType = document.getElementById('pendantType').value || 'single';
 
-  applyFacility(p.beds, p.rooms, p.bathrooms, p.floors, p.nsBasic, p.nsTv, p.dataLog ? 1 : 0, p.pendant || 'single');
-  renderBOM();
-  calcEstimator();
+  applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType);
+}
+
+// ─── INIT API ───────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  // Set date
+  document.getElementById('quoteDate').valueAsDate = new Date();
+  // Fetch QTN
+  fetch('/api/next-qtn')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('quoteRef').value = data.qtn;
+      recalc();
+    })
+    .catch(e => console.error("Error fetching next QTN, server might not be running"));
+});
+
+// ─── SAVE / LOAD QUOTES ──────────────────────────────────────────
+function saveQuote() {
+  const quoteData = {
+    qtn: document.getElementById('quoteRef').value,
+    date: document.getElementById('quoteDate').value,
+    hospital: document.getElementById('clientName').value,
+    location: document.getElementById('clientLocation').value,
+    contact: document.getElementById('contactPerson').value,
+    validity: document.getElementById('validityDays').value,
+    beds: document.getElementById('bedCount').value,
+    rooms: document.getElementById('roomCount').value,
+    bathrooms: document.getElementById('bathroomCount').value,
+    floors: document.getElementById('floorCount').value,
+    nsBasic: document.getElementById('nsBasicCount').value,
+    nsTv: document.getElementById('nsTvCount').value,
+    pendantType: document.getElementById('pendantType').value,
+    dataLogging: document.getElementById('dataLogging').checked,
+    bom: bom
+  };
+
+  fetch('/api/quotes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(quoteData)
+  }).then(() => {
+    alert("Quote Saved Successfully to quotes.json!");
+  }).catch(e => {
+    alert("Error saving quote. Is the server running?");
+  });
+}
+
+function loadQuotesModal() {
+  fetch('/api/quotes')
+    .then(r => r.json())
+    .then(data => {
+      let msg = "Saved Quotes:\n\n";
+      data.forEach((q, i) => {
+        msg += `${i+1}. ${q.qtn} - ${q.hospital} (${q.date})\n`;
+      });
+      msg += "\nCheck quotes.json for full data. Loading logic via UI can be fully built out here!";
+      alert(msg);
+    })
+    .catch(e => {
+      alert("Error loading quotes. Is the server running?");
+    });
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
@@ -310,54 +378,11 @@ function calcEstimator() {
   const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
   const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
   const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
-  const wards     = parseInt(document.getElementById('wardCount').value)     || 0;
-  const repeaters = Math.ceil(wards * 1.5);
-  
-  const pendantType = document.getElementById('pendantType').value;
-  const nsSetupType = document.getElementById('nsSetupType').value;
-  const dataLog     = document.getElementById('dataLogging').checked;
-  
-  let pSingle = 0, pDouble = 0;
-  if (pendantType === 'single') pSingle = beds;
-  if (pendantType === 'double') pDouble = beds;
-  
-  let nsBasic = 0, nsTV = 0, gateways = 0;
-  if (nsSetupType === 'basic') {
-    nsBasic = wards;
-  } else if (nsSetupType === 'tv') {
-    nsTV = wards;
-    gateways += wards;
-  }
-  
-  if (dataLog) gateways += 1;
-
-  // Display calculated quantities
-  setText('estBeds',           beds);
-  setText('estPendantsSingle', pSingle);
-  setText('estPendantsDouble', pDouble);
-  setText('estRooms',          rooms);
-  setText('estBathCPs',        bathrooms);
-  setText('estPullCords',      bathrooms);
-  setText('estNSBasic',        nsBasic);
-  setText('estNSTV',           nsTV);
-  setText('estGateways',       gateways);
-  setText('estRepeaters',      repeaters);
-  setText('estDataLog',        dataLog ? 1 : 0);
-
-  // Summary totals
-  setText('estTotalCPs',       beds + bathrooms);
-  setText('estTotalUnits',     beds + pSingle + pDouble + rooms + (bathrooms * 2) + nsBasic + nsTV + gateways + repeaters);
-}
-
-function applyEstimator() {
-  const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
-  const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
-  const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
-  const floors    = parseInt(document.getElementById('floorCount').value)    || 0;
+  const floors    = parseInt(document.getElementById('floorCount').value)    || 1;
   const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
   const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
-  const pendantType = document.getElementById('pendantType').value;
+  const pendantType = document.getElementById('pendantType').value || 'none';
   
   applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType);
 }
