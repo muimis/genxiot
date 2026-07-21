@@ -68,7 +68,7 @@ img { display: block; max-width: 100%; }
   max-width:1450px; margin:0 auto;
 }
 .sidebar { display:flex;flex-direction:column;gap:1rem; }
-.main-panel { display:flex;flex-direction:column;gap:1rem; }
+.main-panel { display:flex;flex-direction:column;gap:1rem; overflow-x: auto; width: 100%; }
 .cols2 { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
 
 /* ════════════════════ CARDS ════════════════════ */

@@ -80,68 +80,7 @@ const PRESTIGIOUS_CLIENTS = [
   "Femicity Hospital, Hyderabad"
 ];
 
-const CLIENT_LOGOS = {
-  "BAPS Shastriji Maharaj Hospital, Baroda": "https://evelabs.co/files/baps_hospital.jpg",
-  "Nirmala Medical Centre": "https://evelabs.co/files/nirmala_medical_centewr.png",
-  "Fatima Mission Hospital, Wayand": "https://evelabs.co/files/fathima_mission_hospital.png",
-  "Mahavir Hospital, Surat": "https://evelabs.co/files/IMG_0104.jpeg",
-  "Nanavati Max - Mumbai": "https://evelabs.co/files/icon.webp",
-  "Lilavati Hospital - Mumbai": "https://evelabs.co/files/c763739b-ab0d-4baa-b444-f7460b3c0391.jpeg",
-  "Fortis Mulund Mumbai": "https://evelabs.co/files/IMG_0122.jpeg",
-  "Tata Memorial Hospital, Mumbai": "https://evelabs.co/files/tatamemorialhospitallogosvg-95a7bd4546.png",
-  "Aseezia Medical College, Kollam": "https://evelabs.co/files/azeezia-medical-college-logo.png",
-  "Almas Hospital, Kottakkal": "https://evelabs.co/files/channels4_profile.jpg",
-  "Kerala Medical College, Palakkad": "https://evelabs.co/files/images (4).png",
-  "Kokilaben Hospital": "https://evelabs.co/files/images (3).png",
-  "Amala, Trissur, Kerala": "https://evelabs.co/files/mqdefault.jpg",
-  "Travancore Medicity, Kollam": "https://evelabs.co/files/images (2).png",
-  "Cosmo Hospital Trivandrum": "https://evelabs.co/files/images (2).jpg",
-  "Muthoot Hospital": "https://evelabs.co/files/logo (1).png",
-  "Medical Trust, Cochin": "https://evelabs.co/files/images (1).jpg",
-  "Bewell Hospital, Chennai /Pondy": "https://evelabs.co/files/images (1).png",
-  "Kauvery Hospital, Chennai": "https://evelabs.co/files/images.png",
-  "INHS Sanjeevani Kochi": "https://evelabs.co/files/IMG_0230.jpeg",
-  "Global Hospitals, Mumbai": "https://evelabs.co/files/IMG_0234.jpeg",
-  "BCMCH, Thiruvalla": "https://evelabs.co/files/IMG_0235.jpeg",
-  "BMH Kozhikode & Kannur": "https://evelabs.co/files/IMG_0229.jpeg",
-  "Majestic Hospital, Hyderabad": "https://evelabs.co/files/mehestic_hospital_nurse_call_system.jpg",
-  "Babasaheb Gawde Charitable hospital": "https://evelabs.co/files/bababasahed_gadwe_charitable_hospital.png",
-  "Shanthi Memorial Hospital": "https://evelabs.co/files/shahti_memorial_hospital.png",
-  "Thrikkakara Municipal Co-operative Hospital": "https://evelabs.co/files/thirikkakara_cooperative_hospital.jpg",
-  "Urja Maternity Hospital": "https://evelabs.co/files/urja_maternity_hospital.jpg",
-  "Ashiti Clinic": "https://evelabs.co/files/asithi_hospital.jpg",
-  "Aditya Medical Center, Thanjavur": "https://evelabs.co/files/aditya_medical_center.jpg",
-  "Anupama Hospital, Hyderabad": "https://evelabs.co/files/anupama_hospital.png",
-  "Anil neerukonda Hospital": "https://evelabs.co/files/anil nerukonda hospital.jpg",
-  "Sudheendra Medical Missiom": "https://evelabs.co/files/sudheendra.png",
-  "Nattathi Nadar Hospital, Theni": "https://evelabs.co/files/images (3).jpg",
-  "Paduva Hospital": "https://evelabs.co/files/paduva.png",
-  "Providence Hospital, Alappuzha": "https://evelabs.co/files/providence.png",
-  "CGH Earth Ayurveda": "https://evelabs.co/files/images (6).png",
-  "Sree Mahalakshmi Diatone Institute": "https://evelabs.co/files/dr-rajesh-deshmane-shree-mahalaxmi-diabetic-care-centre-tarabai-park-kolhapur-diabetologist-doctors-jbvlgbd072.avif",
-  "Platinum Hospital, Nashik": "https://evelabs.co/files/images (5).png",
-  "Aurindam Hospital, Mumbai": "https://evelabs.co/files/img_aurindamjpeg.png",
-  "Motiben Dalvi Hospital, Mumbai": "https://evelabs.co/files/Screenshot 2026-01-07 111706.png",
-  "Indo Us Hospital, Hyderabad": "https://evelabs.co/files/IMG_8632.jpeg",
-  "Narayana Hrudayalaya Kolkata": "https://evelabs.co/files/IMG_0228.jpeg",
-  "KR Hospital Coimbatore": "https://evelabs.co/files/IMG_0233.jpeg",
-  "HCG Eko Cancer Center Kolkata": "https://evelabs.co/files/IMG_0227.jpeg",
-  "Aurum Living, Gurgoan": "https://evelabs.co/files/IMG_0151.png",
-  "Femicity Hospital, Hyderabad": "https://evelabs.co/files/Fem-Logo-2048x513.png"
-};
 
-function renderClientList() {
-  const grid = document.getElementById('clientsGrid');
-  if (!grid) return;
-  grid.innerHTML = '';
-  PRESTIGIOUS_CLIENTS.forEach(client => {
-    const logoUrl = CLIENT_LOGOS[client] || 'genxiot-logo.7fba30b0.png';
-    const div = document.createElement('div');
-    div.style = 'display:flex; align-items:center; gap:8px;';
-    div.innerHTML = `<img src="${logoUrl}" style="height:25px; width:25px; object-fit:contain;"><span>${client}</span>`;
-    grid.appendChild(div);
-  });
-}
 
 // ─── MASTER ITEM CATALOGUE ───────────────────────────────────────
 // Rates verified directly against SAL-QTN-2024-00478 (the real Evelabs quote
@@ -270,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
   recalc();
   calcEstimator();
   fillDocDates();
-  renderClientList();
 });
 
 // ─── RENDER BOM TABLE (web calculator) ──────────────────────────
@@ -423,14 +361,21 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function fetchQtnForDate(dateStr) {
-  fetch('/api/next-qtn?date=' + dateStr)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('quoteRef').value = data.qtn;
-      recalc();
-    })
-    .catch(e => console.error("Error fetching next QTN, server might not be running"));
-}
+    fetch('/api/next-qtn?date=' + dateStr)
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('quoteRef').value = data.qtn;
+        recalc();
+      })
+      .catch(e => {
+        console.error("Error fetching next QTN, server might not be running");
+        const d = new Date(dateStr || Date.now());
+        const year = d.getFullYear();
+        const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        document.getElementById('quoteRef').value = `SAL-QTN-${year}-0${rand}`;
+        recalc();
+      });
+  }
 
 // ─── SAVE / LOAD QUOTES ──────────────────────────────────────────
 function saveQuote() {
