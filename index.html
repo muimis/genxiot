@@ -100,24 +100,8 @@
       </div>
       <div class="card-bd">
         <h3 class="doc-h2 accent" style="font-size: 1rem; margin-top:0; border:none; padding:0;">1. Facility Size</h3>
-        <div class="row2">
-          <div>
-            <label>Floors / Blocks 🏢</label>
-            <input type="number" id="floorCount" value="1" min="1" oninput="calcEstimator()">
-          </div>
-          <div>
-            <label>Patient Beds 🛏️</label>
-            <input type="number" id="bedCount" value="0" min="0" oninput="calcEstimator()">
-          </div>
-          <div>
-            <label>Patient Rooms 🚪</label>
-            <input type="number" id="roomCount" value="0" min="0" oninput="calcEstimator()">
-          </div>
-          <div>
-            <label>Bathrooms 🚿</label>
-            <input type="number" id="bathroomCount" value="0" min="0" oninput="calcEstimator()">
-          </div>
-        </div>
+        <div id="floorsContainer"></div>
+        <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 20px;">+ Add Floor / Area</button>
 
         <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0;">2. System Configuration</h3>
         <div class="row2">

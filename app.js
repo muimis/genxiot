@@ -323,10 +323,22 @@ function loadPreset(preset) {
   const p = presets[preset];
   if (!p) return;
 
-  document.getElementById('bedCount').value      = p.beds;
-  document.getElementById('roomCount').value     = p.rooms;
-  document.getElementById('bathroomCount').value = p.bathrooms;
-  document.getElementById('floorCount').value    = p.floors || 1;
+  // Set up floors dynamically
+    floors = [];
+    const numFloors = p.floors || 1;
+    const bedsPerFloor = Math.floor(p.beds / numFloors);
+    const roomsPerFloor = Math.floor(p.rooms / numFloors);
+    const bathsPerFloor = Math.floor(p.bathrooms / numFloors);
+    
+    for (let i = 0; i < numFloors; i++) {
+        floors.push({
+            name: `Floor ${i + 1}`,
+            beds: bedsPerFloor + (i === 0 ? p.beds % numFloors : 0),
+            rooms: roomsPerFloor + (i === 0 ? p.rooms % numFloors : 0),
+            baths: bathsPerFloor + (i === 0 ? p.bathrooms % numFloors : 0)
+        });
+    }
+    renderFloors();
   document.getElementById('nsBasicCount').value  = p.nsBasic || 0;
   document.getElementById('nsTvCount').value     = p.nsTv || 0;
   document.getElementById('dataLogging').checked = p.dataLog || false;
@@ -334,16 +346,13 @@ function loadPreset(preset) {
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
   
-  const beds      = parseInt(document.getElementById('bedCount').value)      || 0;
-  const rooms     = parseInt(document.getElementById('roomCount').value)     || 0;
-  const bathrooms = parseInt(document.getElementById('bathroomCount').value) || 0;
-  const floors    = parseInt(document.getElementById('floorCount').value)    || 1;
+  
   const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
   const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
   const pendantType = document.getElementById('pendantType').value || 'single';
 
-  applyFacility(beds, rooms, bathrooms, floors, nsBasic, nsTv, dataLog, pendantType);
+  calcEstimator();
 }
 
 // ─── INIT API ───────────────────────────────────────────────────
@@ -386,10 +395,7 @@ function saveQuote() {
     location: document.getElementById('clientLocation').value,
     contact: document.getElementById('contactPerson').value,
     validity: document.getElementById('validityDays').value,
-    beds: document.getElementById('bedCount').value,
-    rooms: document.getElementById('roomCount').value,
-    bathrooms: document.getElementById('bathroomCount').value,
-    floors: document.getElementById('floorCount').value,
+    floorsData: floors,
     nsBasic: document.getElementById('nsBasicCount').value,
     nsTv: document.getElementById('nsTvCount').value,
     pendantType: document.getElementById('pendantType').value,
