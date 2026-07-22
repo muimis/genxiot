@@ -218,11 +218,16 @@ textarea { resize:vertical; }
 
 /* ════════════════════ MODAL ════════════════════ */
 .modal-bg {
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,30,.65);z-index:1000;
-  overflow-y:auto;
+  display: none !important;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,30,.65);
+  z-index: 1000;
+  overflow-y: auto;
 }
-.modal-bg.open { display:block; }
+.modal-bg.open {
+  display: block !important;
+}
 .modal-wrap {
   background:#fff;max-width:860px;
   margin:0 auto;min-height:100%;
