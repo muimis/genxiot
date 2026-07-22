@@ -95,6 +95,9 @@
         <button class="btn btn-ghost" onclick="showDashboard()">
           <i data-lucide="arrow-left" size="15"></i> Dashboard
         </button>
+        <button class="btn btn-ghost" onclick="showDashboard()" style="color:var(--brand-cyan);">
+          <i data-lucide="search" size="15"></i> Recall QTN
+        </button>
         <button class="btn btn-ghost" id="presetBtn">
           <i data-lucide="zap" size="15"></i> BDM Presets <i data-lucide="chevron-down" size="15"></i>
         </button>
@@ -202,10 +205,7 @@
           </div>
         </div>
 
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-          <button class="btn btn-cyan" onclick="saveQuote()" style="flex:1;">Save Quote</button>
-          <button class="btn" style="flex:1; background: var(--text-muted); color: white;" onclick="loadQuotesModal()">Quote History</button>
-        </div>
+
 
         
         <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0;">Bank Details</h3>
@@ -358,17 +358,20 @@
         <div class="ab-value" id="stickyTotal">₹0.00</div>
       </div>
       <div class="ab-btns">
-        <button class="btn btn-ghost btn-lg" onclick="exportCSV()">
-          <i data-lucide="download" size="16"></i> Export Excel (CSV)
+        <button class="btn btn-ghost btn-lg action-text-btn" onclick="saveQuote()">
+          <i data-lucide="cloud" size="16"></i> <span>Save</span>
         </button>
-        <button class="btn btn-ghost btn-lg" onclick="openModal()">
-          <i data-lucide="eye" size="16"></i> Preview
+        <button class="btn btn-ghost btn-lg action-text-btn" onclick="exportCSV()">
+          <i data-lucide="download" size="16"></i> <span>Export</span>
         </button>
-        <button class="btn btn-cyan btn-lg" onclick="printDoc()">
-          <i data-lucide="printer" size="16"></i> Print Full
+        <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
+          <i data-lucide="eye" size="16"></i> <span>Preview</span>
         </button>
-        <button class="btn btn-cyan btn-lg" onclick="printQuoteOnly()">
-          <i data-lucide="printer" size="16"></i> Print Quote Only
+        <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
+          <i data-lucide="printer" size="16"></i> <span>Full</span>
+        </button>
+        <button class="btn btn-cyan btn-lg action-text-btn" onclick="printQuoteOnly()">
+          <i data-lucide="printer" size="16"></i> <span>Quote</span>
         </button>
       </div>
     </div>
@@ -687,13 +690,7 @@
 
 <!-- FLOATING ACTION BUTTON (FAB) -->
 
-<!-- PDF FAB -->
-<button class="fab fab-pdf no-print" onclick="downloadPDF()" title="Download PDF" style="bottom: 150px; background-color: var(--brand-secondary); color: white;">
-  <i data-lucide="download" size="24"></i>
-</button>
-<button class="fab no-print" onclick="saveQuote()" title="Save Quote">
-  <i data-lucide="save" size="24"></i>
-</button>
+<!-- FABs Removed because they overlap with the fixed bottom action bar -->
 
 </div>
 </body>

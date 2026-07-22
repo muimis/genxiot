@@ -746,3 +746,27 @@ textarea { resize:vertical; }
 .dashboard-table tr:last-child td {
   border-bottom: none;
 }
+
+/* Mobile specific fixes for action bar */
+@media (max-width: 768px) {
+  .ab-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px; /* for scrollbar space */
+  }
+  .ab-btns::-webkit-scrollbar {
+    height: 0px;
+    background: transparent; /* hide scrollbar */
+  }
+  .action-text-btn span {
+    display: none; /* Hide text on mobile, icons only */
+  }
+  .action-text-btn {
+    padding: 8px 12px;
+    min-width: unset;
+  }
+}
+
