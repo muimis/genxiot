@@ -572,6 +572,10 @@ function calcEstimator() {
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
   
   applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog);
+  
+  // TRIGGER UI REPAINT!
+  renderBOM();
+  recalc();
 }
 
 function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog) {
