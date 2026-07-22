@@ -403,13 +403,13 @@ function saveQuote() {
     quoteRef: qtn,
     clientName: cName,
     location: document.getElementById('clientLocation').value,
-    totalAmount: document.getElementById('qFinal').innerText,
+    totalAmount: document.getElementById('calcGT').innerText,
     contactPerson: document.getElementById('contactPerson').value,
-    bdmName: document.getElementById('bdmName').value,
+    bdmName: document.getElementById('qBdmName') ? document.getElementById('qBdmName').innerText : 'Genxiot Sales Team',
     totalBeds: floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0),
     floors: floors,
-    singlePendants: document.getElementById('pendantSingleCount').value,
-    doublePendants: document.getElementById('pendantDoubleCount').value,
+    singlePendants: document.getElementById('pendantType') && document.getElementById('pendantType').value === 'single' ? floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0) : 0,
+    doublePendants: document.getElementById('pendantType') && document.getElementById('pendantType').value === 'double' ? floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0) : 0,
     bankDetails: {
         name: document.getElementById('bankName').value,
         acc: document.getElementById('bankAcc').value,
@@ -596,8 +596,9 @@ function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLo
     if (item.driverKey === 'rooms') item.qty = rooms;
     if (item.driverKey === 'bathrooms') item.qty = bathrooms;
     if (item.driverKey === 'repeaters') item.qty = repeaters;
-    const singleP = parseInt(document.getElementById('pendantSingleCount')?.value) || 0;
-    const doubleP = parseInt(document.getElementById('pendantDoubleCount')?.value) || 0;
+    const pType = document.getElementById('pendantType') ? document.getElementById('pendantType').value : 'none';
+    const singleP = (pType === 'single') ? beds : 0;
+    const doubleP = (pType === 'double') ? beds : 0;
     if (item.driverKey === 'pendants_single') item.qty = singleP;
     if (item.driverKey === 'pendants_double') item.qty = doubleP;
     if (item.driverKey === 'ns_basic') item.qty = nsBasic;
@@ -679,11 +680,11 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const clientLoc     = (document.getElementById('clientLocation')?.value) || '';
   const contactPerson = (document.getElementById('contactPerson')?.value)  || '';
   const quoteRef      = (document.getElementById('quoteRef')?.value)      || '';
-  const bdmName       = (document.getElementById('bdmName')?.value)       || '';
-  const beds          = (document.getElementById('bedCount')?.value)      || 0;
-  const rooms         = (document.getElementById('roomCount')?.value)     || 0;
-  const bathrooms     = (document.getElementById('bathroomCount')?.value) || 0;
-  const wards         = (document.getElementById('wardCount')?.value)     || 0;
+  const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'Genxiot Sales Team';
+  const beds          = floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0);
+  const rooms         = floors.reduce((acc, f) => acc + parseInt(f.rooms || 0), 0);
+  const bathrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
+  const wards         = floors.reduce((acc, f) => acc + parseInt(f.ns || 0), 0) || (parseInt(document.getElementById('nsBasicCount')?.value) || 0) + (parseInt(document.getElementById('nsTvCount')?.value) || 0);
 
   const delivery      = (document.getElementById('delivery')?.value)      || '';
   const warranty      = (document.getElementById('warranty')?.value)      || '';
