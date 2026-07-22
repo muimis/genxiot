@@ -536,7 +536,7 @@ textarea { resize:vertical; }
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   /* On mobile, stack everything in the main layout and hide sidebar by default */
   .layout-main {
     flex-direction: column;
@@ -677,7 +677,7 @@ textarea { resize:vertical; }
   gap: 30px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .dashboard-content-grid {
     grid-template-columns: 1fr;
   }
@@ -741,7 +741,7 @@ textarea { resize:vertical; }
 }
 
 /* ──────────────────── MOBILE RESPONSIVE FIXES ──────────────────── */
-@media (max-width: 900px) {
+@media (max-width: 600px) {
   .app-header {
     height: auto !important;
     padding: 8px 12px !important;

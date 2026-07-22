@@ -944,7 +944,7 @@ function switchMobileTab(tab) {
 window.addEventListener('resize', () => {
   const sp = document.querySelector('.sidebar');
   const mp = document.querySelector('.main-panel');
-  if (window.innerWidth > 900) {
+  if (window.innerWidth > 600) {
     if (sp) sp.style.display = '';
     if (mp) mp.style.display = '';
   } else {
@@ -1018,7 +1018,7 @@ function showCalculator() {
   const setupPanel   = document.querySelector('.sidebar');
   const previewPanel = document.querySelector('.main-panel');
 
-  if (window.innerWidth > 900) {
+  if (window.innerWidth > 600) {
     if (setupPanel)   setupPanel.style.display   = 'flex';
     if (previewPanel) previewPanel.style.display = 'flex';
   } else {
