@@ -1007,3 +1007,119 @@ function downloadPDF() {
     lucide.createIcons();
   });
 }
+
+// ==========================================================================
+// DASHBOARD LOGIC (SPA)
+// ==========================================================================
+let pipelineChartInstance = null;
+
+function showDashboard() {
+  document.getElementById('dashboardView').style.display = 'block';
+  document.getElementById('calculatorView').style.display = 'none';
+  document.body.classList.add('view-dashboard');
+  fetchDashboardData();
+}
+
+function showCalculator() {
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('calculatorView').style.display = 'block';
+  document.body.classList.remove('view-dashboard');
+  
+  // Also switch to setup tab on mobile by default
+  if(window.innerWidth <= 900) {
+    switchMobileTab('setup');
+  }
+}
+
+function fetchDashboardData() {
+  const webhookUrl = "https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec";
+  
+  fetch(webhookUrl, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'getAllQuotes' })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.status === 'success') {
+      renderDashboard(data.data);
+    }
+  })
+  .catch(err => console.error("Error fetching dashboard data:", err));
+}
+
+function renderDashboard(quotes) {
+  let totalVal = 0;
+  let totalBeds = 0;
+  
+  const tbody = document.getElementById('dashTableBody');
+  tbody.innerHTML = '';
+  
+  const clientValues = {};
+  
+  // Sort quotes by date descending
+  quotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  quotes.forEach((q, idx) => {
+    const val = parseFloat(q.totalAmount) || 0;
+    totalVal += val;
+    totalBeds += parseInt(q.totalBeds) || 0;
+    
+    // Aggregating for chart
+    if(!clientValues[q.clientName]) clientValues[q.clientName] = 0;
+    clientValues[q.clientName] += val;
+    
+    // Table (show only top 10 recent)
+    if (idx < 10) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${q.date ? q.date.split('T')[0] : ''}</td>
+        <td>${q.quoteRef}</td>
+        <td>${q.clientName}</td>
+        <td>₹ ${val.toLocaleString('en-IN')}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  });
+  
+  // Update Cards
+  document.getElementById('dashTotalValue').innerText = `₹ ${totalVal.toLocaleString('en-IN')}`;
+  document.getElementById('dashTotalQuotes').innerText = quotes.length;
+  document.getElementById('dashTotalBeds').innerText = totalBeds;
+  
+  // Draw Chart
+  const ctx = document.getElementById('pipelineChart');
+  if(!ctx) return;
+  
+  if (pipelineChartInstance) {
+    pipelineChartInstance.destroy();
+  }
+  
+  pipelineChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(clientValues),
+      datasets: [{
+        label: 'Deal Value (INR)',
+        data: Object.values(clientValues),
+        backgroundColor: '#00d084',
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
+
+// On App Load, show dashboard by default
+window.addEventListener('DOMContentLoaded', () => {
+  // If the dashboard view exists, show it. Otherwise calc init will run.
+  resetQuote();
+  if (document.getElementById('dashboardView')) {
+    showDashboard();
+  }
+});

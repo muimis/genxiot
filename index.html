@@ -8,25 +8,78 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css">
-<meta name="theme-color" content="#00d084">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./icon-512.png">
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW registered!', reg))
-        .catch(err => console.log('SW registration failed: ', err));
-    });
-  }
-</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <!-- ════════════════════════════════════════════════════
      APP HEADER (web only, hidden on print)
 ════════════════════════════════════════════════════ -->
+
+<!-- ================= DASHBOARD VIEW ================= -->
+<div id="dashboardView" class="dashboard-container">
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-group">
+        <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="hdr-logo">
+        <div>
+          <div class="hdr-title">GENXIOT LLP</div>
+          <div class="hdr-sub">PIPELINE DASHBOARD</div>
+        </div>
+      </div>
+      <div class="hdr-actions">
+        <button class="btn btn-primary" onclick="showCalculator()">
+          <i data-lucide="plus" size="18"></i> Create New Quote
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">Total Pipeline Value</div>
+        <div class="metric-value" id="dashTotalValue">₹ 0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Total Quotes</div>
+        <div class="metric-value" id="dashTotalQuotes">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-title">Total Beds Quoted</div>
+        <div class="metric-value" id="dashTotalBeds">0</div>
+      </div>
+    </div>
+    
+    <div class="dashboard-content-grid">
+      <div class="chart-container">
+        <h3>Deal Value by Client</h3>
+        <canvas id="pipelineChart"></canvas>
+      </div>
+      <div class="table-container">
+        <h3>Recent Quotes</h3>
+        <table class="dashboard-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Quote Ref</th>
+              <th>Client Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody id="dashTableBody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= CALCULATOR VIEW ================= -->
+<div id="calculatorView" style="display: none;">
 <header class="app-header no-print">
   <div class="header-inner">
     <div class="brand-group">
@@ -39,6 +92,9 @@
     </div>
     <div class="hdr-actions">
       <div class="preset-wrap">
+        <button class="btn btn-ghost" onclick="showDashboard()">
+          <i data-lucide="arrow-left" size="15"></i> Dashboard
+        </button>
         <button class="btn btn-ghost" id="presetBtn">
           <i data-lucide="zap" size="15"></i> BDM Presets <i data-lucide="chevron-down" size="15"></i>
         </button>
@@ -639,5 +695,6 @@
   <i data-lucide="save" size="24"></i>
 </button>
 
+</div>
 </body>
 </html>
