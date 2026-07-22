@@ -352,165 +352,140 @@ function loadPreset(preset) {
 
 // ─── INIT API ───────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  // Set date
-  document.getElementById('quoteDate').valueAsDate = new Date();
-  
-  // Fetch initial QTN
-  fetchQtnForDate(document.getElementById('quoteDate').value);
-
-  // Add event listener for date changes
-  document.getElementById('quoteDate').addEventListener('change', (e) => {
-    fetchQtnForDate(e.target.value);
-  });
+  const d = new Date();
+  document.getElementById('quoteDate').valueAsDate = d;
+  // Generate a local QTN ID immediately — no server call needed on load
+  generateLocalQtn(d);
 });
 
-function fetchQtnForDate(dateStr) {
-    fetch('/api/next-qtn?date=' + dateStr)
-      .then(r => r.json())
-      .then(data => {
-        document.getElementById('quoteRef').value = data.qtn;
-        recalc();
-      })
-      .catch(e => {
-        console.error("Error fetching next QTN, server might not be running");
-          const d = new Date(dateStr || Date.now());
-          const yyyy = d.getFullYear();
-          const mm = String(d.getMonth() + 1).padStart(2, '0');
-          const dd = String(d.getDate()).padStart(2, '0');
-          const rand = Math.floor(Math.random() * 1000).toString().padStart(4, '0');
-          document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
-        recalc();
-      });
-  }
+function generateLocalQtn(dateObj) {
+  const d = dateObj || new Date();
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  const rand = Math.floor(Math.random() * 9000 + 1000); // 4-digit random
+  document.getElementById('quoteRef').value = `GEN-ALA-${yyyy}${mm}${dd}-${rand}`;
+}
 
 // ─── SAVE / LOAD QUOTES ──────────────────────────────────────────
+const API_URL = "https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec";
+
 function saveQuote() {
-  const qtn = document.getElementById('quoteRef').value;
+  const qtn   = document.getElementById('quoteRef').value;
   const cName = document.getElementById('clientName').value;
+  if (!cName.trim()) { alert('Please enter a Hospital Name before saving.'); return; }
+
   const btn = document.querySelector('button[onclick="saveQuote()"]');
-  const originalText = btn.innerText;
-  
-  btn.innerText = "Saving to Sheet...";
-  btn.disabled = true;
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i data-lucide="loader" size="14"></i> <span>Saving…</span>';
+  btn.disabled  = true;
+  if (window.lucide) lucide.createIcons({ root: btn });
 
   const dealData = {
-    action: "saveQuote",
+    action: 'saveQuote',
     quoteRef: qtn,
     clientName: cName,
-    location: document.getElementById('clientLocation').value,
-    totalAmount: document.getElementById('calcGT').innerText,
+    location:  document.getElementById('clientLocation').value,
+    totalAmount: document.getElementById('calcGT').textContent,
     contactPerson: document.getElementById('contactPerson').value,
-    bdmName: document.getElementById('qBdmName') ? document.getElementById('qBdmName').innerText : 'Genxiot Sales Team',
-    totalBeds: floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0),
+    totalBeds: floors.reduce((a, f) => a + (f.beds || 0), 0),
     floors: floors,
-    singlePendants: document.getElementById('sysSinglePendant') ? document.getElementById('sysSinglePendant').value : 0,
-    doublePendants: document.getElementById('sysDoublePendant') ? document.getElementById('sysDoublePendant').value : 0,
+    chkSinglePendant: document.getElementById('chkSinglePendant')?.checked || false,
+    chkDoublePendant: document.getElementById('chkDoublePendant')?.checked || false,
     bankDetails: {
-        name: document.getElementById('bankName').value,
-        acc: document.getElementById('bankAcc').value,
-        ifsc: document.getElementById('bankIfsc').value,
-        branch: document.getElementById('bankBranch').value
+      name:   document.getElementById('bankName')?.value   || '',
+      acc:    document.getElementById('bankAcc')?.value    || '',
+      ifsc:   document.getElementById('bankIfsc')?.value   || '',
+      branch: document.getElementById('bankBranch')?.value || ''
     },
     bomData: bom
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
-    method: 'POST',
-    body: JSON.stringify(dealData)
-  })
-  .then(res => { savingToast.remove(); return res.json(); })
-  .then(data => {
-    btn.innerText = "Saved!";
-    setTimeout(() => {
-      btn.innerText = originalText;
-      btn.disabled = false;
-    }, 2000);
-  })
-  .catch(err => { if(typeof savingToast !== "undefined") savingToast.remove();
-    loadingToast.remove();
-    showToast("Error loading quotes", "error");
-      savingToast.remove();
-    console.error(err);
-    alert("Error saving to Google Sheet. Check console.");
-    btn.innerText = originalText;
-    btn.disabled = false;
-  });
+  fetch(API_URL, { method: 'POST', body: JSON.stringify(dealData) })
+    .then(r => r.json())
+    .then(() => {
+      btn.innerHTML = '<i data-lucide="check" size="14"></i> <span>Saved!</span>';
+      if (window.lucide) lucide.createIcons({ root: btn });
+      setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; if (window.lucide) lucide.createIcons({ root: btn }); }, 2500);
+    })
+    .catch(err => {
+      console.error(err);
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+      if (window.lucide) lucide.createIcons({ root: btn });
+      alert('Error saving to Google Sheet. Check your internet connection.');
+    });
 }
 
 function loadQuotesModal() {
-  const query = prompt("Enter Client Name or Quote Number (QTN) to recall:");
-  if (!query) return;
-  
-  const btn = document.querySelector('button[onclick="loadQuotesModal()"]');
-  const originalText = btn.innerText;
-  btn.innerText = "Searching...";
-  btn.disabled = true;
+  const query = prompt('Enter Client Name or Quote Number to recall:');
+  if (!query || !query.trim()) return;
 
-  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
-    method: 'POST',
-    body: JSON.stringify({ action: 'searchQuote', query: query })
-  })
-  .then(res => { return res.json(); })
-  .then(data => {
-    btn.innerText = originalText;
-    btn.disabled = false;
-    if (data.status === "success" && data.data) {
-      restoreQuote(data.data);
-    } else {
-      alert(data.message || "Quote not found.");
-    }
-  })
-  .catch(err => {
-    loadingToast.remove();
-    showToast("Error loading quotes", "error");
-      savingToast.remove();
-    console.error(err);
-    alert("Error searching Google Sheet.");
-    btn.innerText = originalText;
-    btn.disabled = false;
-  });
+  const btn  = document.querySelector('button[onclick="loadQuotesModal()"]');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i data-lucide="loader" size="14"></i> Searching…';
+  btn.disabled  = true;
+  if (window.lucide) lucide.createIcons({ root: btn });
+
+  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'searchQuote', query: query.trim() }) })
+    .then(r => r.json())
+    .then(data => {
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+      if (window.lucide) lucide.createIcons({ root: btn });
+      if (data.status === 'success' && data.data) {
+        restoreQuote(data.data);
+        alert('Quote "' + (data.data.quoteRef || query) + '" restored successfully!');
+        showCalculator();
+      } else {
+        alert(data.message || 'Quote not found. Try a different name or QTN number.');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      btn.innerHTML = orig;
+      btn.disabled  = false;
+      if (window.lucide) lucide.createIcons({ root: btn });
+      alert('Error searching. Check your internet connection.');
+    });
 }
 
 function restoreQuote(data) {
-  document.getElementById('quoteRef').value = data.quoteRef || "";
-  document.getElementById('quoteDate').value = data.date ? data.date.split('T')[0] : "";
-  document.getElementById('clientName').value = data.clientName || "";
-  document.getElementById('clientLocation').value = data.location || "";
-  document.getElementById('contactPerson').value = data.contactPerson || "";
-  document.getElementById('bdmName').value = data.bdmName || "";
-  
-  document.getElementById('pendantSingleCount').value = data.singlePendants || 0;
-  document.getElementById('pendantDoubleCount').value = data.doublePendants || 0;
-  
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+
+  setVal('quoteRef',       data.quoteRef);
+  setVal('quoteDate',      data.date ? data.date.split('T')[0] : '');
+  setVal('clientName',     data.clientName);
+  setVal('clientLocation', data.location);
+  setVal('contactPerson',  data.contactPerson);
+
+  // Pendant checkboxes
+  setChk('chkSinglePendant', data.chkSinglePendant !== undefined ? data.chkSinglePendant : true);
+  setChk('chkDoublePendant', data.chkDoublePendant || false);
+
+  // Bank details (optional fields)
   if (data.bankDetails) {
-    document.getElementById('bankName').value = data.bankDetails.name || "";
-    document.getElementById('bankAcc').value = data.bankDetails.acc || "";
-    document.getElementById('bankIfsc').value = data.bankDetails.ifsc || "";
-    document.getElementById('bankBranch').value = data.bankDetails.branch || "";
-    updateBankDetails();
+    setVal('bankName',   data.bankDetails.name);
+    setVal('bankAcc',    data.bankDetails.acc);
+    setVal('bankIfsc',   data.bankDetails.ifsc);
+    setVal('bankBranch', data.bankDetails.branch);
+    if (typeof updateBankDetails === 'function') updateBankDetails();
   }
 
-  if (data.floors && Array.isArray(data.floors) && data.floors.length > 0) {
-    floors = data.floors;
-  } else {
-    floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
-  }
-  
+  floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
+    ? data.floors
+    : [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
-  
-  // RESTORE FULL BOM EXACTLY AS SAVED!
+
+  // Restore BOM exactly as saved — the isLocked flags will come back too
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
     bom = data.bomData;
     renderBOM();
-    recalc();
   } else {
-    updateBOMFromSys(); // fallback
+    calcEstimator(); // fallback: recalculate from floors
   }
-  
-  alert("Quote restored successfully!");
-  
-  // Also bring them back to calculator view if they are on dashboard
-  showCalculator();
+  recalc();
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
@@ -817,49 +792,36 @@ function printQuoteOnly() {
 
 // ─── RESET ───────────────────────────────────────────────────────
 function resetQuote() {
-  bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
-  document.getElementById('clientName').value      = '';
-  document.getElementById('clientLocation').value  = '';
-  document.getElementById('contactPerson').value   = '';
-  document.getElementById('bdmName').value         = 'Genxiot Sales Team';
-  document.getElementById('discType').value        = 'none';
-  document.getElementById('discVal').value         = '0';
-  document.getElementById('shipping').value        = '3500';
-  document.getElementById('advPct').value          = '50';
-  document.getElementById('sysNsBasic').value    = '0';
-  document.getElementById('sysNsTv').value       = '0';
-  
+  if (!confirm('Reset will clear all current data. Continue?')) return;
+
+  bom = CATALOGUE.map(item => ({ ...item, qty: 0, baseRate: item.rate, isLocked: false }));
+
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+  const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = v; };
+
+  setVal('clientName',     '');
+  setVal('clientLocation', '');
+  setVal('contactPerson',  '');
+  setVal('discType',       'none');
+  setVal('discVal',        '0');
+  setVal('shipping',       '3500');
+  setVal('advPct',         '50');
+  setChk('chkSinglePendant', true);
+  setChk('chkDoublePendant', false);
+  setChk('chkDoorLight',  true);
+  setChk('chkWashroom',   true);
+  setChk('chkPullCord',   true);
+  setChk('chkNsBasic',    true);
+  setChk('chkNsTv',       false);
+  setChk('chkGateway',    true);
+  setChk('chkRepeater',   true);
+  setChk('chkDataLog',    false);
+
   floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
-  
-  // Also regenerate Quote Ref based on current date
-  document.getElementById('quoteRef').value = "Generating...";
-  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
-    method: 'POST',
-    body: JSON.stringify({ action: 'getNextQuoteId' })
-  })
-  .then(res => { return res.json(); })
-  .then(data => {
-    if(data.status === "success") {
-      document.getElementById('quoteRef').value = data.quoteRef;
-    } else {
-      document.getElementById('quoteRef').value = 'GEN-ALA-QTN-ERROR';
-    }
-  })
-  .catch(err => {
-    loadingToast.remove();
-    showToast("Error loading quotes", "error");
-      savingToast.remove();
-    console.error(err);
-    const dateObj = new Date();
-    const yyyy = dateObj.getFullYear();
-    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const dd = String(dateObj.getDate()).padStart(2, '0');
-    const rand = Math.floor(Math.random()*1000).toString().padStart(4, '0');
-    document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
-  });
+  generateLocalQtn();
+  recalc();
 
-  calcEstimator();
 }
 
 // ─── EVENT LISTENERS ─────────────────────────────────────────────
