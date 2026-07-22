@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=2.3">
+<link rel="stylesheet" href="style.css?v=2.4">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -175,41 +175,76 @@
         <div id="floorsContainer"></div>
         <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 20px;">+ Add Floor / Area</button>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-          <h3 class="doc-h2 accent" style="font-size: 1rem; border:none; padding:0; margin:0;">2. System Configuration</h3>
-          <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="calcEstimator()">Auto-Fill from Floors</button>
-        </div>
-        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Manually edit exact quantities. All items are optional.</p>
+        <style>
+          .opt-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); }
+          .opt-row:last-child { border-bottom:none; }
+          .opt-row label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; margin:0; font-weight:500; color:var(--text-dark); }
+          .opt-row input[type="number"] { width:60px; text-align:center; padding:4px; font-size:0.85rem; border:1px solid #ccc; border-radius:4px; }
+          .opt-row input[type="checkbox"] { transform: scale(1.1); }
+        </style>
         
-        <div class="row2">
-          <div><label>Room Call Points</label><input type="number" id="sysRoomCP" value="0" min="0" oninput="updateBOMFromSys()"></div>
-          <div><label>Door Indicators</label><input type="number" id="sysDoorLight" value="0" min="0" oninput="updateBOMFromSys()"></div>
-        </div>
-        <div class="row2">
-          <div><label>Single Pendants</label><input type="number" id="sysSinglePendant" value="0" min="0" oninput="updateBOMFromSys()"></div>
-          <div><label>Double Pendants</label><input type="number" id="sysDoublePendant" value="0" min="0" oninput="updateBOMFromSys()"></div>
-        </div>
-        <div class="row2">
-          <div><label>Washroom CP</label><input type="number" id="sysWashCP" value="0" min="0" oninput="updateBOMFromSys()"></div>
-          <div><label>Pull Cords</label><input type="number" id="sysPullCord" value="0" min="0" oninput="updateBOMFromSys()"></div>
-        </div>
-        <div class="row2">
-          <div><label>NS Mini Tetris V2</label><input type="number" id="sysNsBasic" value="0" min="0" oninput="updateBOMFromSys()"></div>
-          <div><label>NS Display (32")</label><input type="number" id="sysNsTv" value="0" min="0" oninput="updateBOMFromSys()"></div>
-        </div>
-        <div class="row2">
-          <div><label>Gateways</label><input type="number" id="sysGateway" value="0" min="0" oninput="updateBOMFromSys()"></div>
-          <div><label>Repeaters</label><input type="number" id="sysRepeater" value="0" min="0" oninput="updateBOMFromSys()"></div>
-        </div>
-        <div class="row2" style="margin-top: 5px; margin-bottom: 20px;">
-          <div style="grid-column: 1 / -1;">
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="sysDataLog" onchange="updateBOMFromSys()"> 
-              Enable Central Data Logging & Analytics
-            </label>
+        <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0; margin-top:20px;">2. System Configuration</h3>
+        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Select optional components. Quantities auto-calculate from floors, but you can override them manually.</p>
+
+        <div style="background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid var(--border); margin-bottom:20px;">
+          
+          <div class="opt-row">
+            <label style="color:var(--muted);">Room Call Points (Base)</label>
+            <input type="number" id="sysRoomCP" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label>Pendant Type</label>
+            <select id="pendantType" onchange="calcEstimator()" style="width:120px; padding:4px; font-size:0.85rem; border-radius:4px; border:1px solid #ccc;">
+              <option value="single">Single Button</option>
+              <option value="double">Double Button</option>
+              <option value="none">None</option>
+            </select>
+          </div>
+          <!-- Hidden inputs for pendant totals to feed updateBOMFromSys seamlessly -->
+          <input type="hidden" id="sysSinglePendant" value="0">
+          <input type="hidden" id="sysDoublePendant" value="0">
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkDoorLight" checked onchange="calcEstimator()"> Door Indicators</label>
+            <input type="number" id="sysDoorLight" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkWashroom" checked onchange="calcEstimator()"> Washroom Call Points</label>
+            <input type="number" id="sysWashCP" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkPullCord" checked onchange="calcEstimator()"> Pull Cords</label>
+            <input type="number" id="sysPullCord" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkNsBasic" checked onchange="calcEstimator()"> NS Mini Tetris V2</label>
+            <input type="number" id="sysNsBasic" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkNsTv" onchange="calcEstimator()"> NS Display (32")</label>
+            <input type="number" id="sysNsTv" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkGateway" checked onchange="calcEstimator()"> Gateway / Server</label>
+            <input type="number" id="sysGateway" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkRepeater" checked onchange="calcEstimator()"> Repeaters</label>
+            <input type="number" id="sysRepeater" value="0" min="0" oninput="updateBOMFromSys()">
+          </div>
+
+          <div class="opt-row">
+            <label><input type="checkbox" id="chkDataLog" onchange="updateBOMFromSys()"> Data Logging & Analytics</label>
           </div>
         </div>
-      </div>
+</div>
     </div>
 
   </aside>
@@ -635,7 +670,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=2.3"></script>
+<script src="app.js?v=2.4"></script>
 <script>
   lucide.createIcons();
 </script>

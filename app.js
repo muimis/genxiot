@@ -342,14 +342,11 @@ function loadPreset(preset) {
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
   calcEstimator();
-  document.getElementById('sysNsBasic').value  = p.nsBasic || 0;
-  document.getElementById('sysNsTv').value     = p.nsTv || 0;
-  document.getElementById('sysDataLog').checked = p.dataLog || false;
-  if(p.pendant === 'double') {
-     document.getElementById('sysSinglePendant').value = 0;
-     document.getElementById('sysDoublePendant').value = p.beds;
-  }
-  updateBOMFromSys();
+  if(document.getElementById('pendantType')) document.getElementById('pendantType').value = p.pendant || 'single';
+  if(document.getElementById('chkNsBasic')) document.getElementById('chkNsBasic').checked = (p.nsBasic > 0);
+  if(document.getElementById('chkNsTv')) document.getElementById('chkNsTv').checked = (p.nsTv > 0);
+  if(document.getElementById('chkDataLog')) document.getElementById('chkDataLog').checked = p.dataLog || false;
+  calcEstimator();
 }
 
 // ─── INIT API ───────────────────────────────────────────────────
@@ -532,13 +529,13 @@ function renderFloors() {
       </div>
     </div>
   `).join('');
-  // calcEstimator(); removed
+  calcEstimator();
 }
 
 function updateFloor(index, field, value) {
   if (field === 'name') floors[index][field] = value;
   else floors[index][field] = parseInt(value) || 0;
-  // Intentionally NOT calling calcEstimator here so user's manual config isn't overwritten.
+  calcEstimator();
 }
 
 function addFloor() {
@@ -561,21 +558,29 @@ function calcEstimator() {
   });
 
   const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  const isChecked = (id) => document.getElementById(id)?.checked;
+  
   setVal('sysRoomCP', beds);
-  setVal('sysDoorLight', rooms);
-  setVal('sysSinglePendant', beds);
-  setVal('sysDoublePendant', 0);
-  setVal('sysWashCP', bathrooms);
-  setVal('sysPullCord', bathrooms);
-  setVal('sysNsBasic', nsTotal);
-  setVal('sysNsTv', 0);
+  
+  if (isChecked('chkDoorLight')) setVal('sysDoorLight', rooms); else setVal('sysDoorLight', 0);
+  
+  const pType = document.getElementById('pendantType')?.value || 'single';
+  setVal('sysSinglePendant', pType === 'single' ? beds : 0);
+  setVal('sysDoublePendant', pType === 'double' ? beds : 0);
+
+  if (isChecked('chkWashroom')) setVal('sysWashCP', bathrooms); else setVal('sysWashCP', 0);
+  if (isChecked('chkPullCord')) setVal('sysPullCord', bathrooms); else setVal('sysPullCord', 0);
+  
+  if (isChecked('chkNsBasic')) setVal('sysNsBasic', nsTotal); else setVal('sysNsBasic', 0);
+  if (isChecked('chkNsTv')) setVal('sysNsTv', nsTotal); else setVal('sysNsTv', 0);
+  
+  if (isChecked('chkGateway')) setVal('sysGateway', nsTotal > 0 ? nsTotal : 1); else setVal('sysGateway', 0);
   
   let repeaters = 0;
   floors.forEach(f => {
     if (f.rooms > 0) repeaters += Math.ceil(f.rooms / 10) + 1;
   });
-  setVal('sysRepeater', repeaters);
-  setVal('sysGateway', nsTotal);
+  if (isChecked('chkRepeater')) setVal('sysRepeater', repeaters); else setVal('sysRepeater', 0);
   
   updateBOMFromSys();
 }
@@ -593,7 +598,7 @@ function updateBOMFromSys() {
   const nsTv = getVal('sysNsTv');
   const gw = getVal('sysGateway');
   const rpt = getVal('sysRepeater');
-  const dLog = document.getElementById('sysDataLog')?.checked ? 1 : 0;
+  const dLog = document.getElementById('chkDataLog')?.checked ? 1 : 0;
   
   bom.forEach(item => {
     if (item.driverKey === 'beds') item.qty = roomCP;
@@ -866,7 +871,7 @@ function resetQuote() {
     document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
   });
 
-  // calcEstimator(); removed
+  calcEstimator();
 }
 
 // ─── EVENT LISTENERS ─────────────────────────────────────────────
