@@ -246,13 +246,18 @@ textarea { resize:vertical; }
 ════════════════════════════════════════════════════ */
 #printDoc { background:#fff; }
 
-.doc-page {
+.print-layout-tbl {
   width: 794px;
-  min-height: 1123px;
   background: #fff;
+  margin: 0 auto;
+}
+.doc-page {
+  width: 100%;
+  min-height: 1123px;
+  background: transparent;
   position: relative;
   overflow: hidden;
-  margin: 0 auto;
+  margin: 0;
 }
 
 /* Brochure Grids */
@@ -439,11 +444,11 @@ textarea { resize:vertical; }
 .bank-tbl td { padding:.42rem .75rem; }
 .bk-l { font-weight:700;color:var(--mid);width:115px;background:#f8f9ff; }
 
-.tc-box { margin:0 38px;font-size:.72rem;line-height:1.65;color:#333; }
+.tc-box { margin:0 38px;font-size:.72rem;line-height:1.65;color:#333; page-break-inside: avoid; break-inside: avoid; }
 .tc-box p { margin-bottom:.4rem; }
 
 /* Signatures */
-.sig-section { display:flex;justify-content:space-between;margin:4rem 38px 1.2rem;gap:3rem; }
+.sig-section { display:flex;justify-content:space-between;margin:8rem 38px 1.2rem;gap:3rem; }
 .sig-block { flex:1; }
 .sig-line { height:1px;background:var(--border);margin-bottom:.5rem; }
 .sig-name { font-size:.8rem;font-weight:700;color:var(--ink); }
@@ -867,13 +872,17 @@ textarea { resize:vertical; }
   #printDoc { background: #fff; }
 
   /* ── Page containers ── */
+  .print-layout-tbl {
+    width: 100%;
+    margin: 0;
+  }
   .bom-tbl-wrap {
     overflow: visible !important;
   }
   .doc-page {
     width: 100%;
     margin: 0;
-    padding: 12mm;
+    padding: 0;
     box-sizing: border-box;
     overflow: visible;
     box-shadow: none;

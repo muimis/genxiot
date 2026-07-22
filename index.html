@@ -393,9 +393,11 @@
          10 pages matching SAL-QTN-2024-00478
     ════════════════════════════════════════ -->
     <div id="printDoc">
-
-      <!-- ── PAGE 1: BILL OF QUANTITIES ── -->
-      <div class="doc-page" id="pageQuote">
+      <table style="width: 100%; border: none; border-spacing: 0;">
+        <thead>
+          <tr>
+            <td style="padding: 0 12mm;">
+              <div style="height: 12mm;"></div>
         <!-- Header -->
         <div class="qtn-header">
           <div class="qtn-h-left">
@@ -415,6 +417,16 @@
 
         <div class="qtn-gradient-bar"></div>
 
+            </td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding: 0 12mm;">
+
+      <!-- ── PAGE 1: BILL OF QUANTITIES ── -->
+      <div class="doc-page" id="pageQuote">
+        <!-- Header moved to global thead -->
         <div class="qtn-parties">
           <div class="party">
             <div class="party-label">SUBMITTED TO</div>
@@ -449,35 +461,34 @@
             </tr>
           </thead>
           <tbody id="qBomBody"></tbody>
-          <tbody class="tf-group">
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl">Subtotal</td>
-              <td class="tf-val" id="qSub">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
-              <td colspan="5" class="tf-lbl">Discount</td>
-              <td class="tf-val" id="qDisc"></td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl">Shipping / Handling</td>
-              <td class="tf-val" id="qShipping">₹3,500.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl">CGST (9%)</td>
-              <td class="tf-val" id="qCGST">₹0.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl">SGST (9%)</td>
-              <td class="tf-val" id="qSGST">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-grand">
-              <td colspan="5" class="tf-lbl">
-                <strong>Grand Total (Inclusive of 18% GST)</strong>
-              </td>
-              <td class="tf-val"><strong id="qGT">₹0.00</strong></td>
-            </tr>
-          </tbody>
         </table>
+        </div>
+
+        <div class="tf-group" style="page-break-inside: avoid; break-inside: avoid; margin: 10px 38px 0 auto; width: 350px;">
+            <div style="display: flex; justify-content: space-between; padding: 4px 8px; background: #f8f9ff;">
+              <div class="tf-lbl">Subtotal</div>
+              <div class="tf-val" id="qSub">₹0.00</div>
+            </div>
+            <div class="tf-disc" id="qDiscRow" style="display:none; justify-content: space-between; padding: 4px 8px; background: #f8f9ff;">
+              <div class="tf-lbl">Discount</div>
+              <div class="tf-val" id="qDisc"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 4px 8px; background: #f8f9ff;">
+              <div class="tf-lbl">Shipping / Handling</div>
+              <div class="tf-val" id="qShipping">₹3,500.00</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 4px 8px; background: #f8f9ff;">
+              <div class="tf-lbl">CGST (9%)</div>
+              <div class="tf-val" id="qCGST">₹0.00</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 4px 8px; background: #f8f9ff;">
+              <div class="tf-lbl">SGST (9%)</div>
+              <div class="tf-val" id="qSGST">₹0.00</div>
+            </div>
+            <div class="tf-grand" style="display: flex; justify-content: space-between; padding: 8px 8px; background: var(--brand-navy); color: #fff;">
+              <div class="tf-lbl" style="color: #fff;"><strong>Grand Total (18% GST)</strong></div>
+              <div class="tf-val"><strong id="qGT" style="color: #fff;">₹0.00</strong></div>
+            </div>
         </div>
         
         <div id="qOptionalNote" style="margin: 20px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
@@ -485,16 +496,7 @@
 
       <!-- ── PAGE 10: PAYMENT + BANK + T&C ─── -->
       <div class="doc-page page-break" id="pageTerms">
-        <div class="qtn-header" style="margin-bottom:0">
-          <div class="qtn-h-left">
-            <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="qtn-logo">
-          </div>
-          <div class="qtn-h-right">
-            <div class="qmeta-row"><strong>Ref:</strong> <span id="qDocRef2">SAL-QTN-2024-00478</span></div>
-          </div>
-        </div>
-        <div class="qtn-gradient-bar"></div>
-
+        <!-- Header removed -->
         <h3 class="doc-h3">Payment Terms &amp; Schedule</h3>
         <table class="doc-table">
           <thead>
@@ -557,13 +559,25 @@
           </div>
         </div>
 
+        <!-- Footer moved to global tfoot -->
+      </div>
+
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="padding: 0 12mm;">
         <div class="doc-footer">
           <div class="df-line"></div>
           <p>Genxiot LLP &nbsp;·&nbsp; 6th Floor STPI Building, Technopark, Thiruvananthapuram &nbsp;·&nbsp; +91 9496557777 &nbsp;·&nbsp; info@genxiot.com</p>
           <p class="footer-tiny">Core Wireless Technology: Alamo LoRa Engine · Genxiot Healthcare Solutions · ISO 13485 Certified</p>
         </div>
-      </div>
-
+              <div style="height: 12mm;"></div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
     </div><!-- /printDoc -->
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->

@@ -102,7 +102,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Alamo | Pendant Button (HSN: 85311090)',
+    name:  'Alamo Pendant Button (HSN: 85311090)',
     desc:  'Patient side single-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  600,
@@ -111,7 +111,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-D',
-    name:  'Alamo | Double Button Pendant (HSN: 85311090)',
+    name:  'Alamo Double Button Pendant (HSN: 85311090)',
     desc:  'Patient side double-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  950,
@@ -121,7 +121,7 @@ const CATALOGUE = [
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Alamo | Call light V2 (Door Indicator) (HSN: 85311090)',
+    name:  'Alamo Call light V2 (Door Indicator) (HSN: 85311090)',
     desc:  'LED corridor indicator light (Alamo Call light V2). Placed outside room door. Illuminates on any call from that room.',
     group: 'Room Components',
     rate:  2400,
@@ -131,7 +131,7 @@ const CATALOGUE = [
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Alamo | Bathroom Call Point (HSN: 85311090)',
+    name:  'Alamo Bathroom Call Point (HSN: 85311090)',
     desc:  'Dedicated bathroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
     group: 'Washroom Components',
     rate:  2000,
@@ -140,7 +140,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PL',
-    name:  'Alamo | Pullcord (HSN: 85311090)',
+    name:  'Alamo Pullcord (HSN: 85311090)',
     desc:  'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly',
     group: 'Washroom Components',
     rate:  600,
