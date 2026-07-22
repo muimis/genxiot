@@ -867,6 +867,9 @@ textarea { resize:vertical; }
   #printDoc { background: #fff; }
 
   /* ── Page containers ── */
+  .bom-tbl-wrap {
+    overflow: visible !important;
+  }
   .doc-page {
     width: 100%;
     margin: 0;
