@@ -785,8 +785,8 @@ function printDoc() {
 
 
 // ─── RESET ───────────────────────────────────────────────────────
-function resetQuote() {
-  if (!confirm('Reset will clear all current data. Continue?')) return;
+function resetQuote(force = false) {
+  if (!force && !confirm('Reset will clear all current data. Continue?')) return;
 
   bom = CATALOGUE.map(item => ({ ...item, qty: 0, baseRate: item.rate, isLocked: false }));
 
@@ -930,7 +930,7 @@ function switchMobileTab(tab) {
 window.addEventListener('resize', () => {
   const sp = document.querySelector('.sidebar');
   const mp = document.querySelector('.main-panel');
-  if (window.innerWidth > 600) {
+  if (window.innerWidth > 900) {
     if (sp) sp.style.display = '';
     if (mp) mp.style.display = '';
   } else {
@@ -1004,7 +1004,7 @@ function showCalculator() {
   const setupPanel   = document.querySelector('.sidebar');
   const previewPanel = document.querySelector('.main-panel');
 
-  if (window.innerWidth > 600) {
+  if (window.innerWidth > 900) {
     if (setupPanel)   setupPanel.style.display   = 'flex';
     if (previewPanel) previewPanel.style.display = 'flex';
   } else {
@@ -1014,7 +1014,7 @@ function showCalculator() {
 
 function createNewQuote() {
   closeModal();
-  resetQuote();
+  resetQuote(true);
   showCalculator();
 }
 

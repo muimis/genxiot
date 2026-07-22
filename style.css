@@ -458,41 +458,9 @@ textarea { resize:vertical; }
 /* Page break */
 .page-break { page-break-before:always; }
 
-/* ════════════════════════════════════════════════════
-   PRINT STYLES
-════════════════════════════════════════════════════ */
-
-  .no-print,.modal-ctrl { display:none!important; }
-  .modal-bg {
-    position:static!important;background:none!important;
-    display:block!important;overflow:visible!important;
-  }
-  .modal-wrap { max-width:100%!important;box-shadow:none!important; margin:0!important; }
-  #printDoc { background:#fff; }
-  
-  .doc-page {
-    width: 100%;
-    min-height: auto;
-    margin: 0; 
-    padding: 0;
-    overflow: visible; /* CRITICAL for tables breaking across pages */
-    box-sizing: border-box;
-  }
-  .doc-page.cover-page {
-    height: 100vh; /* Locks the cover page to exactly one printed page height so footer rests at bottom */
-    page-break-inside: avoid;
-  }
-  .doc-page:last-child {
-    page-break-after: avoid; 
-    break-after: avoid;
-  }
-  
-  
-}
-
 
 /* -------------------- MOBILE RESPONSIVE -------------------- */
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .hdr-actions .btn span { display: none; }
   .hdr-actions .btn { padding: 8px; }
 
@@ -519,7 +487,7 @@ textarea { resize:vertical; }
   }
 }
 
-@media (max-width: 600px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; } 
+@media (max-width: 900px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; } 
 .page-container { overflow-x: auto; max-width: 100vw; }
 .doc-page { transform-origin: top left; }
   -webkit-overflow-scrolling: touch; } table { width: 100%; } }
@@ -536,7 +504,7 @@ textarea { resize:vertical; }
   display: none;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   /* On mobile, stack everything in the main layout and hide sidebar by default */
   .layout-main {
     flex-direction: column;
@@ -677,7 +645,7 @@ textarea { resize:vertical; }
   gap: 30px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .dashboard-content-grid {
     grid-template-columns: 1fr;
   }
@@ -741,7 +709,7 @@ textarea { resize:vertical; }
 }
 
 /* ──────────────────── MOBILE RESPONSIVE FIXES ──────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .app-header {
     height: auto !important;
     padding: 8px 12px !important;
