@@ -342,7 +342,8 @@ function loadPreset(preset) {
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
   calcEstimator();
-  if(document.getElementById('pendantType')) document.getElementById('pendantType').value = p.pendant || 'single';
+    if(document.getElementById('chkSinglePendant')) document.getElementById('chkSinglePendant').checked = (p.pendant !== 'double');
+  if(document.getElementById('chkDoublePendant')) document.getElementById('chkDoublePendant').checked = (p.pendant === 'double');
   if(document.getElementById('chkNsBasic')) document.getElementById('chkNsBasic').checked = (p.nsBasic > 0);
   if(document.getElementById('chkNsTv')) document.getElementById('chkNsTv').checked = (p.nsTv > 0);
   if(document.getElementById('chkDataLog')) document.getElementById('chkDataLog').checked = p.dataLog || false;
@@ -564,9 +565,8 @@ function calcEstimator() {
   
   if (isChecked('chkDoorLight')) setVal('sysDoorLight', rooms); else setVal('sysDoorLight', 0);
   
-  const pType = document.getElementById('pendantType')?.value || 'single';
-  setVal('sysSinglePendant', pType === 'single' ? beds : 0);
-  setVal('sysDoublePendant', pType === 'double' ? beds : 0);
+  if (isChecked('chkSinglePendant')) setVal('sysSinglePendant', beds); else setVal('sysSinglePendant', 0);
+  if (isChecked('chkDoublePendant')) setVal('sysDoublePendant', beds); else setVal('sysDoublePendant', 0);
 
   if (isChecked('chkWashroom')) setVal('sysWashCP', bathrooms); else setVal('sysWashCP', 0);
   if (isChecked('chkPullCord')) setVal('sysPullCord', bathrooms); else setVal('sysPullCord', 0);
