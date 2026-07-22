@@ -8,6 +8,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#00d084">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-512.png">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW registered!', reg))
+        .catch(err => console.log('SW registration failed: ', err));
+    });
+  }
+</script>
 </head>
 <body>
 
@@ -138,6 +150,15 @@
           <button class="btn" style="flex:1; background: var(--text-muted); color: white;" onclick="loadQuotesModal()">Quote History</button>
         </div>
 
+        
+        <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0;">Bank Details</h3>
+        <div class="row2">
+          <div><label>Account Name</label><input type="text" id="bankName" value="Genxiot LLP" oninput="updateBankDetails()"></div>
+          <div><label>Account Number</label><input type="text" id="bankAcc" value="12345678901234" oninput="updateBankDetails()"></div>
+          <div><label>IFSC Code</label><input type="text" id="bankIfsc" value="HDFC0001234" oninput="updateBankDetails()"></div>
+          <div><label>Bank & Branch</label><input type="text" id="bankBranch" value="HDFC Bank, Technopark Branch" oninput="updateBankDetails()"></div>
+        </div>
+    
         <!-- Live Estimated Counts -->
         <div class="est-grid" style="margin-top:.4rem">
           <span class="est-section-lbl">BED-DRIVEN</span><span></span>
@@ -548,23 +569,23 @@
         
           <h3 class="doc-h3">Bank Details</h3>
           <div class="tc-box" style="margin-bottom: 20px;">
-            <p><strong>Account Name:</strong> Genxiot LLP</p>
-            <p><strong>Account Number:</strong> 12345678901234</p>
-            <p><strong>IFSC Code:</strong> HDFC0001234</p>
-            <p><strong>Bank & Branch:</strong> HDFC Bank, Technopark Branch</p>
-            <p><strong>UPI ID:</strong> genxiot@hdfc</p>
-          </div>
+              <p><strong>Account Name:</strong> <span id="docBankName">Genxiot LLP</span></p>
+              <p><strong>Account Number:</strong> <span id="docBankAcc">12345678901234</span></p>
+              <p><strong>IFSC Code:</strong> <span id="docBankIfsc">HDFC0001234</span></p>
+              <p><strong>Bank & Branch:</strong> <span id="docBankBranch">HDFC Bank, Technopark Branch</span></p>
+              <p><strong>UPI ID:</strong> <span contenteditable="true">genxiot@hdfc</span></p>
+            </div>
 <h3 class="doc-h3">General Terms &amp; Conditions</h3>
-        <div class="tc-box">
-          <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
-          <p><strong>Payment:</strong> 50% advance and 50% post-delivery. Bank charges of Buyer's bank borne by Buyer.</p>
-          <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
-          <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by Genxiot. 200 beds can be installed in a single day.</span></p>
-          <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within one week.</p>
+        <div class="tc-box" contenteditable="true" style="outline: none;">
+            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
+            <p><strong>Payment:</strong> 50% advance and 50% post-delivery. Bank charges of Buyer's bank borne by Buyer.</p>
+            <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
+            <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by Genxiot. 200 beds can be installed in a single day.</span></p>
+            <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within one week.</p>
           <p><strong>Inspection:</strong> Buyer must inspect packaging and products within 5 days of delivery and report defects.</p>
           <p><strong>Warranty:</strong> <span id="qWarranty">12 months comprehensive from date of Installation Protocol signoff. Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.</span></p>
           <p><strong>Jurisdiction:</strong> Cochin / Thiruvananthapuram, Kerala, India. Governed by laws of India.</p>
-        </div>
+          </div>
 
         <div class="sig-section">
           <div class="sig-block">
@@ -594,5 +615,23 @@
 <script>
   lucide.createIcons();
 </script>
+
+<!-- MOBILE BOTTOM NAVIGATION -->
+<nav class="mobile-nav no-print">
+  <button class="mobile-nav-btn active" onclick="switchMobileTab('setup')">
+    <i data-lucide="settings" size="24"></i>
+    <span>Setup</span>
+  </button>
+  <button class="mobile-nav-btn" onclick="switchMobileTab('preview')">
+    <i data-lucide="file-text" size="24"></i>
+    <span>Preview</span>
+  </button>
+</nav>
+
+<!-- FLOATING ACTION BUTTON (FAB) -->
+<button class="fab no-print" onclick="saveQuote()" title="Save Quote">
+  <i data-lucide="save" size="24"></i>
+</button>
+
 </body>
 </html>

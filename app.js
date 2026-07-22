@@ -388,46 +388,113 @@ function fetchQtnForDate(dateStr) {
 
 // ─── SAVE / LOAD QUOTES ──────────────────────────────────────────
 function saveQuote() {
-  const quoteData = {
-    qtn: document.getElementById('quoteRef').value,
-    date: document.getElementById('quoteDate').value,
-    hospital: document.getElementById('clientName').value,
+  const qtn = document.getElementById('quoteRef').value;
+  const cName = document.getElementById('clientName').value;
+  const btn = document.querySelector('button[onclick="saveQuote()"]');
+  const originalText = btn.innerText;
+  
+  btn.innerText = "Saving to Sheet...";
+  btn.disabled = true;
+
+  const dealData = {
+    action: "saveQuote",
+    quoteRef: qtn,
+    clientName: cName,
     location: document.getElementById('clientLocation').value,
-    contact: document.getElementById('contactPerson').value,
-    validity: document.getElementById('validityDays').value,
-    floorsData: floors,
-    nsBasic: document.getElementById('nsBasicCount').value,
-    nsTv: document.getElementById('nsTvCount').value,
-    pendantType: document.getElementById('pendantType').value,
-    dataLogging: document.getElementById('dataLogging').checked,
-    bom: bom
+    totalAmount: document.getElementById('qFinal').innerText,
+    contactPerson: document.getElementById('contactPerson').value,
+    bdmName: document.getElementById('bdmName').value,
+    totalBeds: floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0),
+    floors: floors,
+    singlePendants: document.getElementById('pendantSingleCount').value,
+    doublePendants: document.getElementById('pendantDoubleCount').value,
+    bankDetails: {
+        name: document.getElementById('bankName').value,
+        acc: document.getElementById('bankAcc').value,
+        ifsc: document.getElementById('bankIfsc').value,
+        branch: document.getElementById('bankBranch').value
+    }
   };
 
-  fetch('/api/quotes', {
+  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(quoteData)
-  }).then(() => {
-    alert("Quote Saved Successfully to quotes.json!");
-  }).catch(e => {
-    alert("Error saving quote. Is the server running?");
+    body: JSON.stringify(dealData)
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.innerText = "Saved!";
+    setTimeout(() => {
+      btn.innerText = originalText;
+      btn.disabled = false;
+    }, 2000);
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error saving to Google Sheet. Check console.");
+    btn.innerText = originalText;
+    btn.disabled = false;
   });
 }
 
 function loadQuotesModal() {
-  fetch('/api/quotes')
-    .then(r => r.json())
-    .then(data => {
-      let msg = "Saved Quotes:\n\n";
-      data.forEach((q, i) => {
-        msg += `${i+1}. ${q.qtn} - ${q.hospital} (${q.date})\n`;
-      });
-      msg += "\nCheck quotes.json for full data. Loading logic via UI can be fully built out here!";
-      alert(msg);
-    })
-    .catch(e => {
-      alert("Error loading quotes. Is the server running?");
-    });
+  const query = prompt("Enter Client Name or Quote Number (QTN) to recall:");
+  if (!query) return;
+  
+  const btn = document.querySelector('button[onclick="loadQuotesModal()"]');
+  const originalText = btn.innerText;
+  btn.innerText = "Searching...";
+  btn.disabled = true;
+
+  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
+    method: 'POST',
+    body: JSON.stringify({ action: 'searchQuote', query: query })
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.innerText = originalText;
+    btn.disabled = false;
+    if (data.status === "success" && data.data) {
+      restoreQuote(data.data);
+    } else {
+      alert(data.message || "Quote not found.");
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Error searching Google Sheet.");
+    btn.innerText = originalText;
+    btn.disabled = false;
+  });
+}
+
+function restoreQuote(data) {
+  document.getElementById('quoteRef').value = data.quoteRef || "";
+  document.getElementById('quoteDate').value = data.date ? data.date.split('T')[0] : "";
+  document.getElementById('clientName').value = data.clientName || "";
+  document.getElementById('clientLocation').value = data.location || "";
+  document.getElementById('contactPerson').value = data.contactPerson || "";
+  document.getElementById('bdmName').value = data.bdmName || "";
+  
+  document.getElementById('pendantSingleCount').value = data.singlePendants || 0;
+  document.getElementById('pendantDoubleCount').value = data.doublePendants || 0;
+  
+  if (data.bankDetails) {
+    document.getElementById('bankName').value = data.bankDetails.name || "";
+    document.getElementById('bankAcc').value = data.bankDetails.acc || "";
+    document.getElementById('bankIfsc').value = data.bankDetails.ifsc || "";
+    document.getElementById('bankBranch').value = data.bankDetails.branch || "";
+    updateBankDetails();
+  }
+
+  if (data.floors && Array.isArray(data.floors) && data.floors.length > 0) {
+    floors = data.floors;
+  } else {
+    floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+  }
+  
+  renderFloors();
+  calcEstimator();
+  alert("Quote restored successfully!");
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
@@ -736,22 +803,41 @@ function printQuoteOnly() {
 // ─── RESET ───────────────────────────────────────────────────────
 function resetQuote() {
   bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
-  document.getElementById('clientName').value      = 'Nims hospital tvm';
-  document.getElementById('clientLocation').value  = 'Trivandrum, Kerala';
-  document.getElementById('contactPerson').value   = 'Medical Director / BioMed Team';
-  document.getElementById('quoteRef').value        = 'SAL-QTN-2024-00478';
+  document.getElementById('clientName').value      = '';
+  document.getElementById('clientLocation').value  = '';
+  document.getElementById('contactPerson').value   = '';
   document.getElementById('bdmName').value         = 'Genxiot Sales Team';
   document.getElementById('discType').value        = 'none';
   document.getElementById('discVal').value         = '0';
   document.getElementById('shipping').value        = '3500';
   document.getElementById('advPct').value          = '50';
-  document.getElementById('bedCount').value        = '134';
-  document.getElementById('roomCount').value       = '39';
-  document.getElementById('bathroomCount').value   = '99';
-  document.getElementById('wardCount').value       = '8';
-  const marginEl = document.getElementById('marginPct');
-  if (marginEl) marginEl.value = '0';
-  renderBOM();
+  document.getElementById('nsBasicCount').value    = '0';
+  document.getElementById('nsTvCount').value       = '0';
+  
+  floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0 }];
+  renderFloors();
+  
+  // Also regenerate Quote Ref based on current date
+  document.getElementById('quoteRef').value = "Generating...";
+  fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
+    method: 'POST',
+    body: JSON.stringify({ action: 'getNextQuoteId' })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.status === "success") {
+      document.getElementById('quoteRef').value = data.quoteRef;
+    } else {
+      document.getElementById('quoteRef').value = 'GEN-ALA-QTN-ERROR';
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    const dt = document.getElementById('quoteDate').value || new Date().toISOString().split('T')[0];
+    const dStr = dt.replace(/-/g, '');
+    document.getElementById('quoteRef').value = `GEN-ALA-QTN-${dStr}-0001`;
+  });
+
   calcEstimator();
 }
 
@@ -821,3 +907,60 @@ function exportCSV() {
   document.body.removeChild(link);
 }
 
+
+// Bank Details Sync
+function updateBankDetails() {
+  const bName = document.getElementById('bankName').value;
+  const bAcc = document.getElementById('bankAcc').value;
+  const bIfsc = document.getElementById('bankIfsc').value;
+  const bBranch = document.getElementById('bankBranch').value;
+  
+  if(document.getElementById('docBankName')) document.getElementById('docBankName').innerText = bName;
+  if(document.getElementById('docBankAcc')) document.getElementById('docBankAcc').innerText = bAcc;
+  if(document.getElementById('docBankIfsc')) document.getElementById('docBankIfsc').innerText = bIfsc;
+  if(document.getElementById('docBankBranch')) document.getElementById('docBankBranch').innerText = bBranch;
+}
+
+// ==========================================================================
+// MOBILE PWA TAB LOGIC
+// ==========================================================================
+function switchMobileTab(tab) {
+  const setupPanel = document.getElementById('setupPanel');
+  const previewPanel = document.getElementById('previewPanel');
+  const btns = document.querySelectorAll('.mobile-nav-btn');
+  
+  btns.forEach(b => b.classList.remove('active'));
+
+  if (tab === 'setup') {
+    if(setupPanel) setupPanel.style.display = 'block';
+    if(previewPanel) previewPanel.style.display = 'none';
+    btns[0].classList.add('active');
+  } else if (tab === 'preview') {
+    if(setupPanel) setupPanel.style.display = 'none';
+    if(previewPanel) previewPanel.style.display = 'block';
+    btns[1].classList.add('active');
+  }
+}
+
+// On load, if mobile, ensure correct initial state
+window.addEventListener('resize', () => {
+  if (window.innerWidth > 900) {
+    // Reset to desktop layout
+    const setupPanel = document.getElementById('setupPanel');
+    const previewPanel = document.getElementById('previewPanel');
+    if(setupPanel) setupPanel.style.display = 'block';
+    if(previewPanel) previewPanel.style.display = 'block';
+  } else {
+    // Re-apply active tab logic if resized to mobile
+    const activeTab = document.querySelector('.mobile-nav-btn.active');
+    if (activeTab) {
+      if (activeTab.innerText.includes('Setup')) {
+        switchMobileTab('setup');
+      } else {
+        switchMobileTab('preview');
+      }
+    } else {
+      switchMobileTab('setup');
+    }
+  }
+});

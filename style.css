@@ -548,3 +548,100 @@ textarea { resize:vertical; }
   /* Hide the web-like borders from tables */
   .bom-tbl th, .bom-tbl td { border: 1px solid #ddd; }
 }
+
+/* ==========================================================================
+   MOBILE PWA NAVIGATION & LAYOUT
+   ========================================================================== */
+
+/* Hidden by default on desktop */
+.mobile-nav {
+  display: none;
+}
+.fab {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  /* On mobile, stack everything in the main layout and hide sidebar by default */
+  .layout-main {
+    flex-direction: column;
+    padding-bottom: 70px; /* Space for bottom nav */
+  }
+
+  /* We will use JavaScript to toggle display:none on these based on tabs */
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .print-doc {
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  /* Bottom Navigation */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: var(--card-bg);
+    border-top: 1px solid var(--border-color);
+    z-index: 1000;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+
+  .mobile-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50%;
+    height: 100%;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .mobile-nav-btn span {
+    font-size: 11px;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  .mobile-nav-btn.active {
+    color: var(--brand-cyan);
+  }
+
+  /* Floating Action Button */
+  .fab {
+    display: flex;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--brand-cyan);
+    color: var(--brand-dark);
+    border: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,208,132,0.4);
+    cursor: pointer;
+    z-index: 1001;
+    transition: transform 0.2s;
+  }
+
+  .fab:active {
+    transform: scale(0.95);
+  }
+}
