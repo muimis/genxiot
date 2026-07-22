@@ -678,12 +678,30 @@ textarea { resize:vertical; }
   }
 }
 
-.chart-container, .table-container {
+.chart-container {
   background-color: #ffffff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   border: 1px solid #dde0f0;
+  height: 380px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.table-container {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border: 1px solid #dde0f0;
+  max-height: 380px !important;
+  overflow-y: auto !important;
+}
+
+#pipelineChart {
+  max-height: 300px !important;
+  height: 300px !important;
 }
 
 .chart-container h3, .table-container h3 {
