@@ -10,22 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=3.2">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<link rel="stylesheet" href="style.css?v=3.3">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-        <style>
-          .toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out forwards; transition: opacity 0.3s; display: flex; align-items: center; gap: 8px; }
-          .toast.info { background: var(--brand-indigo); }
-          .toast.success { background: #10b981; }
-          .toast.error { background: #ef4444; }
-          @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-          
-          .qty-locked { border: 1px solid #f59e0b !important; background: #fffbeb !important; color: #d97706 !important; }
-          .lock-icon { color: #f59e0b; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
-          .lock-icon:hover { background: #fef3c7; }
-        </style>
-        </head>
+</head>
 <body>
 
 <!-- ════════════════════════════════════════════════════
@@ -186,15 +173,6 @@
         <h3 class="doc-h2 accent" style="font-size: 1rem; margin-top:0; border:none; padding:0;">1. Facility Size</h3>
         <div id="floorsContainer"></div>
         <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 20px;">+ Add Floor / Area</button>
-
-        <style>
-          .opt-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); }
-          .opt-row:last-child { border-bottom:none; }
-          .opt-row label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; margin:0; font-weight:500; color:var(--text-dark); }
-          .opt-row input[type="number"] { width:60px; text-align:center; padding:4px; font-size:0.85rem; border:1px solid #ccc; border-radius:4px; }
-          .opt-row input[type="checkbox"] { transform: scale(1.1); }
-        </style>
-        
         <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0; margin-top:20px;">2. System Configuration</h3>
         <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Select optional components. Quantities are auto-calculated in the BOM Table.</p>
 
@@ -624,7 +602,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=3.2"></script>
+<script src="app.js?v=3.3"></script>
 <script>
   lucide.createIcons();
 </script>

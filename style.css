@@ -503,6 +503,7 @@ textarea { resize:vertical; }
   .clients-grid {
     grid-template-columns: 1fr 1fr !important;
   }
+  .cols2 { grid-template-columns: 1fr; }
   .bom-tbl th, .bom-tbl td {
     padding: 0.3rem;
     font-size: 0.7rem;
@@ -592,8 +593,8 @@ textarea { resize:vertical; }
     left: 0;
     width: 100%;
     height: 60px;
-    background-color: var(--card-bg);
-    border-top: 1px solid var(--border-color);
+    background-color: #ffffff;
+    border-top: 1px solid #dde0f0;
     z-index: 1000;
     justify-content: space-around;
     align-items: center;
@@ -603,7 +604,7 @@ textarea { resize:vertical; }
   .mobile-nav-btn {
     background: none;
     border: none;
-    color: var(--text-secondary);
+    color: #7a7a9a;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -656,7 +657,7 @@ textarea { resize:vertical; }
   display: block; /* Shown by default */
   width: 100%;
   height: 100vh;
-  background-color: var(--bg-color);
+  background-color: #f0f2fa;
   overflow-y: auto;
 }
 
@@ -674,18 +675,18 @@ textarea { resize:vertical; }
 }
 
 .metric-card {
-  background-color: var(--card-bg);
+  background-color: #ffffff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border: 1px solid var(--border-color);
+  border: 1px solid #dde0f0;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .metric-title {
-  color: var(--text-secondary);
+  color: #7a7a9a;
   font-size: 14px;
   font-weight: 500;
   margin-bottom: 10px;
@@ -712,17 +713,17 @@ textarea { resize:vertical; }
 }
 
 .chart-container, .table-container {
-  background-color: var(--card-bg);
+  background-color: #ffffff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border: 1px solid var(--border-color);
+  border: 1px solid #dde0f0;
 }
 
 .chart-container h3, .table-container h3 {
   margin-top: 0;
   margin-bottom: 20px;
-  color: var(--text-primary);
+  color: #1a1a3e;
   font-size: 18px;
 }
 
@@ -734,7 +735,7 @@ textarea { resize:vertical; }
 .dashboard-table th {
   text-align: left;
   padding: 12px 10px;
-  color: var(--text-secondary);
+  color: #7a7a9a;
   font-size: 13px;
   text-transform: uppercase;
   border-bottom: 1px solid var(--border-color);
@@ -742,7 +743,7 @@ textarea { resize:vertical; }
 
 .dashboard-table td {
   padding: 12px 10px;
-  color: var(--text-primary);
+  color: #1a1a3e;
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -782,3 +783,23 @@ textarea { resize:vertical; }
     min-width: unset;
   }
 }
+
+/* ── TOAST NOTIFICATIONS ── */
+.toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out forwards;
+  transition: opacity 0.3s; display: flex; align-items: center; gap: 8px; }
+.toast.info    { background: var(--brand-indigo); }
+.toast.success { background: #10b981; }
+.toast.error   { background: #ef4444; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ── SMART LOCK INDICATORS ── */
+.qty-locked  { border: 1px solid #f59e0b !important; background: #fffbeb !important; color: #d97706 !important; }
+.lock-icon   { color: #f59e0b; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
+.lock-icon:hover { background: #fef3c7; }
+
+/* ── SYSTEM CONFIG OPT-ROWS ── */
+.opt-row { display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); }
+.opt-row:last-child { border-bottom:none; }
+.opt-row label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; margin:0; font-weight:500; color:var(--ink); }
+.opt-row input[type="checkbox"] { transform: scale(1.1); }

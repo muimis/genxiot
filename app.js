@@ -330,12 +330,15 @@ function loadPreset(preset) {
     const roomsPerFloor = Math.floor(p.rooms / numFloors);
     const bathsPerFloor = Math.floor(p.bathrooms / numFloors);
     
+    const nsTot = (p.nsBasic || 0) + (p.nsTv || 0);
+    const nsPerFloor = Math.floor(nsTot / numFloors);
     for (let i = 0; i < numFloors; i++) {
         floors.push({
-            name: `Floor ${i + 1}`,
-            beds: bedsPerFloor + (i === 0 ? p.beds % numFloors : 0),
-            rooms: roomsPerFloor + (i === 0 ? p.rooms % numFloors : 0),
-            baths: bathsPerFloor + (i === 0 ? p.bathrooms % numFloors : 0)
+            name:  `Floor ${i + 1}`,
+            beds:  bedsPerFloor  + (i === 0 ? p.beds      % numFloors : 0),
+            rooms: roomsPerFloor + (i === 0 ? p.rooms     % numFloors : 0),
+            baths: bathsPerFloor + (i === 0 ? p.bathrooms % numFloors : 0),
+            ns:    nsPerFloor    + (i === 0 ? nsTot       % numFloors : 0)
         });
     }
     renderFloors();
@@ -883,7 +886,7 @@ function exportCSV() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `Genxiot_BOQ_${clientName.replace(/\\s+/g, '_')}.csv`);
+  link.setAttribute('download', `Genxiot_BOQ_${clientName.replace(/\s+/g, '_')}.csv`);
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();
@@ -908,43 +911,32 @@ function updateBankDetails() {
 // MOBILE PWA TAB LOGIC
 // ==========================================================================
 function switchMobileTab(tab) {
-  const setupPanel = document.getElementById('setupPanel');
-  const previewPanel = document.getElementById('previewPanel');
+  const setupPanel   = document.querySelector('.sidebar');
+  const previewPanel = document.querySelector('.main-panel');
   const btns = document.querySelectorAll('.mobile-nav-btn');
-  
   btns.forEach(b => b.classList.remove('active'));
-
   if (tab === 'setup') {
-    if(setupPanel) setupPanel.style.display = 'block';
-    if(previewPanel) previewPanel.style.display = 'none';
-    btns[0].classList.add('active');
-  } else if (tab === 'preview') {
-    if(setupPanel) setupPanel.style.display = 'none';
-    if(previewPanel) previewPanel.style.display = 'block';
-    btns[1].classList.add('active');
+    if (setupPanel)   setupPanel.style.display   = '';
+    if (previewPanel) previewPanel.style.display = 'none';
+    if (btns[0]) btns[0].classList.add('active');
+  } else {
+    if (setupPanel)   setupPanel.style.display   = 'none';
+    if (previewPanel) previewPanel.style.display = '';
+    if (btns[1]) btns[1].classList.add('active');
   }
 }
 
+
 // On load, if mobile, ensure correct initial state
 window.addEventListener('resize', () => {
+  const sp = document.querySelector('.sidebar');
+  const mp = document.querySelector('.main-panel');
   if (window.innerWidth > 900) {
-    // Reset to desktop layout
-    const setupPanel = document.getElementById('setupPanel');
-    const previewPanel = document.getElementById('previewPanel');
-    if(setupPanel) setupPanel.style.display = 'block';
-    if(previewPanel) previewPanel.style.display = 'block';
+    if (sp) sp.style.display = '';
+    if (mp) mp.style.display = '';
   } else {
-    // Re-apply active tab logic if resized to mobile
-    const activeTab = document.querySelector('.mobile-nav-btn.active');
-    if (activeTab) {
-      if (activeTab.innerText.includes('Setup')) {
-        switchMobileTab('setup');
-      } else {
-        switchMobileTab('preview');
-      }
-    } else {
-      switchMobileTab('setup');
-    }
+    const ab = document.querySelector('.mobile-nav-btn.active');
+    switchMobileTab((ab && ab.textContent.includes('Preview')) ? 'preview' : 'setup');
   }
 });
 
@@ -1103,7 +1095,6 @@ function renderDashboard(quotes) {
 // On App Load, show dashboard by default
 window.addEventListener('DOMContentLoaded', () => {
   // If the dashboard view exists, show it. Otherwise calc init will run.
-  resetQuote();
   if (document.getElementById('dashboardView')) {
     showDashboard();
   }
