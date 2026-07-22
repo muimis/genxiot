@@ -467,7 +467,7 @@ textarea { resize:vertical; }
   .app-main {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 1rem 1rem 140px; /* Add bottom padding for mobile nav bars */
   }
   .row2, .row3 {
     grid-template-columns: 1fr;
@@ -487,10 +487,14 @@ textarea { resize:vertical; }
   }
 }
 
-@media (max-width: 900px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; } 
-.page-container { overflow-x: auto; max-width: 100vw; }
-.doc-page { transform-origin: top left; }
-  -webkit-overflow-scrolling: touch; } table { width: 100%; } }
+@media (max-width: 900px) {
+  .app-main { display: flex !important; flex-direction: column !important; }
+  .sidebar { width: 100% !important; max-width: 100% !important; }
+  .bom-tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .page-container { overflow-x: auto; max-width: 100vw; }
+  .doc-page { transform-origin: top left; }
+  table { width: 100%; }
+}
 
 /* ==========================================================================
    MOBILE PWA NAVIGATION & LAYOUT
@@ -506,9 +510,9 @@ textarea { resize:vertical; }
 
 @media (max-width: 900px) {
   /* On mobile, stack everything in the main layout and hide sidebar by default */
-  .layout-main {
+  .app-main {
     flex-direction: column;
-    padding-bottom: 140px; /* Space for both mobile nav (60px) and action bar (~70px) */
+    padding-bottom: 140px !important; /* Space for both mobile nav (60px) and action bar (~70px) */
   }
 
   /* We will use JavaScript to toggle display:none on these based on tabs */
