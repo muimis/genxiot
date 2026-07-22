@@ -378,10 +378,12 @@ function fetchQtnForDate(dateStr) {
       })
       .catch(e => {
         console.error("Error fetching next QTN, server might not be running");
-        const d = new Date(dateStr || Date.now());
-        const year = d.getFullYear();
-        const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-        document.getElementById('quoteRef').value = `SAL-QTN-${year}-0${rand}`;
+          const d = new Date(dateStr || Date.now());
+          const yyyy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          const rand = Math.floor(Math.random() * 1000).toString().padStart(4, '0');
+          document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
         recalc();
       });
   }
