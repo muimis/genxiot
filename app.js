@@ -206,8 +206,8 @@ let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: ite
 document.addEventListener('DOMContentLoaded', () => {
   renderBOM();
     renderFloors();
-  recalc();
   calcEstimator();
+  recalc();
   fillDocDates();
 });
 
@@ -339,20 +339,17 @@ function loadPreset(preset) {
         });
     }
     renderFloors();
-  document.getElementById('nsBasicCount').value  = p.nsBasic || 0;
-  document.getElementById('nsTvCount').value     = p.nsTv || 0;
-  document.getElementById('dataLogging').checked = p.dataLog || false;
-  document.getElementById('pendantType').value   = p.pendant || 'single';
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
-  
-  
-  const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
-  const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
-  const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
-  const pendantType = document.getElementById('pendantType').value || 'single';
-
   calcEstimator();
+  document.getElementById('sysNsBasic').value  = p.nsBasic || 0;
+  document.getElementById('sysNsTv').value     = p.nsTv || 0;
+  document.getElementById('sysDataLog').checked = p.dataLog || false;
+  if(p.pendant === 'double') {
+     document.getElementById('sysSinglePendant').value = 0;
+     document.getElementById('sysDoublePendant').value = p.beds;
+  }
+  updateBOMFromSys();
 }
 
 // ─── INIT API ───────────────────────────────────────────────────
@@ -408,8 +405,8 @@ function saveQuote() {
     bdmName: document.getElementById('qBdmName') ? document.getElementById('qBdmName').innerText : 'Genxiot Sales Team',
     totalBeds: floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0),
     floors: floors,
-    singlePendants: document.getElementById('pendantType') && document.getElementById('pendantType').value === 'single' ? floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0) : 0,
-    doublePendants: document.getElementById('pendantType') && document.getElementById('pendantType').value === 'double' ? floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0) : 0,
+    singlePendants: document.getElementById('sysSinglePendant') ? document.getElementById('sysSinglePendant').value : 0,
+    doublePendants: document.getElementById('sysDoublePendant') ? document.getElementById('sysDoublePendant').value : 0,
     bankDetails: {
         name: document.getElementById('bankName').value,
         acc: document.getElementById('bankAcc').value,
@@ -503,7 +500,7 @@ function restoreQuote(data) {
     renderBOM();
     recalc();
   } else {
-    calcEstimator(); // fallback
+    updateBOMFromSys(); // fallback
   }
   
   alert("Quote restored successfully!");
@@ -535,13 +532,13 @@ function renderFloors() {
       </div>
     </div>
   `).join('');
-  calcEstimator();
+  // calcEstimator(); removed
 }
 
 function updateFloor(index, field, value) {
   if (field === 'name') floors[index][field] = value;
   else floors[index][field] = parseInt(value) || 0;
-  calcEstimator();
+  // Intentionally NOT calling calcEstimator here so user's manual config isn't overwritten.
 }
 
 function addFloor() {
@@ -562,58 +559,60 @@ function calcEstimator() {
     bathrooms += f.baths || 0;
     nsTotal += f.ns || 0;
   });
-  const floorCount = floors.length;
 
-  // If user sets global nsBasicCount we use it, otherwise use floor sum
-  const nsBasicInput = parseInt(document.getElementById('nsBasicCount').value);
-  const nsBasic = !isNaN(nsBasicInput) && nsBasicInput > 0 ? nsBasicInput : nsTotal;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('sysRoomCP', beds);
+  setVal('sysDoorLight', rooms);
+  setVal('sysSinglePendant', beds);
+  setVal('sysDoublePendant', 0);
+  setVal('sysWashCP', bathrooms);
+  setVal('sysPullCord', bathrooms);
+  setVal('sysNsBasic', nsTotal);
+  setVal('sysNsTv', 0);
   
-  const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
-  const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
-  
-  applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog);
-  
-  // TRIGGER UI REPAINT!
-  renderBOM();
-  recalc();
-}
-
-function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog) {
-  let gateways = nsTv;
-  if (dataLog > 0) gateways += 1;
-  let totalWards = nsBasic + nsTv;
-  
-  // Dynamic repeater logic per floor
   let repeaters = 0;
   floors.forEach(f => {
-    if (f.rooms > 0) {
-      repeaters += Math.ceil(f.rooms / 10) + 1; // 1 extra for coverage as requested
-    }
+    if (f.rooms > 0) repeaters += Math.ceil(f.rooms / 10) + 1;
   });
+  setVal('sysRepeater', repeaters);
+  setVal('sysGateway', nsTotal);
+  
+  updateBOMFromSys();
+}
 
+function updateBOMFromSys() {
+  const getVal = (id) => parseInt(document.getElementById(id)?.value) || 0;
+  
+  const roomCP = getVal('sysRoomCP');
+  const doorL = getVal('sysDoorLight');
+  const sp = getVal('sysSinglePendant');
+  const dp = getVal('sysDoublePendant');
+  const wCP = getVal('sysWashCP');
+  const pCord = getVal('sysPullCord');
+  const nsBasic = getVal('sysNsBasic');
+  const nsTv = getVal('sysNsTv');
+  const gw = getVal('sysGateway');
+  const rpt = getVal('sysRepeater');
+  const dLog = document.getElementById('sysDataLog')?.checked ? 1 : 0;
+  
   bom.forEach(item => {
-    if (item.driverKey === 'beds') item.qty = beds;
-    if (item.driverKey === 'rooms') item.qty = rooms;
-    if (item.driverKey === 'bathrooms') item.qty = bathrooms;
-    if (item.driverKey === 'repeaters') item.qty = repeaters;
-    const pType = document.getElementById('pendantType') ? document.getElementById('pendantType').value : 'none';
-    const singleP = (pType === 'single') ? beds : 0;
-    const doubleP = (pType === 'double') ? beds : 0;
-    if (item.driverKey === 'pendants_single') item.qty = singleP;
-    if (item.driverKey === 'pendants_double') item.qty = doubleP;
+    if (item.driverKey === 'beds') item.qty = roomCP;
+    if (item.driverKey === 'rooms') item.qty = doorL;
+    if (item.driverKey === 'bathrooms') {
+      if (item.code === 'ALAMO-PL') item.qty = pCord;
+      else item.qty = wCP;
+    }
+    if (item.driverKey === 'pendants_single') item.qty = sp;
+    if (item.driverKey === 'pendants_double') item.qty = dp;
     if (item.driverKey === 'ns_basic') item.qty = nsBasic;
     if (item.driverKey === 'ns_tv') item.qty = nsTv;
-    if (item.driverKey === 'gateways') item.qty = gateways;
-    if (item.driverKey === 'datalog') item.qty = dataLog;
+    if (item.driverKey === 'gateways') item.qty = gw;
+    if (item.driverKey === 'repeaters') item.qty = rpt;
+    if (item.driverKey === 'datalog') item.qty = dLog;
   });
   renderBOM();
 }
 
-// ─── MARGIN TOOL ─────────────────────────────────────────────────
-// Catalogue rates are Evelabs BASE COST. This multiplies every current
-// rate by (1 + pct/100) in one shot so the BOM shows a real sell price
-// instead of silently-hardcoded numbers. Re-apply with pct=0 effect by
-// using Reset (which restores verified base cost) if you need to start over.
 function applyMargin() {
   const pct = parseFloat(document.getElementById('marginPct').value) || 0;
   bom.forEach(item => {
@@ -684,7 +683,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const beds          = floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0);
   const rooms         = floors.reduce((acc, f) => acc + parseInt(f.rooms || 0), 0);
   const bathrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
-  const wards         = floors.reduce((acc, f) => acc + parseInt(f.ns || 0), 0) || (parseInt(document.getElementById('nsBasicCount')?.value) || 0) + (parseInt(document.getElementById('nsTvCount')?.value) || 0);
+  const wards         = floors.reduce((acc, f) => acc + parseInt(f.ns || 0), 0) || (parseInt(document.getElementById('sysNsBasic')?.value) || 0) + (parseInt(document.getElementById('sysNsTv')?.value) || 0);
 
   const delivery      = (document.getElementById('delivery')?.value)      || '';
   const warranty      = (document.getElementById('warranty')?.value)      || '';
@@ -837,8 +836,8 @@ function resetQuote() {
   document.getElementById('discVal').value         = '0';
   document.getElementById('shipping').value        = '3500';
   document.getElementById('advPct').value          = '50';
-  document.getElementById('nsBasicCount').value    = '0';
-  document.getElementById('nsTvCount').value       = '0';
+  document.getElementById('sysNsBasic').value    = '0';
+  document.getElementById('sysNsTv').value       = '0';
   
   floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
@@ -867,7 +866,7 @@ function resetQuote() {
     document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
   });
 
-  calcEstimator();
+  // calcEstimator(); removed
 }
 
 // ─── EVENT LISTENERS ─────────────────────────────────────────────

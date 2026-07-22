@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=2.1">
+<link rel="stylesheet" href="style.css?v=2.2">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -177,76 +177,40 @@
         <div id="floorsContainer"></div>
         <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 20px;">+ Add Floor / Area</button>
 
-        <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0;">2. System Configuration</h3>
-        <div class="row2">
-          <div style="grid-column: 1 / -1;">
-            <label>Pendant Type</label>
-            <select id="pendantType" onchange="calcEstimator()">
-              <option value="none">No Pendants</option>
-              <option value="single">Single Button (600)</option>
-              <option value="double">Double Button (950)</option>
-            </select>
-          </div>
-          <div>
-            <label>Alamo Mini Station Tetris V2</label>
-            <input type="number" id="nsBasicCount" value="0" min="0" oninput="calcEstimator()">
-          </div>
-          <div>
-            <label>Nursing Station Display (32")</label>
-            <input type="number" id="nsTvCount" value="0" min="0" oninput="calcEstimator()">
-          </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+          <h3 class="doc-h2 accent" style="font-size: 1rem; border:none; padding:0; margin:0;">2. System Configuration</h3>
+          <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem;" onclick="calcEstimator()">Auto-Fill from Floors</button>
         </div>
+        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Manually edit exact quantities. All items are optional.</p>
         
-        <div class="row2 mt">
-          <div style="grid-column: 1 / -1; margin-top: 5px;">
+        <div class="row2">
+          <div><label>Room Call Points</label><input type="number" id="sysRoomCP" value="0" min="0" oninput="updateBOMFromSys()"></div>
+          <div><label>Door Indicators</label><input type="number" id="sysDoorLight" value="0" min="0" oninput="updateBOMFromSys()"></div>
+        </div>
+        <div class="row2">
+          <div><label>Single Pendants</label><input type="number" id="sysSinglePendant" value="0" min="0" oninput="updateBOMFromSys()"></div>
+          <div><label>Double Pendants</label><input type="number" id="sysDoublePendant" value="0" min="0" oninput="updateBOMFromSys()"></div>
+        </div>
+        <div class="row2">
+          <div><label>Washroom CP</label><input type="number" id="sysWashCP" value="0" min="0" oninput="updateBOMFromSys()"></div>
+          <div><label>Pull Cords</label><input type="number" id="sysPullCord" value="0" min="0" oninput="updateBOMFromSys()"></div>
+        </div>
+        <div class="row2">
+          <div><label>NS Mini Tetris V2</label><input type="number" id="sysNsBasic" value="0" min="0" oninput="updateBOMFromSys()"></div>
+          <div><label>NS Display (32")</label><input type="number" id="sysNsTv" value="0" min="0" oninput="updateBOMFromSys()"></div>
+        </div>
+        <div class="row2">
+          <div><label>Gateways</label><input type="number" id="sysGateway" value="0" min="0" oninput="updateBOMFromSys()"></div>
+          <div><label>Repeaters</label><input type="number" id="sysRepeater" value="0" min="0" oninput="updateBOMFromSys()"></div>
+        </div>
+        <div class="row2" style="margin-top: 5px; margin-bottom: 20px;">
+          <div style="grid-column: 1 / -1;">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" id="dataLogging" onchange="calcEstimator()"> 
+              <input type="checkbox" id="sysDataLog" onchange="updateBOMFromSys()"> 
               Enable Central Data Logging & Analytics
             </label>
-            <div class="field-hint" style="margin-left: 20px;">Requires a Standalone Gateway & Annual Subscription</div>
           </div>
         </div>
-
-
-
-        
-        <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0;">Bank Details</h3>
-        <div class="row2">
-          <div><label>Account Name</label><input type="text" id="bankName" value="Genxiot LLP" oninput="updateBankDetails()"></div>
-          <div><label>Account Number</label><input type="text" id="bankAcc" value="12345678901234" oninput="updateBankDetails()"></div>
-          <div><label>IFSC Code</label><input type="text" id="bankIfsc" value="HDFC0001234" oninput="updateBankDetails()"></div>
-          <div><label>Bank & Branch</label><input type="text" id="bankBranch" value="HDFC Bank, Technopark Branch" oninput="updateBankDetails()"></div>
-        </div>
-    
-        <!-- Live Estimated Counts -->
-        <div class="est-grid" style="margin-top:.4rem">
-          <span class="est-section-lbl">BED-DRIVEN</span><span></span>
-          <span>Room Call Points</span><strong id="estBeds">0</strong>
-          <span>Single Pendants</span><strong id="estPendantsSingle">0</strong>
-          <span>Double Pendants</span><strong id="estPendantsDouble">0</strong>
-
-          <span class="est-section-lbl">ROOM-DRIVEN</span><span></span>
-          <span>Door Indicators</span><strong id="estRooms">0</strong>
-
-          <span class="est-section-lbl">BATHROOM-DRIVEN</span><span></span>
-          <span>Washroom Call Points</span><strong id="estBathCPs">0</strong>
-          <span>Pull Cords</span><strong id="estPullCords">0</strong>
-
-          <span class="est-section-lbl">WARD-DRIVEN</span><span></span>
-          <span>NS Basic Displays</span><strong id="estNSBasic">0</strong>
-          <span>NS TV Displays</span><strong id="estNSTV">0</strong>
-          <span>Standalone Gateways</span><strong id="estGateways">0</strong>
-          <span>Repeaters (~1.5× NS)</span><strong id="estRepeaters">0</strong>
-          <span>Data Logger Sub</span><strong id="estDataLog">0</strong>
-
-          <span class="est-section-lbl">TOTALS</span><span></span>
-          <span><b>Total Call Points</b></span><strong id="estTotalCPs" style="color:var(--brand-cyan)">0</strong>
-          <span><b>Total Hardware Units</b></span><strong id="estTotalUnits" style="color:var(--brand-cyan)">0</strong>
-        </div>
-
-        <button class="btn btn-primary w-full mt" onclick="applyEstimator()">
-          <i data-lucide="wand-2" size="15"></i> Apply to BOM Table
-        </button>
       </div>
     </div>
 
@@ -673,7 +637,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=2.1"></script>
+<script src="app.js?v=2.2"></script>
 <script>
   lucide.createIcons();
 </script>
