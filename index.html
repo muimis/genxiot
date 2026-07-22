@@ -20,6 +20,7 @@
     });
   }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -629,6 +630,11 @@
 </nav>
 
 <!-- FLOATING ACTION BUTTON (FAB) -->
+
+<!-- PDF FAB -->
+<button class="fab fab-pdf no-print" onclick="downloadPDF()" title="Download PDF" style="bottom: 150px; background-color: var(--brand-secondary); color: white;">
+  <i data-lucide="download" size="24"></i>
+</button>
 <button class="fab no-print" onclick="saveQuote()" title="Save Quote">
   <i data-lucide="save" size="24"></i>
 </button>

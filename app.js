@@ -964,3 +964,46 @@ window.addEventListener('resize', () => {
     }
   }
 });
+
+// ==========================================================================
+// NATIVE PDF GENERATION (html2pdf)
+// ==========================================================================
+function downloadPDF() {
+  const element = document.querySelector('.print-doc');
+  const quoteRef = document.getElementById('quoteRef').value || 'Draft';
+  const clientName = document.getElementById('clientName').value || 'Client';
+  
+  // Format filename cleanly
+  const filename = `Genxiot_Quote_${clientName.replace(/\s+/g, '_')}_${quoteRef}.pdf`;
+
+  // Provide user feedback
+  const originalBtns = document.querySelectorAll('button[onclick="downloadPDF()"]');
+  originalBtns.forEach(btn => {
+    btn.innerHTML = `<i data-lucide="loader" size="18" class="spin"></i> Generating...`;
+    btn.disabled = true;
+  });
+
+  const opt = {
+    margin:       0.2, // Small margin
+    filename:     filename,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true, logging: false },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    // Reset buttons
+    originalBtns.forEach(btn => {
+      // Rebuild the appropriate button content based on desktop vs fab
+      if (btn.classList.contains('fab')) {
+        btn.innerHTML = `<i data-lucide="download" size="24"></i>`;
+      } else {
+        btn.innerHTML = `<i data-lucide="download" size="18"></i> Download PDF`;
+      }
+      btn.disabled = false;
+    });
+    // Re-initialize lucide icons for the dynamically injected HTML
+    lucide.createIcons();
+  });
+}
