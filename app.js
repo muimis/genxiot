@@ -97,7 +97,7 @@ const CATALOGUE = [
     desc:  'Patient call point with Call, Service, Cancel and Acknowledge buttons. This module also has 2 RJ11 ports to connect accessories and a power port to connect an adapter if needed. Include screws for assembly',
     group: 'Bed Components',
     rate:  2000,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'beds'
   },
   {
@@ -106,7 +106,7 @@ const CATALOGUE = [
     desc:  'Patient side single-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  600,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'pendants_single'
   },
   {
@@ -115,7 +115,7 @@ const CATALOGUE = [
     desc:  'Patient side double-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  950,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'pendants_double'
   },
   // ── ROOM-DRIVEN ────────────────────────────────
@@ -125,7 +125,7 @@ const CATALOGUE = [
     desc:  'LED corridor indicator light (Alamo Call light V2). Placed outside room door. Illuminates on any call from that room.',
     group: 'Room Components',
     rate:  2400,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'rooms'
   },
   // ── BATHROOM-DRIVEN ───────────────────────
@@ -135,7 +135,7 @@ const CATALOGUE = [
     desc:  'Dedicated bathroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
     group: 'Washroom Components',
     rate:  2000,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'bathrooms'
   },
   {
@@ -144,7 +144,7 @@ const CATALOGUE = [
     desc:  'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly',
     group: 'Washroom Components',
     rate:  600,
-    img:   'qtn_embed_p5_img0.jpeg',
+    img:   '',
     driverKey: 'bathrooms'
   },
   // ── WARD-DRIVEN ────────────────────────────────
@@ -154,7 +154,7 @@ const CATALOGUE = [
     desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable. Includes built-in LoRa gateway.',
     group: 'Nursing Station',
     rate:  13000,
-    img:   'qtn_embed_p6_img0.jpeg',
+    img:   '',
     driverKey: 'ns_basic'
   },
   {
@@ -163,7 +163,7 @@ const CATALOGUE = [
     desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
     rate:  12000,
-    img:   'qtn_embed_p6_img0.jpeg',
+    img:   '',
     driverKey: 'ns_tv'
   },
   {
@@ -172,7 +172,7 @@ const CATALOGUE = [
     desc:  'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
     group: 'Infrastructure & Network',
     rate:  10000,
-    img:   'qtn_embed_p6_img0.jpeg',
+    img:   '',
     driverKey: 'gateways'
   },
   {
@@ -181,7 +181,7 @@ const CATALOGUE = [
     desc:  'Extends LoRa signal range. Includes B type charger, product stand and screws for assembly',
     group: 'Infrastructure & Network',
     rate:  2500,
-    img:   'qtn_embed_p6_img0.jpeg',
+    img:   '',
     driverKey: 'repeaters'
   },
   // ── FIXED ─────────────────────────────────────
@@ -191,7 +191,7 @@ const CATALOGUE = [
     desc:  'Automated logging of all key data, nurse presence, response times, and emailed reports.',
     group: 'Software & Services',
     rate:  3000,
-    img:   'qtn_embed_p6_img0.jpeg',
+    img:   '',
     driverKey: 'datalog'
   }
 ];
@@ -399,7 +399,8 @@ function saveQuote() {
       name:   document.getElementById('bankName')?.value   || '',
       acc:    document.getElementById('bankAcc')?.value    || '',
       ifsc:   document.getElementById('bankIfsc')?.value   || '',
-      branch: document.getElementById('bankBranch')?.value || ''
+      branch: document.getElementById('bankBranch')?.value || '',
+      upi:    document.getElementById('bankUpi')?.value    || ''
     },
     bomData: bom
   };
@@ -473,6 +474,7 @@ function restoreQuote(data) {
     setVal('bankAcc',    data.bankDetails.acc);
     setVal('bankIfsc',   data.bankDetails.ifsc);
     setVal('bankBranch', data.bankDetails.branch);
+    setVal('bankUpi',    data.bankDetails.upi);
     if (typeof updateBankDetails === 'function') updateBankDetails();
   }
 
@@ -642,14 +644,7 @@ function recalc() {
 }
 
 
-// ─── RENDER CLIENTS GRID (proposal doc page 2) ───────────────────────────
-function renderClientList() {
-  const grid = document.getElementById('clientsGrid');
-  if (!grid) return;
-  grid.innerHTML = PRESTIGIOUS_CLIENTS.map(name =>
-    `<span>${name}</span>`
-  ).join('');
-}
+
 
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
 function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping) {
@@ -829,6 +824,12 @@ function resetQuote() {
   setChk('chkGateway',    true);
   setChk('chkRepeater',   true);
   setChk('chkDataLog',    false);
+  setVal('bankName',     'Genxiot LLP');
+  setVal('bankAcc',      '12345678901234');
+  setVal('bankIfsc',     'HDFC0001234');
+  setVal('bankBranch',   'HDFC Bank, Technopark Branch');
+  setVal('bankUpi',      'genxiot@hdfc');
+  updateBankDetails();
 
   floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
@@ -906,15 +907,17 @@ function exportCSV() {
 
 // Bank Details Sync
 function updateBankDetails() {
-  const bName = document.getElementById('bankName').value;
-  const bAcc = document.getElementById('bankAcc').value;
-  const bIfsc = document.getElementById('bankIfsc').value;
-  const bBranch = document.getElementById('bankBranch').value;
+  const bName   = document.getElementById('bankName')?.value   || 'Genxiot LLP';
+  const bAcc    = document.getElementById('bankAcc')?.value    || '12345678901234';
+  const bIfsc   = document.getElementById('bankIfsc')?.value   || 'HDFC0001234';
+  const bBranch = document.getElementById('bankBranch')?.value || 'HDFC Bank, Technopark Branch';
+  const bUpi    = document.getElementById('bankUpi')?.value    || 'genxiot@hdfc';
   
-  if(document.getElementById('docBankName')) document.getElementById('docBankName').innerText = bName;
-  if(document.getElementById('docBankAcc')) document.getElementById('docBankAcc').innerText = bAcc;
-  if(document.getElementById('docBankIfsc')) document.getElementById('docBankIfsc').innerText = bIfsc;
-  if(document.getElementById('docBankBranch')) document.getElementById('docBankBranch').innerText = bBranch;
+  if(document.getElementById('docBankName'))   document.getElementById('docBankName').textContent   = bName;
+  if(document.getElementById('docBankAcc'))    document.getElementById('docBankAcc').textContent    = bAcc;
+  if(document.getElementById('docBankIfsc'))   document.getElementById('docBankIfsc').textContent   = bIfsc;
+  if(document.getElementById('docBankBranch')) document.getElementById('docBankBranch').textContent = bBranch;
+  if(document.getElementById('docBankUpi'))    document.getElementById('docBankUpi').textContent    = bUpi;
 }
 
 // ==========================================================================

@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=3.4">
+<link rel="stylesheet" href="style.css?v=3.5">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -318,6 +318,33 @@
           <input id="warranty" value="12 months comprehensive from installation date" oninput="recalc()">
           <label>Scope Notes</label>
           <textarea id="scopeNotes" rows="3" oninput="recalc()">Wallmounting &amp; electrical work by hospital. Configuration, calibration &amp; go-live training by Genxiot.</textarea>
+          <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;">
+            <div style="font-weight:700; font-size:0.75rem; color:var(--brand-indigo); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.05em;">Bank Account Details</div>
+            <div class="row2">
+              <div>
+                <label>Account Name</label>
+                <input id="bankName" value="Genxiot LLP" oninput="updateBankDetails()">
+              </div>
+              <div>
+                <label>Account Number</label>
+                <input id="bankAcc" value="12345678901234" oninput="updateBankDetails()">
+              </div>
+            </div>
+            <div class="row2">
+              <div>
+                <label>IFSC Code</label>
+                <input id="bankIfsc" value="HDFC0001234" oninput="updateBankDetails()">
+              </div>
+              <div>
+                <label>Bank &amp; Branch</label>
+                <input id="bankBranch" value="HDFC Bank, Technopark Branch" oninput="updateBankDetails()">
+              </div>
+            </div>
+            <div>
+              <label>UPI ID</label>
+              <input id="bankUpi" value="genxiot@hdfc" oninput="updateBankDetails()">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -410,22 +437,6 @@
           </div>
         </div>
       </div>
-
-      <!-- ── PAGE 2: CLIENTS & INSTALLATION ── -->
-      <div class="doc-page page-break" id="pageClients">
-        <div class="page-brand-strip" style="margin-bottom: 20px;">
-          <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
-          <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Prestigious Clients &amp; Service</span>
-        </div>
-        <div style="padding: 0 40px;">
-          <h2 class="doc-h2 accent">Our Service Promise</h2>
-          <p class="doc-p" style="margin-bottom: 15px; font-size: 0.8rem;">We ensure every installation is smooth. We provide Pre-Installation Site Readiness Guidance, Onsite Configuration, Staff Training &amp; Handover, and Dedicated After-Sales Support.</p>
-          
-          <h2 class="doc-h2 accent" style="margin-top:25px;">Our Prestigious Clients</h2>
-          <p class="doc-p" style="margin-bottom: 15px; font-size: 0.8rem;">Trusted by 180+ Hospitals across India, serving over 10 Lakh nurse calls from 4000+ field units.</p>
-          
-          <div class="clients-grid" id="clientsGrid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
-        </div>
       </div>
 
       <!-- ── PAGE 10: BILL OF QUANTITIES (dynamic) ── -->
@@ -600,7 +611,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=3.4"></script>
+<script src="app.js?v=3.5"></script>
 <script>
   lucide.createIcons();
 </script>
