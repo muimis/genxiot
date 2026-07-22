@@ -942,8 +942,7 @@ textarea { resize:vertical; }
   }
 
   /* ── Quote-only mode ── */
-  body.print-quote-only #pageCover,
-  body.print-quote-only #pageClients { display: none !important; }
+  
 
   /* ── Page break utility ── */
   .page-break { page-break-before: always; break-before: page; }

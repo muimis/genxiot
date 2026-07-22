@@ -663,10 +663,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const scopeNotes    = (document.getElementById('scopeNotes')?.value)    || '';
 
   // Cover page
-  setText('cvrClient', clientName);
-  setText('cvrRef',    quoteRef);
-  setText('cvrValid',  getValidDate());
-
+      
   // Quotation page header
   setText('qDocRef',        quoteRef);
   setText('qDocRef2',       quoteRef);
@@ -786,17 +783,6 @@ function printDoc() {
   setTimeout(() => window.print(), 600);
 }
 
-function printQuoteOnly() {
-  recalc();
-  document.body.classList.add('print-quote-only');
-  document.getElementById('modalBg').classList.add('open');
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('print-quote-only');
-    }, 1000);
-  }, 600);
-}
 
 // ─── RESET ───────────────────────────────────────────────────────
 function resetQuote() {

@@ -370,12 +370,9 @@
         <i data-lucide="eye" size="16"></i> <span>Preview</span>
       </button>
       <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
-        <i data-lucide="printer" size="16"></i> <span>Full</span>
+        <i data-lucide="printer" size="16"></i> <span>Print</span>
       </button>
-      <button class="btn btn-cyan btn-lg action-text-btn" onclick="printQuoteOnly()">
-        <i data-lucide="printer" size="16"></i> <span>Quote</span>
-      </button>
-    </div>
+      </div>
   </div>
 
 </main>
@@ -391,10 +388,7 @@
       <span class="mctrl-title">Genxiot · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
         <button class="btn btn-cyan" onclick="printDoc()">
-          <i data-lucide="printer" size="15"></i> Print Full PDF
-        </button>
-        <button class="btn btn-cyan" onclick="printQuoteOnly()">
-          <i data-lucide="printer" size="15"></i> Print Quote Only
+          <i data-lucide="printer" size="15"></i> Print Proposal
         </button>
         <button class="btn btn-ghost" onclick="closeModal()">
           <i data-lucide="x" size="15"></i>
@@ -408,38 +402,8 @@
     ════════════════════════════════════════ -->
     <div id="printDoc">
 
-      <!-- ── PAGE 1: COVER ──────────────── -->
-      <div class="doc-page cover-page" id="pageCover">
-        <div class="cover-main">
-          <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="cover-logo">
-          <div class="cover-meta">
-            <p class="cov-label">Techno-Commercial Offer</p>
-            <p class="cov-refno" id="cvrRef">SAL-QTN-2024-00478</p>
-            <p class="cov-fl">Submitted to</p>
-            <p class="cov-fv" id="cvrClient">Hospital Name</p>
-            <p class="cov-fl">Submitted by</p>
-            <p class="cov-fv">Genxiot Healthcare Solutions</p>
-            <p class="cov-fl mt-top">Quotation Valid Till</p>
-            <p class="cov-fv" id="cvrValid">–</p>
-          </div>
-        </div>
-        <div class="cover-accent-bar"></div>
-        <div class="cover-footer-strip">
-          <div>
-            <div class="cfs-name">GENXIOT LLP</div>
-            <div class="cfs-addr">6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
-            <div class="cfs-contact">+91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
-          </div>
-          <div class="cfs-stats">
-            <div><strong>100+</strong><span>Hospitals</span></div>
-            <div><strong>10L+</strong><span>Calls</span></div>
-            <div><strong>4000+</strong><span>Units</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── PAGE 10: BILL OF QUANTITIES (dynamic) ── -->
-      <div class="doc-page page-break" id="pageQuote">
+      <!-- ── PAGE 1: BILL OF QUANTITIES ── -->
+      <div class="doc-page" id="pageQuote">
         <!-- Header -->
         <div class="qtn-header">
           <div class="qtn-h-left">
