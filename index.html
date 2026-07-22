@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=2.2">
+<link rel="stylesheet" href="style.css?v=2.3">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -97,7 +97,7 @@
         <button class="btn btn-ghost" onclick="showDashboard()">
           <i data-lucide="arrow-left" size="15"></i> Dashboard
         </button>
-        <button class="btn btn-ghost" onclick="showDashboard()" style="color:var(--brand-cyan);">
+        <button class="btn btn-ghost" onclick="loadQuotesModal()" style="color:var(--brand-cyan);">
           <i data-lucide="search" size="15"></i> Recall QTN
         </button>
         <button class="btn btn-ghost" id="presetBtn">
@@ -121,9 +121,7 @@
       <button class="btn btn-ghost" onclick="resetQuote()">
         <i data-lucide="refresh-cw" size="15"></i> Reset
       </button>
-      <button class="btn btn-cyan" onclick="openModal()">
-        <i data-lucide="file-text" size="15"></i> Full Proposal
-      </button>
+
     </div>
   </div>
 </header>
@@ -637,7 +635,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=2.2"></script>
+<script src="app.js?v=2.3"></script>
 <script>
   lucide.createIcons();
 </script>
