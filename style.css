@@ -565,7 +565,7 @@ textarea { resize:vertical; }
   /* On mobile, stack everything in the main layout and hide sidebar by default */
   .layout-main {
     flex-direction: column;
-    padding-bottom: 70px; /* Space for bottom nav */
+    padding-bottom: 140px; /* Space for both mobile nav (60px) and action bar (~70px) */
   }
 
   /* We will use JavaScript to toggle display:none on these based on tabs */
@@ -748,25 +748,34 @@ textarea { resize:vertical; }
 }
 
 /* Mobile specific fixes for action bar */
+@media (max-width: 900px) {
+  .action-bar {
+    bottom: 60px; /* IMPORTANT: Put action bar above the 60px mobile nav */
+    padding: 0.6rem 1rem;
+    z-index: 1001; /* Ensure it stays above other elements */
+  }
+}
+
 @media (max-width: 768px) {
+  .action-bar {
+    bottom: 60px;
+    padding: 0.5rem 0.8rem;
+  }
+  .ab-label {
+    font-size: 0.6rem;
+  }
+  .ab-value {
+    font-size: 1.1rem;
+  }
   .ab-btns {
     display: flex;
-    gap: 8px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 5px; /* for scrollbar space */
-  }
-  .ab-btns::-webkit-scrollbar {
-    height: 0px;
-    background: transparent; /* hide scrollbar */
+    gap: 6px;
   }
   .action-text-btn span {
     display: none; /* Hide text on mobile, icons only */
   }
   .action-text-btn {
-    padding: 8px 12px;
+    padding: 8px 10px;
     min-width: unset;
   }
 }
-

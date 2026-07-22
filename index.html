@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=2.5">
+<link rel="stylesheet" href="style.css?v=2.7">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -348,32 +348,36 @@
 
     </div>
 
-    <!-- Sticky Action Bar -->
-    <div class="action-bar">
-      <div>
-        <div class="ab-label">Estimated Grand Total (incl. GST)</div>
-        <div class="ab-value" id="stickyTotal">₹0.00</div>
-      </div>
-      <div class="ab-btns">
-        <button class="btn btn-ghost btn-lg action-text-btn" onclick="saveQuote()">
-          <i data-lucide="cloud" size="16"></i> <span>Save</span>
-        </button>
-        <button class="btn btn-ghost btn-lg action-text-btn" onclick="exportCSV()">
-          <i data-lucide="download" size="16"></i> <span>Export</span>
-        </button>
-        <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
-          <i data-lucide="eye" size="16"></i> <span>Preview</span>
-        </button>
-        <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
-          <i data-lucide="printer" size="16"></i> <span>Full</span>
-        </button>
-        <button class="btn btn-cyan btn-lg action-text-btn" onclick="printQuoteOnly()">
-          <i data-lucide="printer" size="16"></i> <span>Quote</span>
-        </button>
       </div>
     </div>
 
   </section>
+  
+  <!-- Sticky Action Bar -->
+  <div class="action-bar">
+    <div>
+      <div class="ab-label">Estimated Grand Total (incl. GST)</div>
+      <div class="ab-value" id="stickyTotal">₹0.00</div>
+    </div>
+    <div class="ab-btns">
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="saveQuote()">
+        <i data-lucide="cloud" size="16"></i> <span>Save</span>
+      </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="exportCSV()">
+        <i data-lucide="download" size="16"></i> <span>Export</span>
+      </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
+        <i data-lucide="eye" size="16"></i> <span>Preview</span>
+      </button>
+      <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
+        <i data-lucide="printer" size="16"></i> <span>Full</span>
+      </button>
+      <button class="btn btn-cyan btn-lg action-text-btn" onclick="printQuoteOnly()">
+        <i data-lucide="printer" size="16"></i> <span>Quote</span>
+      </button>
+    </div>
+  </div>
+
 </main>
 
 <!-- ════════════════════════════════════════════════════
@@ -668,7 +672,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=2.5"></script>
+<script src="app.js?v=2.7"></script>
 <script>
   lucide.createIcons();
 </script>
