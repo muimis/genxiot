@@ -1015,11 +1015,14 @@ function showCalculator() {
   document.getElementById('calculatorView').style.display = 'block';
   document.body.classList.remove('view-dashboard');
   
-  // Always enforce setup tab on mobile heavily
-  if(window.innerWidth <= 900) {
-    setTimeout(() => {
-        switchMobileTab('setup');
-    }, 50);
+  const setupPanel   = document.querySelector('.sidebar');
+  const previewPanel = document.querySelector('.main-panel');
+
+  if (window.innerWidth > 900) {
+    if (setupPanel)   setupPanel.style.display   = 'flex';
+    if (previewPanel) previewPanel.style.display = 'flex';
+  } else {
+    switchMobileTab('setup');
   }
 }
 
