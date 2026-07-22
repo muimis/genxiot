@@ -456,8 +456,7 @@ textarea { resize:vertical; }
 /* ════════════════════════════════════════════════════
    PRINT STYLES
 ════════════════════════════════════════════════════ */
-@media print {
-  body { background:#fff; margin:0; padding:0; }
+
   .no-print,.modal-ctrl { display:none!important; }
   .modal-bg {
     position:static!important;background:none!important;
@@ -483,7 +482,7 @@ textarea { resize:vertical; }
     break-after: avoid;
   }
   
-  @page { margin:0;size:A4; }
+  
 }
 
 
@@ -515,8 +514,7 @@ textarea { resize:vertical; }
   }
 }
 
-@media print {
-  .brochure-grid, .clients-grid { display: block !important; }
+
   .brochure-grid > div, .clients-grid > div { display: inline-block; width: 48%; vertical-align: top; padding: 10px; page-break-inside: avoid; }
   .clients-grid > div { width: 32%; }
   table, tr, td, th { page-break-inside: avoid; }
@@ -524,25 +522,12 @@ textarea { resize:vertical; }
   .doc-page { page-break-after: always; }
 }
 
-@media print {
-  body.print-quote-only #pageCover,
-  body.print-quote-only #pageBrochure,
-  body.print-quote-only #pageClients {
-    display: none !important;
-  }
-}
-
-@page { margin: 15mm 10mm; size: A4; }
-@media print { .brochure-img { object-fit: contain !important; max-height: 180px; width: 100%; } }
-
 @media (max-width: 768px) { .app-main { display: flex !important; flex-direction: column !important; } .sidebar { width: 100% !important; max-width: 100% !important; } .bom-tbl-wrap { overflow-x: auto; } 
 .page-container { overflow-x: auto; max-width: 100vw; }
 .doc-page { transform-origin: top left; }
   -webkit-overflow-scrolling: touch; } table { width: 100%; } }
 
-@media print {
-  /* Clean up layout for print */
-  body, html { margin: 0; padding: 0; background: #fff; }
+
   .app-layout { display: block; }
   .sidebar { display: none !important; }
   .app-main { padding: 0 !important; margin: 0 !important; width: 100% !important; overflow: visible; }
@@ -803,3 +788,101 @@ textarea { resize:vertical; }
 .opt-row:last-child { border-bottom:none; }
 .opt-row label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; margin:0; font-weight:500; color:var(--ink); }
 .opt-row input[type="checkbox"] { transform: scale(1.1); }
+
+/* ════════════════════════════════════════════════════
+   PRINT STYLES — consolidated single block
+   Key: @page margin:0 removes browser title/timestamp
+════════════════════════════════════════════════════ */
+
+/* Page setup — margin:0 suppresses browser-added title & date stamp */
+@page {
+  margin: 0;
+  size: A4 portrait;
+}
+
+@media print {
+  /* ── Reset ── */
+  *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body, html { margin: 0; padding: 0; background: #fff; font-family: 'Inter', Arial, sans-serif; }
+
+  /* ── Hide web UI ── */
+  .no-print,
+  .modal-ctrl,
+  .app-header,
+  .app-main,
+  .action-bar,
+  .mobile-nav,
+  #dashboardView,
+  #calculatorView > header,
+  #calculatorView > main { display: none !important; }
+
+  /* ── Show the modal / printDoc as a flat document ── */
+  .modal-bg {
+    position: static !important;
+    background: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+  .modal-wrap {
+    max-width: 100% !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  #printDoc { background: #fff; }
+
+  /* ── Page containers ── */
+  .doc-page {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    box-shadow: none;
+    border-radius: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+  .doc-page:last-child {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Cover page: lock to one page */
+  .doc-page.cover-page {
+    height: 100vh;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Terms page: flex column so footer sticks to bottom */
+  #pageTerms {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: auto;
+  }
+  #pageTerms .doc-footer {
+    margin-top: auto;
+  }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
+  tr    { page-break-inside: avoid; break-inside: avoid; }
+  thead { display: table-header-group; }
+  .bom-tbl th, .bom-tbl td { border: 1px solid #ddd; }
+  img   { max-width: 100% !important; page-break-inside: avoid; }
+
+  /* ── Clients grid ── */
+  .clients-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* ── Quote-only mode ── */
+  body.print-quote-only #pageCover,
+  body.print-quote-only #pageClients { display: none !important; }
+
+  /* ── Page break utility ── */
+  .page-break { page-break-before: always; break-before: page; }
+}
+

@@ -6,11 +6,11 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Genxiot Alamo – BDM Proposal Builder</title>
+<title>Genxiot LLP – Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=3.3">
+<link rel="stylesheet" href="style.css?v=3.4">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -424,9 +424,7 @@
           <h2 class="doc-h2 accent" style="margin-top:25px;">Our Prestigious Clients</h2>
           <p class="doc-p" style="margin-bottom: 15px; font-size: 0.8rem;">Trusted by 180+ Hospitals across India, serving over 10 Lakh nurse calls from 4000+ field units.</p>
           
-          <div class="clients-grid" id="clientsGrid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;">
-            <!-- Rendered by renderClientList() in app.js -->
-          </div>
+          <div class="clients-grid" id="clientsGrid" style="grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
         </div>
       </div>
 
@@ -564,10 +562,10 @@
               <p><strong>Account Number:</strong> <span id="docBankAcc">12345678901234</span></p>
               <p><strong>IFSC Code:</strong> <span id="docBankIfsc">HDFC0001234</span></p>
               <p><strong>Bank & Branch:</strong> <span id="docBankBranch">HDFC Bank, Technopark Branch</span></p>
-              <p><strong>UPI ID:</strong> <span contenteditable="true">genxiot@hdfc</span></p>
+              <p><strong>UPI ID:</strong> <span id="docBankUpi">genxiot@hdfc</span></p>
             </div>
 <h3 class="doc-h3">General Terms &amp; Conditions</h3>
-        <div class="tc-box" contenteditable="true" style="outline: none;">
+        <div class="tc-box">
             <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
             <p><strong>Payment:</strong> 50% advance and 50% post-delivery. Bank charges of Buyer's bank borne by Buyer.</p>
             <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
@@ -602,7 +600,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=3.3"></script>
+<script src="app.js?v=3.4"></script>
 <script>
   lucide.createIcons();
 </script>

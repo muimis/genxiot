@@ -641,6 +641,16 @@ function recalc() {
   syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, grandTotal, advPct, shipping);
 }
 
+
+// ─── RENDER CLIENTS GRID (proposal doc page 2) ───────────────────────────
+function renderClientList() {
+  const grid = document.getElementById('clientsGrid');
+  if (!grid) return;
+  grid.innerHTML = PRESTIGIOUS_CLIENTS.map(name =>
+    `<span>${name}</span>`
+  ).join('');
+}
+
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
 function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping) {
   const clientName    = (document.getElementById('clientName')?.value)    || '';
