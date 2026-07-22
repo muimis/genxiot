@@ -413,7 +413,8 @@ function saveQuote() {
         acc: document.getElementById('bankAcc').value,
         ifsc: document.getElementById('bankIfsc').value,
         branch: document.getElementById('bankBranch').value
-    }
+    },
+    bomData: bom
   };
 
   fetch("https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec", {
@@ -493,13 +494,25 @@ function restoreQuote(data) {
   }
   
   renderFloors();
-  calcEstimator();
+  
+  // RESTORE FULL BOM EXACTLY AS SAVED!
+  if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
+    bom = data.bomData;
+    renderBOM();
+    recalc();
+  } else {
+    calcEstimator(); // fallback
+  }
+  
   alert("Quote restored successfully!");
+  
+  // Also bring them back to calculator view if they are on dashboard
+  showCalculator();
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
 
-let floors = [{name: 'Floor 1', beds: 0, rooms: 0, baths: 0}];
+let floors = [{name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0}];
 
 function renderFloors() {
   const container = document.getElementById('floorsContainer');
@@ -516,6 +529,7 @@ function renderFloors() {
       </div>
       <div class="row2">
         <div><label>Washrooms</label><input type="number" value="${f.baths}" min="0" oninput="updateFloor(${i}, 'baths', this.value)"></div>
+        <div><label>Nurse Stns</label><input type="number" value="${f.ns || 0}" min="0" oninput="updateFloor(${i}, 'ns', this.value)"></div>
       </div>
     </div>
   `).join('');
@@ -529,7 +543,7 @@ function updateFloor(index, field, value) {
 }
 
 function addFloor() {
-  floors.push({name: `Floor ${floors.length + 1}`, beds: 0, rooms: 0, baths: 0});
+  floors.push({name: `Floor ${floors.length + 1}`, beds: 0, rooms: 0, baths: 0, ns: 0});
   renderFloors();
 }
 
@@ -539,23 +553,26 @@ function removeFloor(index) {
 }
 
 function calcEstimator() {
-  let beds = 0, rooms = 0, bathrooms = 0;
+  let beds = 0, rooms = 0, bathrooms = 0, nsTotal = 0;
   floors.forEach(f => {
-    beds += f.beds;
-    rooms += f.rooms;
-    bathrooms += f.baths;
+    beds += f.beds || 0;
+    rooms += f.rooms || 0;
+    bathrooms += f.baths || 0;
+    nsTotal += f.ns || 0;
   });
   const floorCount = floors.length;
 
-  const nsBasic   = parseInt(document.getElementById('nsBasicCount').value)  || 0;
+  // If user sets global nsBasicCount we use it, otherwise use floor sum
+  const nsBasicInput = parseInt(document.getElementById('nsBasicCount').value);
+  const nsBasic = !isNaN(nsBasicInput) && nsBasicInput > 0 ? nsBasicInput : nsTotal;
+  
   const nsTv      = parseInt(document.getElementById('nsTvCount').value)     || 0;
   const dataLog   = document.getElementById('dataLogging').checked ? 1 : 0;
-  const pendantType = document.getElementById('pendantType').value || 'none';
   
-  applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog, pendantType);
+  applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog);
 }
 
-function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog, pendantType) {
+function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLog) {
   let gateways = nsTv;
   if (dataLog > 0) gateways += 1;
   let totalWards = nsBasic + nsTv;
@@ -573,8 +590,10 @@ function applyFacility(beds, rooms, bathrooms, floorCount, nsBasic, nsTv, dataLo
     if (item.driverKey === 'rooms') item.qty = rooms;
     if (item.driverKey === 'bathrooms') item.qty = bathrooms;
     if (item.driverKey === 'repeaters') item.qty = repeaters;
-    if (item.driverKey === 'pendants_single') item.qty = (pendantType === 'single') ? beds : 0;
-    if (item.driverKey === 'pendants_double') item.qty = (pendantType === 'double') ? beds : 0;
+    const singleP = parseInt(document.getElementById('pendantSingleCount')?.value) || 0;
+    const doubleP = parseInt(document.getElementById('pendantDoubleCount')?.value) || 0;
+    if (item.driverKey === 'pendants_single') item.qty = singleP;
+    if (item.driverKey === 'pendants_double') item.qty = doubleP;
     if (item.driverKey === 'ns_basic') item.qty = nsBasic;
     if (item.driverKey === 'ns_tv') item.qty = nsTv;
     if (item.driverKey === 'gateways') item.qty = gateways;
@@ -814,7 +833,7 @@ function resetQuote() {
   document.getElementById('nsBasicCount').value    = '0';
   document.getElementById('nsTvCount').value       = '0';
   
-  floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0 }];
+  floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
   
   // Also regenerate Quote Ref based on current date
@@ -833,9 +852,12 @@ function resetQuote() {
   })
   .catch(err => {
     console.error(err);
-    const dt = document.getElementById('quoteDate').value || new Date().toISOString().split('T')[0];
-    const dStr = dt.replace(/-/g, '');
-    document.getElementById('quoteRef').value = `GEN-ALA-QTN-${dStr}-0001`;
+    const dateObj = new Date();
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const rand = Math.floor(Math.random()*1000).toString().padStart(4, '0');
+    document.getElementById('quoteRef').value = `GEN-ALA-QTN-${yyyy}-${mm}${dd}-${rand}`;
   });
 
   calcEstimator();
@@ -1025,9 +1047,11 @@ function showCalculator() {
   document.getElementById('calculatorView').style.display = 'block';
   document.body.classList.remove('view-dashboard');
   
-  // Also switch to setup tab on mobile by default
+  // Always enforce setup tab on mobile heavily
   if(window.innerWidth <= 900) {
-    switchMobileTab('setup');
+    setTimeout(() => {
+        switchMobileTab('setup');
+    }, 50);
   }
 }
 
