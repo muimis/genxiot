@@ -1002,6 +1002,7 @@ function downloadPDF() {
 let pipelineChartInstance = null;
 
 function showDashboard() {
+  closeModal();
   document.getElementById('dashboardView').style.display = 'block';
   document.getElementById('calculatorView').style.display = 'none';
   document.body.classList.add('view-dashboard');
@@ -1009,6 +1010,7 @@ function showDashboard() {
 }
 
 function showCalculator() {
+  closeModal();
   document.getElementById('dashboardView').style.display = 'none';
   document.getElementById('calculatorView').style.display = 'block';
   document.body.classList.remove('view-dashboard');
@@ -1019,6 +1021,12 @@ function showCalculator() {
         switchMobileTab('setup');
     }, 50);
   }
+}
+
+function createNewQuote() {
+  closeModal();
+  resetQuote();
+  showCalculator();
 }
 
 function fetchDashboardData() {
