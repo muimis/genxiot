@@ -411,7 +411,7 @@ textarea { resize:vertical; }
 }
 
 /* Tfoot */
-.qtn-boq-tbl tfoot .tf-row td { background:#f8f9ff!important; }
+.qtn-boq-tbl .tf-group .tf-row td { background:#f8f9ff!important; }
 .tf-lbl { text-align:right;font-weight:600;font-size:.77rem; }
 .tf-val { text-align:right;font-weight:600;font-size:.77rem; }
 .tf-disc .tf-lbl,.tf-disc .tf-val { color:#e02020; }
@@ -831,7 +831,7 @@ textarea { resize:vertical; }
 
 /* Page setup — margin:0 suppresses browser-added title & date stamp */
 @page {
-  margin: 0;
+  margin: 12mm;
   size: A4 portrait;
 }
 

@@ -327,22 +327,14 @@
               </div>
               <div>
                 <label>Account Number</label>
-                <input id="bankAcc" value="12345678901234" oninput="updateBankDetails()">
+                <input id="bankAcc" value="0624073000000447" oninput="updateBankDetails()">
               </div>
             </div>
             <div class="row2">
               <div>
                 <label>IFSC Code</label>
-                <input id="bankIfsc" value="HDFC0001234" oninput="updateBankDetails()">
+                <input id="bankIfsc" value="SIBL0000624" oninput="updateBankDetails()">
               </div>
-              <div>
-                <label>Bank &amp; Branch</label>
-                <input id="bankBranch" value="HDFC Bank, Technopark Branch" oninput="updateBankDetails()">
-              </div>
-            </div>
-            <div>
-              <label>UPI ID</label>
-              <input id="bankUpi" value="genxiot@hdfc" oninput="updateBankDetails()">
             </div>
           </div>
         </div>
@@ -442,6 +434,8 @@
         <div class="qtn-fac-tag">
           <strong>Facility:</strong> <span id="qFacility">134 Beds · 39 Rooms · 99 Bathrooms · 8 Wards/Stations</span>
         </div>
+        <div id="qFloorBreakup" style="margin: 10px 38px; font-size: 0.8rem; color: #444; line-height: 1.4;"></div>
+        <div id="qOptionalNote" style="margin: 10px 38px 20px; font-size: 0.8rem; color: #666; font-style: italic;"></div>
 
         <div class="bom-tbl-wrap" style="overflow-x: auto;">
         <table class="qtn-boq-tbl">
@@ -456,7 +450,7 @@
             </tr>
           </thead>
           <tbody id="qBomBody"></tbody>
-          <tfoot>
+          <tbody class="tf-group">
             <tr class="tf-row">
               <td colspan="5" class="tf-lbl">Subtotal</td>
               <td class="tf-val" id="qSub">₹0.00</td>
@@ -483,7 +477,7 @@
               </td>
               <td class="tf-val"><strong id="qGT">₹0.00</strong></td>
             </tr>
-          </tfoot>
+          </tbody>
         </table>
         </div>
       </div>
@@ -533,10 +527,9 @@
           <h3 class="doc-h3">Bank Details</h3>
           <div class="tc-box" style="margin-bottom: 20px;">
               <p><strong>Account Name:</strong> <span id="docBankName">Genxiot LLP</span></p>
-              <p><strong>Account Number:</strong> <span id="docBankAcc">12345678901234</span></p>
-              <p><strong>IFSC Code:</strong> <span id="docBankIfsc">HDFC0001234</span></p>
-              <p><strong>Bank & Branch:</strong> <span id="docBankBranch">HDFC Bank, Technopark Branch</span></p>
-              <p><strong>UPI ID:</strong> <span id="docBankUpi">genxiot@hdfc</span></p>
+              <p><strong>Account Number:</strong> <span id="docBankAcc">0624073000000447</span></p>
+              <p><strong>IFSC Code:</strong> <span id="docBankIfsc">SIBL0000624</span></p>
+              <p><strong>Bank & Branch:</strong> <span id="docBankBranch">South Indian Bank, Technopark Trivandrum</span></p>
             </div>
 <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">

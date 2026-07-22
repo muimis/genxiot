@@ -93,7 +93,7 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Alamo Call Point – Patient Room',
+    name:  'Alamo Call Point – Patient Room (HSN: 85311090)',
     desc:  'Patient call point with Call, Service, Cancel and Acknowledge buttons. This module also has 2 RJ11 ports to connect accessories and a power port to connect an adapter if needed. Include screws for assembly',
     group: 'Bed Components',
     rate:  2000,
@@ -102,7 +102,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Alamo | Pendant Button',
+    name:  'Alamo | Pendant Button (HSN: 85311090)',
     desc:  'Patient side single-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  600,
@@ -111,7 +111,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-D',
-    name:  'Alamo | Double Button Pendant',
+    name:  'Alamo | Double Button Pendant (HSN: 85311090)',
     desc:  'Patient side double-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
     group: 'Bed Components',
     rate:  950,
@@ -121,7 +121,7 @@ const CATALOGUE = [
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Alamo | Call light V2 (Door Indicator)',
+    name:  'Alamo | Call light V2 (Door Indicator) (HSN: 85311090)',
     desc:  'LED corridor indicator light (Alamo Call light V2). Placed outside room door. Illuminates on any call from that room.',
     group: 'Room Components',
     rate:  2400,
@@ -131,7 +131,7 @@ const CATALOGUE = [
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Alamo | Bathroom Call Point',
+    name:  'Alamo | Bathroom Call Point (HSN: 85311090)',
     desc:  'Dedicated bathroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
     group: 'Washroom Components',
     rate:  2000,
@@ -140,7 +140,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PL',
-    name:  'Alamo | Pullcord',
+    name:  'Alamo | Pullcord (HSN: 85311090)',
     desc:  'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly',
     group: 'Washroom Components',
     rate:  600,
@@ -150,7 +150,7 @@ const CATALOGUE = [
   // ── WARD-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-NS-BASIC',
-    name:  'Alamo Mini Station Tetris V2',
+    name:  'Alamo Mini Station Tetris V2 (HSN: 85311090)',
     desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable. Includes built-in LoRa gateway.',
     group: 'Nursing Station',
     rate:  13000,
@@ -159,7 +159,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  'Nursing Station Display (32" Android panel)',
+    name:  'Nursing Station Display (32" Android panel) (HSN: 85311090)',
     desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
     rate:  12000,
@@ -168,7 +168,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Evegate Lora Gateway',
+    name:  'Evegate Lora Gateway (HSN: 85176290)',
     desc:  'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
     group: 'Infrastructure & Network',
     rate:  10000,
@@ -177,7 +177,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  '|REPEATER V2|',
+    name:  'REPEATER V2 (HSN: 85176290)',
     desc:  'Extends LoRa signal range. Includes B type charger, product stand and screws for assembly',
     group: 'Infrastructure & Network',
     rate:  2500,
@@ -187,7 +187,7 @@ const CATALOGUE = [
   // ── FIXED ─────────────────────────────────────
   {
     code:  'ALAMO-DATALOG',
-    name:  'Alamo Additional Data Logging & Analytics',
+    name:  'Alamo Additional Data Logging & Analytics (SAC: 9983)',
     desc:  'Automated logging of all key data, nurse presence, response times, and emailed reports.',
     group: 'Software & Services',
     rate:  3000,
@@ -291,7 +291,7 @@ function removeItem(idx) {
 }
 function addCustomItem() {
   bom.push({
-    code: 'CUSTOM', name: 'Custom Item', desc: 'Edit description',
+    code: 'CUSTOM', name:  'Custom Item (HSN: 85311090)', desc: 'Edit description',
     group: 'Custom', rate: 0, baseRate: 0, qty: 1, img: '', driverKey: 'fixed'
   });
   renderBOM();
@@ -398,9 +398,7 @@ function saveQuote() {
     bankDetails: {
       name:   document.getElementById('bankName')?.value   || '',
       acc:    document.getElementById('bankAcc')?.value    || '',
-      ifsc:   document.getElementById('bankIfsc')?.value   || '',
-      branch: document.getElementById('bankBranch')?.value || '',
-      upi:    document.getElementById('bankUpi')?.value    || ''
+      ifsc:   document.getElementById('bankIfsc')?.value   || ''
     },
     bomData: bom
   };
@@ -473,8 +471,6 @@ function restoreQuote(data) {
     setVal('bankName',   data.bankDetails.name);
     setVal('bankAcc',    data.bankDetails.acc);
     setVal('bankIfsc',   data.bankDetails.ifsc);
-    setVal('bankBranch', data.bankDetails.branch);
-    setVal('bankUpi',    data.bankDetails.upi);
     if (typeof updateBankDetails === 'function') updateBankDetails();
   }
 
@@ -675,6 +671,30 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qBdmName',       bdmName);
   setText('qFacility',
     `${beds} Beds · ${rooms} Rooms · ${bathrooms} Bathrooms · ${wards} Wards/Stations`);
+
+  let floorBreakupHtml = '';
+  if (floors && floors.length > 0) {
+    floors.forEach((f, i) => {
+      let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
+      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Bathrooms, ${f.ns || 0} Wards<br>`;
+    });
+  }
+  const qFloorBreakup = document.getElementById('qFloorBreakup');
+  if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
+
+  const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
+  const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
+  const optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
+  
+  const qOptionalNote = document.getElementById('qOptionalNote');
+  if (qOptionalNote) {
+    if (optionalItems.length > 0) {
+      const itemNames = optionalItems.map(c => c.name.split(' (HSN:')[0]).join(', ');
+      qOptionalNote.innerText = `* Note: The following optional components are available upon request and can be added or upgraded at any time: ${itemNames}.`;
+    } else {
+      qOptionalNote.innerText = '';
+    }
+  }
   setText('qSigClient', clientName);
 
   // BOQ rows in proposal document
@@ -811,10 +831,8 @@ function resetQuote(force = false) {
   setChk('chkRepeater',   true);
   setChk('chkDataLog',    false);
   setVal('bankName',     'Genxiot LLP');
-  setVal('bankAcc',      '12345678901234');
-  setVal('bankIfsc',     'HDFC0001234');
-  setVal('bankBranch',   'HDFC Bank, Technopark Branch');
-  setVal('bankUpi',      'genxiot@hdfc');
+  setVal('bankAcc',      '0624073000000447');
+  setVal('bankIfsc',     'SIBL0000624');
   updateBankDetails();
 
   floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
@@ -894,16 +912,12 @@ function exportCSV() {
 // Bank Details Sync
 function updateBankDetails() {
   const bName   = document.getElementById('bankName')?.value   || 'Genxiot LLP';
-  const bAcc    = document.getElementById('bankAcc')?.value    || '12345678901234';
-  const bIfsc   = document.getElementById('bankIfsc')?.value   || 'HDFC0001234';
-  const bBranch = document.getElementById('bankBranch')?.value || 'HDFC Bank, Technopark Branch';
-  const bUpi    = document.getElementById('bankUpi')?.value    || 'genxiot@hdfc';
+  const bAcc    = document.getElementById('bankAcc')?.value    || '0624073000000447';
+  const bIfsc   = document.getElementById('bankIfsc')?.value   || 'SIBL0000624';
   
   if(document.getElementById('docBankName'))   document.getElementById('docBankName').textContent   = bName;
   if(document.getElementById('docBankAcc'))    document.getElementById('docBankAcc').textContent    = bAcc;
   if(document.getElementById('docBankIfsc'))   document.getElementById('docBankIfsc').textContent   = bIfsc;
-  if(document.getElementById('docBankBranch')) document.getElementById('docBankBranch').textContent = bBranch;
-  if(document.getElementById('docBankUpi'))    document.getElementById('docBankUpi').textContent    = bUpi;
 }
 
 // ==========================================================================
