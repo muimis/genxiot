@@ -10,10 +10,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=2.7">
+<link rel="stylesheet" href="style.css?v=3.1">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+
+        <style>
+          .toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out forwards; transition: opacity 0.3s; display: flex; align-items: center; gap: 8px; }
+          .toast.info { background: var(--brand-indigo); }
+          .toast.success { background: #10b981; }
+          .toast.error { background: #ef4444; }
+          @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+          
+          .qty-locked { border: 1px solid #f59e0b !important; background: #fffbeb !important; color: #d97706 !important; }
+          .lock-icon { color: #f59e0b; cursor: pointer; padding: 4px; border-radius: 4px; transition: 0.2s; }
+          .lock-icon:hover { background: #fef3c7; }
+        </style>
+        </head>
 <body>
 
 <!-- ════════════════════════════════════════════════════
@@ -184,65 +196,50 @@
         </style>
         
         <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0; margin-top:20px;">2. System Configuration</h3>
-        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Select optional components. Quantities auto-calculate from floors, but you can override them manually.</p>
+        <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Select optional components. Quantities are auto-calculated in the BOM Table.</p>
 
         <div style="background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid var(--border); margin-bottom:20px;">
           
           <div class="opt-row">
-            <label style="color:var(--muted);">Room Call Points (Base)</label>
-            <input type="number" id="sysRoomCP" value="0" min="0" oninput="updateBOMFromSys()">
-          </div>
-
-          <div class="opt-row">
             <label><input type="checkbox" id="chkSinglePendant" checked onchange="calcEstimator()"> Single Pendants</label>
-            <input type="number" id="sysSinglePendant" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkDoublePendant" onchange="calcEstimator()"> Double Pendants</label>
-            <input type="number" id="sysDoublePendant" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkDoorLight" checked onchange="calcEstimator()"> Door Indicators</label>
-            <input type="number" id="sysDoorLight" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkWashroom" checked onchange="calcEstimator()"> Washroom Call Points</label>
-            <input type="number" id="sysWashCP" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkPullCord" checked onchange="calcEstimator()"> Pull Cords</label>
-            <input type="number" id="sysPullCord" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkNsBasic" checked onchange="calcEstimator()"> NS Mini Tetris V2</label>
-            <input type="number" id="sysNsBasic" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkNsTv" onchange="calcEstimator()"> NS Display (32")</label>
-            <input type="number" id="sysNsTv" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkGateway" checked onchange="calcEstimator()"> Gateway / Server</label>
-            <input type="number" id="sysGateway" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
             <label><input type="checkbox" id="chkRepeater" checked onchange="calcEstimator()"> Repeaters</label>
-            <input type="number" id="sysRepeater" value="0" min="0" oninput="updateBOMFromSys()">
           </div>
 
           <div class="opt-row">
-            <label><input type="checkbox" id="chkDataLog" onchange="updateBOMFromSys()"> Data Logging & Analytics</label>
+            <label><input type="checkbox" id="chkDataLog" onchange="calcEstimator()"> Data Logging & Analytics Software</label>
           </div>
-        </div>
-</div>
+        </div></div>
     </div>
 
   </aside>
@@ -438,50 +435,7 @@
         </div>
       </div>
 
-      <!-- ── PAGE 2: GENXIOT BROCHURE (Features & Components) ── -->
-      <div class="doc-page page-break" id="pageBrochure">
-        <div class="page-brand-strip" style="margin-bottom: 20px;">
-          <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
-          <span class="strip-name">Genxiot LLP &nbsp;·&nbsp; Wireless Nurse Call System</span>
-        </div>
-        <div style="padding: 0 40px;">
-          <h1 class="doc-h2 accent" style="font-size: 1.4rem; margin-bottom: 10px;">We make hospitals safe and efficient.</h1>
-          <img src="https://evelabs.co/files/Alamo_banner.png" alt="Alamo Nurse Call System" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">
-          <p class="doc-p" style="font-size: 0.9rem; margin-bottom: 20px;">Intelligent IoT solutions for modern healthcare. Real-time Nurse Calling, Smart Workflows, Actionable Insights, and Better Patient Outcomes.</p>
-
-          <div class="brochure-grid">
-            <div class="brochure-item">
-              <img src="prod_call_point.png" alt="Call Points" class="brochure-img">
-              <h4>Alamo Call Points</h4>
-              <p>Battery-operated wall-mount solutions with Call, Service, Cancel, and Acknowledge options. Sleek design for new or operational hospitals.</p>
-            </div>
-            <div class="brochure-item">
-              <img src="prod_accessories.png" alt="Accessories" class="brochure-img">
-              <h4>Bed/Bathroom Accessories</h4>
-              <p><strong>Pendant Button:</strong> Coil-cord switch placed near the bed for convenient access.<br><br><strong>Pull Cord:</strong> Easily accessible string cord designed for washroom safety.</p>
-            </div>
-            <div class="brochure-item">
-              <img src="prod_displays.png" alt="Displays" class="brochure-img">
-              <h4>Indicators &amp; Displays</h4>
-              <p><strong>Room Indicators:</strong> Corridor LED lights that illuminate on call.<br><strong>Corridor Displays:</strong> Pixel matrix boards for high visibility.<br><strong>NS Monitors:</strong> Real-time Android/TV displays at nursing stations.</p>
-            </div>
-            <div class="brochure-item">
-              <img src="prod_gateway.png" alt="Gateway" class="brochure-img">
-              <h4>Gateways &amp; Software</h4>
-              <p>Standalone LoRa Gateways receive RF signals and route them to cloud/displays. The Alamo Software provides actionable insights, response-time tracking, and automated PDF reports for managers.</p>
-            </div>
-            <div class="brochure-item" style="grid-column: 1 / -1; display: flex; gap: 15px; align-items: center;">
-              <img src="prod_dripo.png" alt="Dripo" style="width: 120px; height: 120px; object-fit: contain;">
-              <div style="flex:1;">
-                <h4>Dripo: Intelligent Bystander for IV Drips</h4>
-                <p>Alerts errors in IV, helps set IV flow rates accurately, and provides data to analyze and improve processes for better patient safety.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── PAGE 3: CLIENTS & INSTALLATION ── -->
+      <!-- ── PAGE 2: CLIENTS & INSTALLATION ── -->
       <div class="doc-page page-break" id="pageClients">
         <div class="page-brand-strip" style="margin-bottom: 20px;">
           <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="strip-logo">
@@ -672,7 +626,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=2.7"></script>
+<script src="app.js?v=3.1"></script>
 <script>
   lucide.createIcons();
 </script>
@@ -694,5 +648,7 @@
 <!-- FABs Removed because they overlap with the fixed bottom action bar -->
 
 </div>
+
+<div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
 </body>
 </html>

@@ -418,7 +418,7 @@ function saveQuote() {
     method: 'POST',
     body: JSON.stringify(dealData)
   })
-  .then(res => res.json())
+  .then(res => { savingToast.remove(); return res.json(); })
   .then(data => {
     btn.innerText = "Saved!";
     setTimeout(() => {
@@ -426,7 +426,10 @@ function saveQuote() {
       btn.disabled = false;
     }, 2000);
   })
-  .catch(err => {
+  .catch(err => { if(typeof savingToast !== "undefined") savingToast.remove();
+    loadingToast.remove();
+    showToast("Error loading quotes", "error");
+      savingToast.remove();
     console.error(err);
     alert("Error saving to Google Sheet. Check console.");
     btn.innerText = originalText;
@@ -447,7 +450,7 @@ function loadQuotesModal() {
     method: 'POST',
     body: JSON.stringify({ action: 'searchQuote', query: query })
   })
-  .then(res => res.json())
+  .then(res => { return res.json(); })
   .then(data => {
     btn.innerText = originalText;
     btn.disabled = false;
@@ -458,6 +461,9 @@ function loadQuotesModal() {
     }
   })
   .catch(err => {
+    loadingToast.remove();
+    showToast("Error loading quotes", "error");
+      savingToast.remove();
     console.error(err);
     alert("Error searching Google Sheet.");
     btn.innerText = originalText;
@@ -549,6 +555,7 @@ function removeFloor(index) {
   renderFloors();
 }
 
+
 function calcEstimator() {
   let beds = 0, rooms = 0, bathrooms = 0, nsTotal = 0;
   floors.forEach(f => {
@@ -558,66 +565,44 @@ function calcEstimator() {
     nsTotal += f.ns || 0;
   });
 
-  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
   const isChecked = (id) => document.getElementById(id)?.checked;
-  
-  setVal('sysRoomCP', beds);
-  
-  if (isChecked('chkDoorLight')) setVal('sysDoorLight', rooms); else setVal('sysDoorLight', 0);
-  
-  if (isChecked('chkSinglePendant')) setVal('sysSinglePendant', beds); else setVal('sysSinglePendant', 0);
-  if (isChecked('chkDoublePendant')) setVal('sysDoublePendant', beds); else setVal('sysDoublePendant', 0);
-
-  if (isChecked('chkWashroom')) setVal('sysWashCP', bathrooms); else setVal('sysWashCP', 0);
-  if (isChecked('chkPullCord')) setVal('sysPullCord', bathrooms); else setVal('sysPullCord', 0);
-  
-  if (isChecked('chkNsBasic')) setVal('sysNsBasic', nsTotal); else setVal('sysNsBasic', 0);
-  if (isChecked('chkNsTv')) setVal('sysNsTv', nsTotal); else setVal('sysNsTv', 0);
-  
-  if (isChecked('chkGateway')) setVal('sysGateway', nsTotal > 0 ? nsTotal : 1); else setVal('sysGateway', 0);
   
   let repeaters = 0;
   floors.forEach(f => {
     if (f.rooms > 0) repeaters += Math.ceil(f.rooms / 10) + 1;
   });
-  if (isChecked('chkRepeater')) setVal('sysRepeater', repeaters); else setVal('sysRepeater', 0);
   
-  updateBOMFromSys();
-}
-
-function updateBOMFromSys() {
-  const getVal = (id) => parseInt(document.getElementById(id)?.value) || 0;
-  
-  const roomCP = getVal('sysRoomCP');
-  const doorL = getVal('sysDoorLight');
-  const sp = getVal('sysSinglePendant');
-  const dp = getVal('sysDoublePendant');
-  const wCP = getVal('sysWashCP');
-  const pCord = getVal('sysPullCord');
-  const nsBasic = getVal('sysNsBasic');
-  const nsTv = getVal('sysNsTv');
-  const gw = getVal('sysGateway');
-  const rpt = getVal('sysRepeater');
-  const dLog = document.getElementById('chkDataLog')?.checked ? 1 : 0;
-  
-  bom.forEach(item => {
-    if (item.driverKey === 'beds') item.qty = roomCP;
-    if (item.driverKey === 'rooms') item.qty = doorL;
-    if (item.driverKey === 'bathrooms') {
-      if (item.code === 'ALAMO-PL') item.qty = pCord;
-      else item.qty = wCP;
+  bom.forEach((item, index) => {
+    if (item.isLocked) return; // SKIP manually overridden items!
+    
+    if (item.driverKey === 'beds') item.qty = beds;
+    else if (item.driverKey === 'rooms') item.qty = isChecked('chkDoorLight') ? rooms : 0;
+    else if (item.driverKey === 'bathrooms') {
+      if (item.code === 'ALAMO-PL') item.qty = isChecked('chkPullCord') ? bathrooms : 0;
+      else item.qty = isChecked('chkWashroom') ? bathrooms : 0;
     }
-    if (item.driverKey === 'pendants_single') item.qty = sp;
-    if (item.driverKey === 'pendants_double') item.qty = dp;
-    if (item.driverKey === 'ns_basic') item.qty = nsBasic;
-    if (item.driverKey === 'ns_tv') item.qty = nsTv;
-    if (item.driverKey === 'gateways') item.qty = gw;
-    if (item.driverKey === 'repeaters') item.qty = rpt;
-    if (item.driverKey === 'datalog') item.qty = dLog;
+    else if (item.driverKey === 'pendants_single') item.qty = isChecked('chkSinglePendant') ? beds : 0;
+    else if (item.driverKey === 'pendants_double') item.qty = isChecked('chkDoublePendant') ? beds : 0;
+    else if (item.driverKey === 'ns_basic') item.qty = isChecked('chkNsBasic') ? nsTotal : 0;
+    else if (item.driverKey === 'ns_tv') item.qty = isChecked('chkNsTv') ? nsTotal : 0;
+    else if (item.driverKey === 'gateways') item.qty = isChecked('chkGateway') ? (nsTotal > 0 ? nsTotal : 1) : 0;
+    else if (item.driverKey === 'repeaters') item.qty = isChecked('chkRepeater') ? repeaters : 0;
+    else if (item.driverKey === 'datalog') item.qty = isChecked('chkDataLog') ? 1 : 0;
   });
+  
   renderBOM();
 }
 
+function updateQtyAndLock(index, newQty) {
+  bom[index].qty = parseInt(newQty) || 0;
+  bom[index].isLocked = true;
+  renderBOM();
+}
+
+function unlockQty(index) {
+  bom[index].isLocked = false;
+  calcEstimator(); // Recalculate to restore auto value
+}
 function applyMargin() {
   const pct = parseFloat(document.getElementById('marginPct').value) || 0;
   bom.forEach(item => {
@@ -853,7 +838,7 @@ function resetQuote() {
     method: 'POST',
     body: JSON.stringify({ action: 'getNextQuoteId' })
   })
-  .then(res => res.json())
+  .then(res => { return res.json(); })
   .then(data => {
     if(data.status === "success") {
       document.getElementById('quoteRef').value = data.quoteRef;
@@ -862,6 +847,9 @@ function resetQuote() {
     }
   })
   .catch(err => {
+    loadingToast.remove();
+    showToast("Error loading quotes", "error");
+      savingToast.remove();
     console.error(err);
     const dateObj = new Date();
     const yyyy = dateObj.getFullYear();
@@ -1073,7 +1061,7 @@ function fetchDashboardData() {
     method: 'POST',
     body: JSON.stringify({ action: 'getAllQuotes' })
   })
-  .then(res => res.json())
+  .then(res => { return res.json(); })
   .then(data => {
     if(data.status === 'success') {
       renderDashboard(data.data);

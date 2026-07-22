@@ -489,6 +489,9 @@ textarea { resize:vertical; }
 
 /* -------------------- MOBILE RESPONSIVE -------------------- */
 @media (max-width: 768px) {
+  .hdr-actions .btn span { display: none; }
+  .hdr-actions .btn { padding: 8px; }
+
   .app-main {
     display: flex;
     flex-direction: column;
