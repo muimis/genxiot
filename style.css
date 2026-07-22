@@ -443,7 +443,7 @@ textarea { resize:vertical; }
 .tc-box p { margin-bottom:.4rem; }
 
 /* Signatures */
-.sig-section { display:flex;justify-content:space-between;margin:1.8rem 38px 1.2rem;gap:3rem; }
+.sig-section { display:flex;justify-content:space-between;margin:4rem 38px 1.2rem;gap:3rem; }
 .sig-block { flex:1; }
 .sig-line { height:1px;background:var(--border);margin-bottom:.5rem; }
 .sig-name { font-size:.8rem;font-weight:700;color:var(--ink); }
@@ -831,7 +831,7 @@ textarea { resize:vertical; }
 
 /* Page setup — margin:0 suppresses browser-added title & date stamp */
 @page {
-  margin: 12mm;
+  margin: 0;
   size: A4 portrait;
 }
 
@@ -873,12 +873,17 @@ textarea { resize:vertical; }
   .doc-page {
     width: 100%;
     margin: 0;
-    padding: 0;
+    padding: 12mm;
+    box-sizing: border-box;
     overflow: visible;
     box-shadow: none;
     border-radius: 0;
     page-break-after: always;
     break-after: page;
+  }
+  .tf-group {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
   .doc-page:last-child {
     page-break-after: avoid;

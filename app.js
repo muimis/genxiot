@@ -670,13 +670,13 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
   setText('qFacility',
-    `${beds} Beds · ${rooms} Rooms · ${bathrooms} Bathrooms · ${wards} Wards/Stations`);
+    `${beds} Beds · ${rooms} Rooms · ${bathrooms} Bathrooms · ${wards} Nursing Stations`);
 
   let floorBreakupHtml = '';
   if (floors && floors.length > 0) {
     floors.forEach((f, i) => {
       let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
-      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Bathrooms, ${f.ns || 0} Wards<br>`;
+      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Bathrooms, ${f.ns || 0} Nursing Stations<br>`;
     });
   }
   const qFloorBreakup = document.getElementById('qFloorBreakup');
