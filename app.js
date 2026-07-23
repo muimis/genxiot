@@ -758,7 +758,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
           const itemName = item.name.split(' (HSN:')[0];
           optHtml += `
             <tr>
-              <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 35%;">${itemName}</td>
+              <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 25%;">${itemName}</td>
               <td style="padding: 5px 8px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${item.desc}</td>
               <td style="padding: 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap;">₹${fmt(item.rate)} / pc</td>
             </tr>
