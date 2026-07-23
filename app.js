@@ -725,17 +725,23 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
   let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
   
-  if (bomCodes.includes('ALAMO-NS-BASIC') && !bomCodes.includes('ALAMO-NS-TV')) {
+  const hasTetris = document.getElementById('chkNsBasic')?.checked;
+  const hasTV = document.getElementById('chkNsTv')?.checked;
+
+  if (hasTetris && !hasTV) {
     let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
     if (tvItem) {
-      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Evegate Lora Gateway)' };
+      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Evegate Lora Gateway @ ₹10,000/pc)' };
       optionalItems.push(tvItem);
     }
   }
 
   if (!bomCodes.includes('ALAMO-DATALOG')) {
-    const dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-DATALOG');
-    if (dataLogItem) optionalItems.push(dataLogItem);
+    let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-DATALOG');
+    if (dataLogItem) {
+      dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Evegate Lora Gateway @ ₹10,000/pc)' };
+      optionalItems.push(dataLogItem);
+    }
   }
   
   const qOptionalNote = document.getElementById('qOptionalNote');
