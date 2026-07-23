@@ -723,7 +723,20 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
   const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
-  const optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
+  let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
+  
+  if (bomCodes.includes('ALAMO-NS-BASIC') && !bomCodes.includes('ALAMO-NS-TV')) {
+    let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
+    if (tvItem) {
+      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Evegate Lora Gateway)' };
+      optionalItems.push(tvItem);
+    }
+  }
+
+  if (!bomCodes.includes('ALAMO-DATALOG')) {
+    const dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-DATALOG');
+    if (dataLogItem) optionalItems.push(dataLogItem);
+  }
   
   const qOptionalNote = document.getElementById('qOptionalNote');
   if (qOptionalNote) {
