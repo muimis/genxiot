@@ -766,11 +766,19 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   }
 
   // Payment milestones
-  const advAmt  = grand * advPct / 100;
-  const postAmt = grand - advAmt;
-  setText('qAdvPct',  advPct + '%');
-  setText('qPostPct', Math.round(100 - advPct) + '%');
+  const advPctVal = parseFloat(advPct) || 50;
+  const delPctVal = 30;
+  const postPctVal = 100 - advPctVal - delPctVal;
+
+  const advAmt  = grand * advPctVal / 100;
+  const delAmt  = grand * delPctVal / 100;
+  const postAmt = grand - advAmt - delAmt;
+
+  setText('qAdvPct',  advPctVal + '%');
+  setText('qDelPct',  delPctVal + '%');
+  setText('qPostPct', postPctVal + '%');
   setText('qAdvAmt',  '₹' + fmt(advAmt));
+  setText('qDelAmt',  '₹' + fmt(delAmt));
   setText('qPostAmt', '₹' + fmt(postAmt));
 
   // T&C Updates
