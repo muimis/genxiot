@@ -596,7 +596,11 @@ function calcEstimator() {
     else if (item.driverKey === 'pendants_double') item.qty = isChecked('chkDoublePendant') ? beds : 0;
     else if (item.driverKey === 'ns_basic') item.qty = isChecked('chkNsBasic') ? nsTotal : 0;
     else if (item.driverKey === 'ns_tv') item.qty = isChecked('chkNsTv') ? nsTotal : 0;
-    else if (item.driverKey === 'gateways') item.qty = isChecked('chkGateway') ? (nsTotal > 0 ? nsTotal : 1) : 0;
+    else if (item.driverKey === 'gateways') {
+      let gw = isChecked('chkGateway') ? (nsTotal > 0 ? nsTotal : 1) : 0;
+      if (isChecked('chkDataLog')) gw += 1;
+      item.qty = gw;
+    }
     else if (item.driverKey === 'repeaters') item.qty = isChecked('chkRepeater') ? repeaters : 0;
     else if (item.driverKey === 'datalog') item.qty = isChecked('chkDataLog') ? 1 : 0;
   });
