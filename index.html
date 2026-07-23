@@ -479,33 +479,56 @@
             </tr>
           </thead>
           <tbody id="qBomBody"></tbody>
-          <tbody class="tf-group" style="page-break-inside: avoid; break-inside: avoid;">
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Subtotal</td>
-              <td class="tf-val" id="qSub" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
-              <td colspan="5" class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border); color: #e02020;">Discount</td>
-              <td class="tf-val" id="qDisc" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); color: #e02020;"></td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Shipping / Handling</td>
-              <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹3,500.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">CGST (9%)</td>
-              <td class="tf-val" id="qCGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td colspan="5" class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">SGST (9%)</td>
-              <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-grand">
-              <td colspan="5" class="tf-lbl" style="text-align: right; background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
-              <td class="tf-val" style="text-align: right; background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"><span id="qGT">₹0.00</span></td>
-            </tr>
-          </tbody>
         </table>
+        </div>
+        
+        <div style="page-break-inside: avoid; margin: 20px 38px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Details</h3>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <colgroup>
+              <col>
+              <col style="width:95px">
+            </colgroup>
+            <tbody>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Subtotal</td>
+                <td class="tf-val" id="qSub" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
+              </tr>
+              <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border); color: #e02020;">Discount</td>
+                <td class="tf-val" id="qDisc" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); color: #e02020;"></td>
+              </tr>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Shipping / Handling</td>
+                <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹3,500.00</td>
+              </tr>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">CGST (9%)</td>
+                <td class="tf-val" id="qCGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
+              </tr>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">SGST (9%)</td>
+                <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
+              </tr>
+              <tr class="tf-row tf-grand">
+                <td class="tf-lbl" style="text-align: right; background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
+                <td class="tf-val" style="text-align: right; background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"><span id="qGT">₹0.00</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="display: flex; gap: 20px; align-items: stretch;">
+            <div style="flex: 1; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
+              <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Remittance Details</div>
+              <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border: none;">
+                <tr><td style="width: 120px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">Genxiot LLP</td></tr>
+                <tr><td style="color: #666; border: none; padding: 2px 0;">Account Number:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankAcc">0624073000000447</td></tr>
+                <tr><td style="color: #666; border: none; padding: 2px 0;">IFSC Code:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankIfsc">SIBL0000624</td></tr>
+                <tr><td style="color: #666; border: none; padding: 2px 0;">Bank &amp; Branch:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankBranch">South Indian Bank, Technopark Trivandrum</td></tr>
+              </table>
+            </div>
+          </div>
         </div>
         
         <div id="qOptionalNote" style="margin: 20px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
@@ -542,16 +565,7 @@
           </tbody>
         </table>
 
-
-        
-          <h3 class="doc-h3">Bank Details</h3>
-          <div class="tc-box" style="margin-bottom: 20px;">
-              <p><strong>Account Name:</strong> <span id="docBankName">Genxiot LLP</span></p>
-              <p><strong>Account Number:</strong> <span id="docBankAcc">0624073000000447</span></p>
-              <p><strong>IFSC Code:</strong> <span id="docBankIfsc">SIBL0000624</span></p>
-              <p><strong>Bank & Branch:</strong> <span id="docBankBranch">South Indian Bank, Technopark Trivandrum</span></p>
-            </div>
-<h3 class="doc-h3">General Terms &amp; Conditions</h3>
+        <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">
             <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
             <p><strong>Payment:</strong> 50% advance and 50% post-delivery. Bank charges of Buyer's bank borne by Buyer.</p>
