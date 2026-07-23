@@ -415,15 +415,13 @@ textarea { resize:vertical; }
   color:var(--brand-indigo);letter-spacing:.04em;text-transform:uppercase;
 }
 
-/* Summary Table below BOQ */
-.qtn-summary-tbl {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.78rem;
+/* Prevent zebra striping on the summary rows' empty cells */
+.qtn-boq-tbl .tf-group .tf-row td {
+  background: transparent !important;
 }
-.qtn-summary-tbl td {
-  padding: .43rem .58rem;
-  line-height: 1.4;
+.qtn-boq-tbl .tf-group .tf-row .tf-lbl,
+.qtn-boq-tbl .tf-group .tf-row .tf-val {
+  background: #f8f9ff !important;
 }
 .tf-grand td {
   -webkit-print-color-adjust: exact !important;
