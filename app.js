@@ -131,8 +131,8 @@ const CATALOGUE = [
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Alamo Bathroom Call Point (HSN: 85311090)',
-    desc:  'Dedicated bathroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
+    name:  'Alamo Washroom Call Point (HSN: 85311090)',
+    desc:  'Dedicated washroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
     group: 'Washroom Components',
     rate:  2000,
     img:   '',
@@ -653,7 +653,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'Genxiot Sales Team';
   const beds          = floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0);
   const rooms         = floors.reduce((acc, f) => acc + parseInt(f.rooms || 0), 0);
-  const bathrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
+  const washrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
   const wards         = floors.reduce((acc, f) => acc + parseInt(f.ns || 0), 0) || (parseInt(document.getElementById('sysNsBasic')?.value) || 0) + (parseInt(document.getElementById('sysNsTv')?.value) || 0);
 
   const delivery      = (document.getElementById('delivery')?.value)      || '';
@@ -674,13 +674,13 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
   setText('qFacility',
-    `${beds} Beds · ${rooms} Rooms · ${bathrooms} Bathrooms · ${wards} Nursing Stations`);
+    `${beds} Beds · ${rooms} Rooms · ${washrooms} Washrooms · ${wards} Nursing Stations`);
 
   let floorBreakupHtml = '';
   if (floors && floors.length > 0) {
     floors.forEach((f, i) => {
       let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
-      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Bathrooms, ${f.ns || 0} Nursing Stations<br>`;
+      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Washrooms, ${f.ns || 0} Nursing Stations<br>`;
     });
   }
   const qFloorBreakup = document.getElementById('qFloorBreakup');
@@ -693,22 +693,23 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const qOptionalNote = document.getElementById('qOptionalNote');
   if (qOptionalNote) {
     if (optionalItems.length > 0) {
-      let optHtml = `
-        <div style="margin-top: 25px; padding: 15px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; page-break-inside: avoid; break-inside: avoid;">
-          <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #444;">Available Optional Upgrades (Upon Request)</h4>
-          <p style="margin: 0 0 10px 0; font-size: 0.75rem; color: #666;">The following components are not included in the above quotation but can be added or upgraded at any time:</p>
-          <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #555;">
-      `;
-      optionalItems.forEach(item => {
-        const itemName = item.name.split(' (HSN:')[0];
-        optHtml += `
-          <tr>
-            <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 35%;">${itemName}</td>
-            <td style="padding: 5px 0; border-bottom: 1px solid #eaeaea; vertical-align: top;">${item.desc}</td>
-          </tr>
+        let optHtml = `
+          <div style="margin-top: 25px; padding: 15px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; page-break-inside: avoid; break-inside: avoid;">
+            <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #444;">AVAILABLE OPTIONAL UPGRADES</h4>
+            <p style="margin: 0 0 10px 0; font-size: 0.75rem; color: #666;">The following components are not included in the main Bill of Quantities above but can be added to your configuration or upgraded at anytime at the per-piece rates listed below:</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #555;">
         `;
-      });
-      optHtml += `</table></div>`;
+        optionalItems.forEach(item => {
+          const itemName = item.name.split(' (HSN:')[0];
+          optHtml += `
+            <tr>
+              <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 35%;">${itemName}</td>
+              <td style="padding: 5px 8px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${item.desc}</td>
+              <td style="padding: 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap;">₹${formatAmt(item.rate)} / pc</td>
+            </tr>
+          `;
+        });
+        optHtml += `</table></div>`;
       qOptionalNote.innerHTML = optHtml;
     } else {
       qOptionalNote.innerHTML = '';

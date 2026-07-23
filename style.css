@@ -27,7 +27,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; }
+body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; }
 input, select, textarea { font-family: inherit; }
 img { display: block; max-width: 100%; }
 
@@ -186,7 +186,7 @@ textarea { resize:vertical; }
   display:inline-flex;align-items:center;gap:5px;
   padding:.42rem .9rem;border-radius:7px;border:none;
   cursor:pointer;font-size:.8rem;font-weight:600;
-  font-family:'Inter',sans-serif;text-decoration:none;
+  font-family:'Roboto',sans-serif;text-decoration:none;
   transition:all .15s;
 }
 .btn-primary { background:var(--brand-indigo);color:#fff; }
@@ -849,7 +849,7 @@ textarea { resize:vertical; }
 @media print {
   /* ── Reset ── */
   *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body, html { margin: 0; padding: 0; background: #fff; font-family: 'Inter', Arial, sans-serif; }
+  body, html { margin: 0; padding: 0; background: #fff; font-family: 'Roboto', Arial, sans-serif; }
 
   /* ── Hide web UI ── */
   .no-print,
