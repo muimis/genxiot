@@ -470,35 +470,38 @@
           </thead>
           <tbody id="qBomBody"></tbody>
           <tbody class="tf-group" style="page-break-inside: avoid; break-inside: avoid;">
-            <tr class="tf-row">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Subtotal</td>
-              <td class="tf-val" id="qSub" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Discount</td>
-              <td class="tf-val" id="qDisc" style="text-align: right; padding: 6px 8px; background: #f8f9ff;"></td>
-            </tr>
-            <tr class="tf-row">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Shipping / Handling</td>
-              <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹3,500.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">CGST (9%)</td>
-              <td class="tf-val" id="qCGST" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
-            </tr>
-            <tr class="tf-row">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">SGST (9%)</td>
-              <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
-            </tr>
-            <tr class="tf-row tf-grand">
-              <td></td><td></td><td></td><td></td>
-              <td class="tf-lbl" style="text-align: right; background: var(--brand-navy); color: #fff; padding: 8px;"><strong>Grand Total (18% GST)</strong></td>
-              <td class="tf-val" style="text-align: right; background: var(--brand-navy); color: #fff; padding: 8px;"><strong id="qGT">₹0.00</strong></td>
+            <tr>
+              <td colspan="6" style="border: none !important; border-top: 1px solid var(--border) !important; padding: 20px 0 10px 0 !important; background: #fff !important;">
+                <table style="float: right; width: 340px; border-collapse: collapse; border: 1px solid var(--border); margin-right: 0;">
+                  <tbody>
+                    <tr>
+                      <td style="padding: 8px 12px !important; font-weight: 600; text-align: left; background: #f8f9ff !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-right: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">Subtotal</td>
+                      <td id="qSub" style="padding: 8px 12px !important; font-weight: 600; text-align: right; background: #fff !important; border: none !important; border-bottom: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">₹0.00</td>
+                    </tr>
+                    <tr id="qDiscRow" style="display:none">
+                      <td style="padding: 8px 12px !important; font-weight: 600; text-align: left; background: #f8f9ff !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-right: 1px solid var(--border) !important; font-size: 0.77rem; color: #e02020;">Discount</td>
+                      <td id="qDisc" style="padding: 8px 12px !important; font-weight: 600; text-align: right; background: #fff !important; border: none !important; border-bottom: 1px solid var(--border) !important; font-size: 0.77rem; color: #e02020;"></td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 12px !important; font-weight: 600; text-align: left; background: #f8f9ff !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-right: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">Shipping / Handling</td>
+                      <td id="qShipping" style="padding: 8px 12px !important; font-weight: 600; text-align: right; background: #fff !important; border: none !important; border-bottom: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">₹3,500.00</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 12px !important; font-weight: 600; text-align: left; background: #f8f9ff !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-right: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">CGST (9%)</td>
+                      <td id="qCGST" style="padding: 8px 12px !important; font-weight: 600; text-align: right; background: #fff !important; border: none !important; border-bottom: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">₹0.00</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 12px !important; font-weight: 600; text-align: left; background: #f8f9ff !important; border: none !important; border-bottom: 1px solid var(--border) !important; border-right: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">SGST (9%)</td>
+                      <td id="qSGST" style="padding: 8px 12px !important; font-weight: 600; text-align: right; background: #fff !important; border: none !important; border-bottom: 1px solid var(--border) !important; font-size: 0.77rem; color: #333;">₹0.00</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 10px 12px !important; font-weight: 700; text-align: left; background: var(--brand-navy) !important; color: #fff !important; font-size: 0.85rem; border: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
+                      <td style="padding: 10px 12px !important; font-weight: 700; text-align: right; background: var(--brand-navy) !important; color: #fff !important; font-size: 0.85rem; border: none !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"><span id="qGT">₹0.00</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style="clear: both;"></div>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -416,15 +416,6 @@ textarea { resize:vertical; }
 }
 
 /* ── Summary Block / Tfoot ── */
-.qtn-boq-tbl .tf-group .tf-row td {
-  /* By default, empty cells in the summary take a white background */
-  background: #fff !important;
-  border: 1px solid var(--border);
-}
-.qtn-boq-tbl .tf-group .tf-row .tf-lbl,
-.qtn-boq-tbl .tf-group .tf-row .tf-val {
-  background: #f8f9ff !important;
-}
 .tf-lbl { text-align:right;font-weight:600;font-size:.77rem; }
 .tf-val { text-align:right;font-weight:600;font-size:.77rem; }
 .tf-disc .tf-lbl, .tf-disc .tf-val { color:#e02020; }
