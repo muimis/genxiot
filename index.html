@@ -448,8 +448,16 @@
         </div>
         <div id="qFloorBreakup" style="margin: 10px 38px; font-size: 0.8rem; color: #444; line-height: 1.4;"></div>
 
-        <div class="bom-tbl-wrap" style="overflow-x: auto;">
-        <table class="qtn-boq-tbl">
+        <div class="bom-tbl-wrap" style="overflow: visible;">
+        <table class="qtn-boq-tbl" style="margin-bottom: 0; border-bottom: none;">
+          <colgroup>
+            <col style="width:26px">
+            <col style="width:80px">
+            <col>
+            <col style="width:50px">
+            <col style="width:82px">
+            <col style="width:95px">
+          </colgroup>
           <thead>
             <tr>
               <th style="width:26px;text-align:center">#</th>
@@ -462,34 +470,48 @@
           </thead>
           <tbody id="qBomBody"></tbody>
         </table>
-        </div>
-
-        <div class="tf-group" style="page-break-inside: avoid; break-inside: avoid; margin: 20px 38px 0 auto; width: 350px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <div style="background: #f1f3f9; padding: 8px 12px; font-weight: 700; color: var(--brand-navy); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); text-align: center;">Quotation Summary</div>
-            <div style="display: flex; justify-content: space-between; padding: 6px 12px; background: #fff;">
-              <div class="tf-lbl">Subtotal</div>
-              <div class="tf-val" id="qSub">₹0.00</div>
-            </div>
-            <div class="tf-disc" id="qDiscRow" style="display:none; justify-content: space-between; padding: 6px 12px; background: #fff;">
-              <div class="tf-lbl">Discount</div>
-              <div class="tf-val" id="qDisc"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 6px 12px; background: #fff;">
-              <div class="tf-lbl">Shipping / Handling</div>
-              <div class="tf-val" id="qShipping">₹3,500.00</div>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 6px 12px; background: #fff;">
-              <div class="tf-lbl">CGST (9%)</div>
-              <div class="tf-val" id="qCGST">₹0.00</div>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 6px 12px; background: #fff;">
-              <div class="tf-lbl">SGST (9%)</div>
-              <div class="tf-val" id="qSGST">₹0.00</div>
-            </div>
-            <div class="tf-grand" style="display: flex; justify-content: space-between; padding: 10px 12px; background: var(--brand-navy); color: #fff;">
-              <div class="tf-lbl" style="color: #fff;"><strong>Grand Total (18% GST)</strong></div>
-              <div class="tf-val"><strong id="qGT" style="color: #fff;">₹0.00</strong></div>
-            </div>
+        <table class="qtn-boq-tbl" style="page-break-inside: avoid; break-inside: avoid; border-top: none;">
+          <colgroup>
+            <col style="width:26px">
+            <col style="width:80px">
+            <col>
+            <col style="width:50px">
+            <col style="width:82px">
+            <col style="width:95px">
+          </colgroup>
+          <tbody class="tf-group">
+            <tr class="tf-row">
+              <td colspan="4" style="border: none; border-right: 1px solid var(--border); background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Subtotal</td>
+              <td class="tf-val" id="qSub" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
+            </tr>
+            <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
+              <td colspan="4" style="border: none; border-right: 1px solid var(--border); background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Discount</td>
+              <td class="tf-val" id="qDisc" style="text-align: right; padding: 6px 8px; background: #f8f9ff;"></td>
+            </tr>
+            <tr class="tf-row">
+              <td colspan="4" style="border: none; border-right: 1px solid var(--border); background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">Shipping / Handling</td>
+              <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹3,500.00</td>
+            </tr>
+            <tr class="tf-row">
+              <td colspan="4" style="border: none; border-right: 1px solid var(--border); background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">CGST (9%)</td>
+              <td class="tf-val" id="qCGST" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
+            </tr>
+            <tr class="tf-row">
+              <td colspan="4" style="border: none; border-right: 1px solid var(--border); background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 8px; background: #f8f9ff;">SGST (9%)</td>
+              <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 8px; background: #f8f9ff;">₹0.00</td>
+            </tr>
+            <tr class="tf-row tf-grand">
+              <td colspan="4" style="border: none; background: #fff;"></td>
+              <td class="tf-lbl" style="text-align: right; background: var(--brand-navy); color: #fff; padding: 8px;"><strong>Grand Total (18% GST)</strong></td>
+              <td class="tf-val" style="text-align: right; background: var(--brand-navy); color: #fff; padding: 8px;"><strong id="qGT">₹0.00</strong></td>
+            </tr>
+          </tbody>
+        </table>
         </div>
         
         <div id="qOptionalNote" style="margin: 20px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
