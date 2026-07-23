@@ -519,10 +519,35 @@
           </table>
 
           <div style="display: flex; gap: 20px; align-items: stretch;">
+            <!-- Left: Payment Schedule -->
+            <div style="flex: 1.2; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
+              <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Terms &amp; Schedule</div>
+              <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border-collapse: collapse;">
+                <tbody>
+                  <tr>
+                    <td style="padding: 4px 0; border-bottom: 1px solid #e1e4e8;">
+                      <strong style="color: #333;">Advance on Order Confirmation</strong><br>
+                      <small style="color: #666; font-size: 0.7rem;">Work commences only after advance receipt.</small>
+                    </td>
+                    <td class="tc" id="qAdvPct" style="padding: 4px 0; border-bottom: 1px solid #e1e4e8; width: 40px; font-weight: 600; text-align: center;">50%</td>
+                    <td class="tr" id="qAdvAmt" style="padding: 4px 0; border-bottom: 1px solid #e1e4e8; width: 80px; font-weight: 600; text-align: right; color: var(--brand-navy);">₹0.00</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; padding-top: 8px;">
+                      <strong style="color: #333;">Balance after Successful Installation &amp; Signoff</strong>
+                    </td>
+                    <td class="tc" id="qPostPct" style="padding: 4px 0; padding-top: 8px; font-weight: 600; text-align: center;">50%</td>
+                    <td class="tr" id="qPostAmt" style="padding: 4px 0; padding-top: 8px; font-weight: 600; text-align: right; color: var(--brand-navy);">₹0.00</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Right: Bank Details -->
             <div style="flex: 1; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
               <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Remittance Details</div>
               <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border: none;">
-                <tr><td style="width: 120px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">Genxiot LLP</td></tr>
+                <tr><td style="width: 110px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">Genxiot LLP</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">Account Number:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankAcc">0624073000000447</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">IFSC Code:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankIfsc">SIBL0000624</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">Bank &amp; Branch:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankBranch">South Indian Bank, Technopark Trivandrum</td></tr>
@@ -534,37 +559,8 @@
         <div id="qOptionalNote" style="margin: 20px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
       </div>
 
-      <!-- ── PAGE 10: PAYMENT + BANK + T&C ─── -->
+      <!-- ── PAGE 10: T&C ─── -->
       <div class="doc-page page-break" id="pageTerms">
-        <!-- Header removed -->
-        <h3 class="doc-h3">Payment Terms &amp; Schedule</h3>
-        <table class="doc-table">
-          <thead>
-            <tr>
-              <th>Milestone</th>
-              <th class="tc" style="width:55px">%</th>
-              <th class="tr" style="width:110px">Amount (₹)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <strong>Advance on Order Confirmation</strong><br>
-                <small>Payment via NEFT/RTGS. Work commences only after advance receipt.</small>
-              </td>
-              <td class="tc" id="qAdvPct">50%</td>
-              <td class="tr" id="qAdvAmt">₹0.00</td>
-            </tr>
-            <tr>
-              <td>
-                <strong>Balance after Successful Installation &amp; Signoff</strong>
-              </td>
-              <td class="tc" id="qPostPct">50%</td>
-              <td class="tr" id="qPostAmt">₹0.00</td>
-            </tr>
-          </tbody>
-        </table>
-
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">
             <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
