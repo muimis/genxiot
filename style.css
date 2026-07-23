@@ -883,6 +883,8 @@ textarea { resize:vertical; }
     width: 100%;
     margin: 0;
     padding: 0;
+    min-height: auto !important;
+    height: auto !important;
     box-sizing: border-box;
     overflow: visible;
     box-shadow: none;

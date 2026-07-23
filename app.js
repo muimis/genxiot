@@ -689,10 +689,25 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const qOptionalNote = document.getElementById('qOptionalNote');
   if (qOptionalNote) {
     if (optionalItems.length > 0) {
-      const itemNames = optionalItems.map(c => c.name.split(' (HSN:')[0]).join(', ');
-      qOptionalNote.innerText = `* Note: The following optional components are available upon request and can be added or upgraded at any time: ${itemNames}.`;
+      let optHtml = `
+        <div style="margin-top: 25px; padding: 15px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; page-break-inside: avoid; break-inside: avoid;">
+          <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #444;">Available Optional Upgrades (Upon Request)</h4>
+          <p style="margin: 0 0 10px 0; font-size: 0.75rem; color: #666;">The following components are not included in the above quotation but can be added or upgraded at any time:</p>
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #555;">
+      `;
+      optionalItems.forEach(item => {
+        const itemName = item.name.split(' (HSN:')[0];
+        optHtml += `
+          <tr>
+            <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 35%;">${itemName}</td>
+            <td style="padding: 5px 0; border-bottom: 1px solid #eaeaea; vertical-align: top;">${item.desc}</td>
+          </tr>
+        `;
+      });
+      optHtml += `</table></div>`;
+      qOptionalNote.innerHTML = optHtml;
     } else {
-      qOptionalNote.innerText = '';
+      qOptionalNote.innerHTML = '';
     }
   }
   setText('qSigClient', clientName);
