@@ -415,6 +415,21 @@ textarea { resize:vertical; }
   color:var(--brand-indigo);letter-spacing:.04em;text-transform:uppercase;
 }
 
+/* Summary Table below BOQ */
+.qtn-summary-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.qtn-summary-tbl td {
+  padding: .43rem .58rem;
+  line-height: 1.4;
+}
+.tf-grand td {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
 /* Tfoot */
 .qtn-boq-tbl .tf-group .tf-row td { background:#f8f9ff!important; }
 .tf-lbl { text-align:right;font-weight:600;font-size:.77rem; }
