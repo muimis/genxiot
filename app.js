@@ -634,7 +634,7 @@ function recalc() {
   }
 
   const postPct = document.getElementById('postPct');
-  if (postPct) postPct.value = Math.round(100 - advPct) + '%';
+  if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
 
   syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, grandTotal, advPct, shipping);
 }
