@@ -419,6 +419,41 @@ function saveQuote() {
     });
 }
 
+function deleteQuote() {
+  const qtn = document.getElementById('quoteRef').value;
+  if (!qtn || !qtn.trim()) { alert('No quote loaded to delete.'); return; }
+  
+  if (!confirm('Are you sure you want to permanently delete Quote "' + qtn + '"?')) return;
+
+  const btn = document.querySelector('button[onclick="deleteQuote()"]');
+  const orig = btn.innerHTML;
+  btn.innerHTML = '<i data-lucide="loader" size="14"></i> <span>Deleting...</span>';
+  btn.disabled = true;
+  if (window.lucide) lucide.createIcons({ root: btn });
+
+  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteQuote', quoteRef: qtn }) })
+    .then(r => r.json())
+    .then(data => {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      if (window.lucide) lucide.createIcons({ root: btn });
+      
+      if (data.status === 'success') {
+        alert('Quote deleted successfully.');
+        document.getElementById('dashBtn').click(); // Go back to dashboard
+      } else {
+        alert(data.message || 'Error deleting quote.');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      if (window.lucide) lucide.createIcons({ root: btn });
+      alert('Error deleting quote. Check your internet connection.');
+    });
+}
+
 function loadQuotesModal() {
   const query = prompt('Enter Client Name or Quote Number to recall:');
   if (!query || !query.trim()) return;
@@ -1085,10 +1120,15 @@ function renderDashboard(quotes) {
   
   const clientValues = {};
   
-  // Sort quotes by date descending
-  quotes.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Filter out blank rows and sort quotes by date descending
+  const validQuotes = quotes.filter(q => q.quoteRef && q.quoteRef.trim() !== '');
+  validQuotes.sort((a, b) => {
+    const dA = a.date ? new Date(a.date).getTime() : 0;
+    const dB = b.date ? new Date(b.date).getTime() : 0;
+    return (dB || 0) - (dA || 0);
+  });
 
-  quotes.forEach((q, idx) => {
+  validQuotes.forEach((q, idx) => {
     const val = parseFloat(q.totalAmount) || 0;
     totalVal += val;
     totalBeds += parseInt(q.totalBeds) || 0;
