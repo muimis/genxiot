@@ -749,9 +749,9 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   if (qOptionalNote) {
     if (optionalItems.length > 0) {
         let optHtml = `
-          <div style="margin-top: 25px; padding: 15px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; page-break-inside: avoid; break-inside: avoid;">
-            <h4 style="margin: 0 0 8px 0; font-size: 0.85rem; color: #444;">AVAILABLE OPTIONAL UPGRADES</h4>
-            <p style="margin: 0 0 10px 0; font-size: 0.75rem; color: #666;">The following components are not included in the main Bill of Quantities above but can be added to your configuration or upgraded at anytime at the per-piece rates listed below:</p>
+          <div style="margin-top: 10px; padding: 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
+            <h4 style="margin: 0 0 4px 0; font-size: 0.85rem; color: #444;">AVAILABLE OPTIONAL UPGRADES</h4>
+            <p style="margin: 0 0 6px 0; font-size: 0.75rem; color: #666;">The following components are not included in the main Bill of Quantities above but can be added to your configuration or upgraded at anytime at the per-piece rates listed below:</p>
             <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #555;">
         `;
         optionalItems.forEach(item => {
