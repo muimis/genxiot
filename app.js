@@ -646,6 +646,8 @@ function recalc() {
 function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping) {
   const clientName    = (document.getElementById('clientName')?.value)    || '';
   const clientLoc     = (document.getElementById('clientLocation')?.value) || '';
+  const clientDist    = (document.getElementById('clientDistrict')?.value) || '';
+  const clientState   = (document.getElementById('clientState')?.value) || '';
   const contactPerson = (document.getElementById('contactPerson')?.value)  || '';
   const quoteRef      = (document.getElementById('quoteRef')?.value)      || '';
   const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'Genxiot Sales Team';
@@ -667,6 +669,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qDocValid',      getValidDate());
   setText('qClientName',    clientName);
   setText('qClientLoc',     clientLoc);
+  setText('qClientDistrict',clientDist);
+  setText('qClientState',   clientState);
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
   setText('qFacility',
