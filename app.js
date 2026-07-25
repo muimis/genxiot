@@ -83,28 +83,28 @@ const PRESTIGIOUS_CLIENTS = [
 
 
 // ─── MASTER ITEM CATALOGUE ───────────────────────────────────────
-// Rates verified directly against SAL-QTN-2024-00478 (the real Evelabs quote
-// in this repo — see qtn_extracted.txt) and cross-checked against both
-// Genxiot_Alamo_Quote_Calculator.xlsx and Genxiot_Alamo_Quote_Calculator_2026.xlsx.
-// These are EVELABS BASE COST (ex-factory), not a confirmed Genxiot resale price.
-// Use "Apply Margin %" in the Financial Summary card to move from cost to a
-// customer-facing sell price — do not silently hardcode a markup here.
+// Rates verified against latest pricing structure (Annexure A).
+// Now using MRP as the base selling price with Landing Price as the minimum bound.
 const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Alamo Call Point – Patient Room (HSN: 85311090)',
-    desc:  'Patient call point with Call, Service, Cancel and Acknowledge buttons. This module also has 2 RJ11 ports to connect accessories and a power port to connect an adapter if needed. Include screws for assembly',
+    name:  'Alamo M1 & M2 Call Point – Patient Room (HSN: 85311090)',
+    desc:  'Call Point with LoRa Transmitter for each bedside or washroom',
     group: 'Bed Components',
-    rate:  2000,
+    mrp:   2400,
+    landingPrice: 1600,
+    rate:  2400,
     img:   '',
     driverKey: 'beds'
   },
   {
     code:  'ALAMO-PD-S',
     name:  'Alamo Pendant Button (HSN: 85311090)',
-    desc:  'Patient side single-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
+    desc:  'Pendant Button Accessory with Wall Mount for call point',
     group: 'Bed Components',
+    mrp:   600,
+    landingPrice: 400,
     rate:  600,
     img:   '',
     driverKey: 'pendants_single'
@@ -112,37 +112,78 @@ const CATALOGUE = [
   {
     code:  'ALAMO-PD-D',
     name:  'Alamo Double Button Pendant (HSN: 85311090)',
-    desc:  'Patient side double-switch call accessories that can be connected to the main call point. Includes product stand and screws for assembly',
+    desc:  'Patient side double-switch call accessories that can be connected to the main call point.',
     group: 'Bed Components',
+    mrp:   950,
+    landingPrice: 650, // estimated based on single pendant
     rate:  950,
     img:   '',
     driverKey: 'pendants_double'
+  },
+  {
+    code:  'ALAMO-CB-ACC',
+    name:  'Code Blue Accessory (HSN: 85311090)',
+    desc:  'Accessory for generating Code Blue calls',
+    group: 'Bed Components',
+    mrp:   900,
+    landingPrice: 600,
+    rate:  900,
+    img:   '',
+    driverKey: 'fixed' // Can be added manually
   },
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
     name:  'Alamo Call light V2 (Door Indicator) (HSN: 85311090)',
-    desc:  'LED corridor indicator light (Alamo Call light V2). Placed outside room door. Illuminates on any call from that room.',
+    desc:  'Door Indicator. Does not include Legrand back box. Requires Legrand two-module box and 220V supply',
     group: 'Room Components',
-    rate:  2400,
+    mrp:   2600,
+    landingPrice: 2200,
+    rate:  2600,
     img:   '',
     driverKey: 'rooms'
+  },
+  {
+    code:  'ALAMO-M2-TX',
+    name:  'Alamo M2 Transmitter Module (HSN: 85311090)',
+    desc:  'Base transmitter module for bathroom or room modules. Requires mounting in Legrand back box (two-module box not included)',
+    group: 'Room Components',
+    mrp:   3200,
+    landingPrice: 2200,
+    rate:  3200,
+    img:   '',
+    driverKey: 'fixed'
+  },
+  {
+    code:  'ALAMO-M2-BTN',
+    name:  'Alamo M2 Button Module (HSN: 85311090)',
+    desc:  'Two-button or single-button module for call system. Can be paired with transmitter module. Multiple buttons can be loop connected to one transmitter',
+    group: 'Room Components',
+    mrp:   1200,
+    landingPrice: 800,
+    rate:  1200,
+    img:   '',
+    driverKey: 'fixed'
   },
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
     name:  'Alamo Washroom Call Point (HSN: 85311090)',
-    desc:  'Dedicated washroom call point (Call, Cancel, Acknowledge). Independent LoRa unit.',
+    desc:  'Dedicated washroom call point. Independent LoRa unit.',
     group: 'Washroom Components',
-    rate:  2000,
+    mrp:   2400,
+    landingPrice: 1600,
+    rate:  2400,
     img:   '',
     driverKey: 'bathrooms'
   },
   {
     code:  'ALAMO-PL',
     name:  'Alamo Pullcord (HSN: 85311090)',
-    desc:  'Pull Cord accessory that can be connected to a call point for use in washrooms for ease of access. Include screws for assembly',
+    desc:  'Pull Cord accessory for connecting to call point in washroom',
     group: 'Washroom Components',
+    mrp:   600,
+    landingPrice: 400,
     rate:  600,
     img:   '',
     driverKey: 'bathrooms'
@@ -150,10 +191,12 @@ const CATALOGUE = [
   // ── WARD-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-NS-BASIC',
-    name:  'Alamo Mini Station Tetris V2 (HSN: 85311090)',
-    desc:  'Mini Station V2 with Announcement, 6 call Display. Wall Mountable. Includes built-in LoRa gateway.',
+    name:  'Pixel Matrix Display (HSN: 85311090)',
+    desc:  'Pixel Matrix Display for Nursing Station Alerts. Works with Android app for adding call buttons. Can work without gateway.',
     group: 'Nursing Station',
-    rate:  13000,
+    mrp:   12000,
+    landingPrice: 10000,
+    rate:  12000,
     img:   '',
     driverKey: 'ns_basic'
   },
@@ -162,45 +205,50 @@ const CATALOGUE = [
     name:  'Nursing Station Display (32" Android panel) (HSN: 85311090)',
     desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
+    mrp:   12000,
+    landingPrice: 12000, // Kept same as rate for legacy items
     rate:  12000,
     img:   '',
     driverKey: 'ns_tv'
   },
   {
     code:  'ALAMO-GW',
-    name:  'Evegate Lora Gateway (HSN: 85176290)',
-    desc:  'Gateway receives messages from the call points and shares the data to other devices. It can be a mobile phone, tablets, android tv or cloud server.',
+    name:  'Nursing Station Cloud / On-Premise Gateway (HSN: 85176290)',
+    desc:  'Gateway for communication from call lights to Android devices or Cloud Server.',
     group: 'Infrastructure & Network',
-    rate:  10000,
+    mrp:   12000,
+    landingPrice: 8000,
+    rate:  12000,
     img:   '',
     driverKey: 'gateways'
   },
   {
     code:  'ALAMO-RPT',
-    name:  'REPEATER V2 (HSN: 85176290)',
-    desc:  'Extends LoRa signal range. Includes B type charger, product stand and screws for assembly',
+    name:  'Repeater / Range Extender (HSN: 85176290)',
+    desc:  'Range extender for extended signal coverage in large areas.',
     group: 'Infrastructure & Network',
-    rate:  2500,
+    mrp:   4000,
+    landingPrice: 2500,
+    rate:  4000,
     img:   '',
     driverKey: 'repeaters'
   },
-  // ── FIXED ─────────────────────────────────────
+  // ── SOFTWARE / FIXED ─────────────────────────────────────
   {
-    code:  'ALAMO-DATALOG',
-    name:  'Alamo Additional Data Logging & Analytics (SAC: 9983)',
-    desc:  'Automated logging of all key data, nurse presence, response times, and emailed reports.',
+    code:  'ALAMO-CLOUD-SW',
+    name:  'Cloud Software (SAC: 9983)',
+    desc:  'Cloud software for Escalation, Reporting and Code Blue Alerts (₹15000 per nursing station for 3 years)',
     group: 'Software & Services',
-    rate:  3000,
+    mrp:   15000,
+    landingPrice: 9000,
+    rate:  15000,
     img:   '',
-    driverKey: 'datalog'
+    driverKey: 'datalog' // Tied to datalog checkbox
   }
 ];
 
-// Default quantities (11 items)
-const NIMS_QTY = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
 // ─── STATE ───────────────────────────────────────────────────────
-let bom = CATALOGUE.map((item, i) => ({ ...item, qty: NIMS_QTY[i], baseRate: item.rate }));
+let bom = CATALOGUE.map((item, i) => ({ ...item, qty: 0, baseRate: item.mrp || item.rate, rate: item.mrp || item.rate }));
 
 // ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -246,8 +294,12 @@ function renderBOM() {
           data-idx="${idx}" oninput="updateQty(${idx}, this.value)">
       </td>
       <td>
-        <input type="number" value="${item.rate}" min="0"
-          data-idx="${idx}" oninput="updateRate(${idx}, this.value)">
+        <input type="number" value="${item.rate}" min="${item.landingPrice || 0}" max="${item.mrp || 999999}"
+          data-idx="${idx}" onchange="updateRate(${idx}, this.value)">
+        ${(item.landingPrice && item.rate) ? `
+        <div style="font-size: 0.65rem; color: ${item.rate > item.landingPrice ? 'var(--brand-indigo)' : 'var(--brand-red)'}; margin-top: 4px;">
+          Margin: ₹${fmt(Math.max(0, item.rate - item.landingPrice))} (${Math.round((Math.max(0, item.rate - item.landingPrice) / item.rate) * 100) || 0}%)
+        </div>` : ''}
       </td>
       <td class="amount-cell" id="amt-${idx}">₹${fmt(amount)}</td>
       <td>
@@ -270,12 +322,20 @@ function updateQty(idx, val) {
   recalc();
 }
 function updateRate(idx, val) {
-  const newVal = Math.max(0, parseFloat(val) || 0);
-  bom[idx].rate = newVal;
-  bom[idx].baseRate = newVal;
-  const el = document.getElementById('amt-' + idx);
-  if (el) el.textContent = '₹' + fmt(bom[idx].qty * bom[idx].rate);
-  recalc();
+  let newVal = Math.max(0, parseFloat(val) || 0);
+  const item = bom[idx];
+  
+  if (item.landingPrice && newVal < item.landingPrice) {
+    newVal = item.landingPrice;
+  }
+  if (item.mrp && newVal > item.mrp) {
+    newVal = item.mrp;
+  }
+  
+  item.rate = newVal;
+  item.baseRate = newVal;
+  
+  renderBOM();
 }
 function updateName(idx, val) {
   bom[idx].name = val;
@@ -619,9 +679,22 @@ function unlockQty(index) {
   calcEstimator(); // Recalculate to restore auto value
 }
 function applyMargin() {
-  const pct = parseFloat(document.getElementById('marginPct').value) || 0;
+  const discountPct = parseFloat(document.getElementById('marginPct').value) || 0;
   bom.forEach(item => {
-    item.rate = Math.round(item.baseRate * (1 + pct / 100));
+    if (item.code === 'CUSTOM') return;
+    const mrp = item.mrp || item.rate;
+    const lp = item.landingPrice || 0;
+    
+    let discountedRate = Math.round(mrp * (1 - discountPct / 100));
+    
+    if (discountedRate < lp) {
+      discountedRate = lp;
+    }
+    if (discountedRate > mrp) {
+      discountedRate = mrp;
+    }
+    item.rate = discountedRate;
+    item.baseRate = discountedRate;
   });
   renderBOM();
 }

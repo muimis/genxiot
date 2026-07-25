@@ -248,16 +248,16 @@
         <div class="card-hd"><i data-lucide="credit-card" size="16"></i> Financial Summary</div>
         <div class="card-bd">
           <div class="field-hint" style="margin:0 0 .5rem;line-height:1.4">
-            ⚠️ Item rates are <strong>Evelabs base cost</strong> (verified against SAL-QTN-2024-00478), not a confirmed Genxiot sell price. Apply a margin below, or edit any rate directly in the BOM table.
+            ⚠️ Item rates default to <strong>MRP</strong>. You can apply a bulk discount below, or edit any rate directly in the BOM table. Rates will automatically clamp to the Landing Price minimum.
           </div>
           <div class="row2">
             <div>
-              <label>Apply Margin Over Cost (%)</label>
+              <label>Apply Overall Discount from MRP (%)</label>
               <input type="number" id="marginPct" value="0" oninput="">
             </div>
             <div style="display:flex;align-items:flex-end">
               <button class="btn btn-ghost w-full" onclick="applyMargin()">
-                <i data-lucide="trending-up" size="14"></i> Apply to All Rates
+                <i data-lucide="percent" size="14"></i> Apply to All Rates
               </button>
             </div>
           </div>
