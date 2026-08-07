@@ -444,46 +444,59 @@ function saveQuote() {
   btn.disabled  = true;
   if (window.lucide) lucide.createIcons({ root: btn });
 
-  const dealData = {
-    action: 'saveQuote',
-    quoteRef: qtn,
-    clientName: cName,
-    location:       document.getElementById('clientLocation')?.value || '',
-    clientDistrict: document.getElementById('clientDistrict')?.value || '',
-    clientState:    document.getElementById('clientState')?.value    || '',
-    totalAmount: document.getElementById('calcGT').textContent,
-    contactPerson: document.getElementById('contactPerson')?.value || '',
-    poRef:         document.getElementById('poRef')?.value          || '',
-    totalBeds: floors.reduce((a, f) => a + (f.beds || 0), 0),
-    floors: floors,
-    // Checkboxes
-    chkSinglePendant: document.getElementById('chkSinglePendant')?.checked || false,
-    chkDoublePendant: document.getElementById('chkDoublePendant')?.checked || false,
-    chkDoorLight:     document.getElementById('chkDoorLight')?.checked     || false,
-    chkWashroom:      document.getElementById('chkWashroom')?.checked      || false,
-    chkPullCord:      document.getElementById('chkPullCord')?.checked      || false,
-    chkNsBasic:       document.getElementById('chkNsBasic')?.checked       || false,
-    chkNsTv:          document.getElementById('chkNsTv')?.checked          || false,
-    chkGateway:       document.getElementById('chkGateway')?.checked       || false,
-    chkRepeater:      document.getElementById('chkRepeater')?.checked      || false,
-    chkDataLog:       document.getElementById('chkDataLog')?.checked       || false,
-    // Financial fields
-    discType: document.getElementById('discType')?.value || 'none',
-    discVal:  document.getElementById('discVal')?.value  || '0',
-    shipping: document.getElementById('shipping')?.value || '3500',
-    advPct:   document.getElementById('advPct')?.value   || '50',
-    // Terms fields
+  // ── Collect all settings from the DOM ──────────────────────────────
+  const settings = {
+    discType:          document.getElementById('discType')?.value          || 'none',
+    discVal:           document.getElementById('discVal')?.value           || '0',
+    shipping:          document.getElementById('shipping')?.value          || '3500',
+    advPct:            document.getElementById('advPct')?.value            || '50',
     delivery:          document.getElementById('delivery')?.value          || '',
     warranty:          document.getElementById('warranty')?.value          || '',
     scopeNotes:        document.getElementById('scopeNotes')?.value        || '',
     additionalDetails: document.getElementById('additionalDetails')?.value || '',
-    // Bank details
-    bankDetails: {
-      name:   document.getElementById('bankName')?.value   || '',
-      acc:    document.getElementById('bankAcc')?.value    || '',
-      ifsc:   document.getElementById('bankIfsc')?.value   || ''
-    },
-    bomData: bom
+    poRef:             document.getElementById('poRef')?.value             || '',
+    clientDistrict:    document.getElementById('clientDistrict')?.value    || '',
+    clientState:       document.getElementById('clientState')?.value       || '',
+    chkSinglePendant:  document.getElementById('chkSinglePendant')?.checked  || false,
+    chkDoublePendant:  document.getElementById('chkDoublePendant')?.checked  || false,
+    chkDoorLight:      document.getElementById('chkDoorLight')?.checked      || false,
+    chkWashroom:       document.getElementById('chkWashroom')?.checked        || false,
+    chkPullCord:       document.getElementById('chkPullCord')?.checked        || false,
+    chkNsBasic:        document.getElementById('chkNsBasic')?.checked         || false,
+    chkNsTv:           document.getElementById('chkNsTv')?.checked            || false,
+    chkGateway:        document.getElementById('chkGateway')?.checked         || false,
+    chkRepeater:       document.getElementById('chkRepeater')?.checked        || false,
+    chkDataLog:        document.getElementById('chkDataLog')?.checked         || false,
+    bankName:          document.getElementById('bankName')?.value            || '',
+    bankAcc:           document.getElementById('bankAcc')?.value             || '',
+    bankIfsc:          document.getElementById('bankIfsc')?.value            || ''
+  };
+
+  // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
+  // This guarantees settings survive even if the GAS only stores bomData.
+  const settingsMeta = {
+    code: '__SETTINGS__', name: 'Document Settings', desc: JSON.stringify(settings),
+    group: '__META__', qty: 0, rate: 0, _isSettings: true
+  };
+  const bomWithMeta = [settingsMeta, ...bom.filter(b => b.code !== '__SETTINGS__')];
+
+  // ── Grand total as a clean number (no ₹ / commas) for dashboard ─────
+  const gtText = document.getElementById('calcGT')?.textContent || '0';
+  const gtNum  = parseFloat(gtText.replace(/[^0-9.]/g, '')) || 0;
+
+  const dealData = {
+    action: 'saveQuote',
+    quoteRef:     qtn,
+    clientName:   cName,
+    location:     document.getElementById('clientLocation')?.value || '',
+    totalAmount:  gtNum,            // plain number — parseable by dashboard
+    contactPerson: document.getElementById('contactPerson')?.value || '',
+    totalBeds:    floors.reduce((a, f) => a + (f.beds || 0), 0),
+    floors:       floors,
+    // Spread top-level copies for GAS columns (best effort)
+    ...settings,
+    bankDetails: { name: settings.bankName, acc: settings.bankAcc, ifsc: settings.bankIfsc },
+    bomData:     bomWithMeta   // settings also embedded here as fallback
   };
 
   fetch(API_URL, { method: 'POST', body: JSON.stringify(dealData) })
@@ -571,8 +584,17 @@ function loadQuotesModal() {
 }
 
 function restoreQuote(data) {
-  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
+  // Use String() so zero-values ('0', 'none') are preserved, unlike v||''
+  const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v !== undefined && v !== null) ? String(v) : ''; };
   const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+
+  // ── Extract embedded __SETTINGS__ from bomData (primary source) ────
+  // This is the most reliable channel since bomData is always stored/retrieved.
+  let embeddedSettings = null;
+  if (data.bomData && Array.isArray(data.bomData) && data.bomData[0]?.code === '__SETTINGS__') {
+    try { embeddedSettings = JSON.parse(data.bomData[0].desc || '{}'); } catch(e) {}
+    data = { ...data, ...(embeddedSettings || {}), bomData: data.bomData.slice(1) };
+  }
 
   // ── Client / Deal Info ─────────────────────────────────────────
   setVal('quoteRef',       data.quoteRef);
@@ -588,17 +610,17 @@ function restoreQuote(data) {
   setChk('chkSinglePendant', data.chkSinglePendant !== undefined ? data.chkSinglePendant : true);
   setChk('chkDoublePendant', data.chkDoublePendant || false);
   setChk('chkDoorLight',     data.chkDoorLight     !== undefined ? data.chkDoorLight     : true);
-  setChk('chkWashroom',      data.chkWashroom       !== undefined ? data.chkWashroom       : true);
-  setChk('chkPullCord',      data.chkPullCord       !== undefined ? data.chkPullCord       : true);
-  setChk('chkNsBasic',       data.chkNsBasic        !== undefined ? data.chkNsBasic        : true);
-  setChk('chkNsTv',          data.chkNsTv           || false);
-  setChk('chkGateway',       data.chkGateway        !== undefined ? data.chkGateway        : true);
-  setChk('chkRepeater',      data.chkRepeater       !== undefined ? data.chkRepeater       : true);
-  setChk('chkDataLog',       data.chkDataLog        || false);
+  setChk('chkWashroom',      data.chkWashroom      !== undefined ? data.chkWashroom      : true);
+  setChk('chkPullCord',      data.chkPullCord      !== undefined ? data.chkPullCord      : true);
+  setChk('chkNsBasic',       data.chkNsBasic       !== undefined ? data.chkNsBasic       : true);
+  setChk('chkNsTv',          data.chkNsTv          || false);
+  setChk('chkGateway',       data.chkGateway       !== undefined ? data.chkGateway       : true);
+  setChk('chkRepeater',      data.chkRepeater      !== undefined ? data.chkRepeater      : true);
+  setChk('chkDataLog',       data.chkDataLog       || false);
 
   // ── Financial fields ───────────────────────────────────────────
   setVal('discType', data.discType || 'none');
-  setVal('discVal',  data.discVal  || '0');
+  setVal('discVal',  data.discVal  !== undefined ? data.discVal  : '0');
   setVal('shipping', data.shipping !== undefined ? data.shipping : '3500');
   setVal('advPct',   data.advPct   !== undefined ? data.advPct   : '50');
 
@@ -609,12 +631,11 @@ function restoreQuote(data) {
   if (data.additionalDetails) setVal('additionalDetails', data.additionalDetails);
 
   // ── Bank details ───────────────────────────────────────────────
-  if (data.bankDetails) {
-    setVal('bankName',   data.bankDetails.name);
-    setVal('bankAcc',    data.bankDetails.acc);
-    setVal('bankIfsc',   data.bankDetails.ifsc);
-    if (typeof updateBankDetails === 'function') updateBankDetails();
-  }
+  const bd = data.bankDetails || {};
+  if (bd.name || data.bankName)  setVal('bankName',  bd.name  || data.bankName);
+  if (bd.acc  || data.bankAcc)   setVal('bankAcc',   bd.acc   || data.bankAcc);
+  if (bd.ifsc || data.bankIfsc)  setVal('bankIfsc',  bd.ifsc  || data.bankIfsc);
+  if (typeof updateBankDetails === 'function') updateBankDetails();
 
   // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
@@ -622,12 +643,12 @@ function restoreQuote(data) {
     : [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
 
-  // Restore BOM exactly as saved — the isLocked flags will come back too
+  // Restore BOM (already stripped of __SETTINGS__ entry above)
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
-    bom = data.bomData;
+    bom = data.bomData.filter(b => b.code !== '__SETTINGS__'); // safety strip
     renderBOM();
   } else {
-    calcEstimator(); // fallback: recalculate from floors
+    calcEstimator();
   }
 
   recalc(); // Recompute totals with all restored financial fields
@@ -1035,13 +1056,24 @@ function resetQuote(force = false) {
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
   const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = v; };
 
+  // Client / deal info
   setVal('clientName',     '');
   setVal('clientLocation', '');
+  setVal('clientDistrict', '');
+  setVal('clientState',    '');
   setVal('contactPerson',  '');
-  setVal('discType',       'none');
-  setVal('discVal',        '0');
-  setVal('shipping',       '3500');
-  setVal('advPct',         '50');
+  setVal('poRef',          '');
+  // Financial
+  setVal('discType',  'none');
+  setVal('discVal',   '0');
+  setVal('shipping',  '3500');
+  setVal('advPct',    '50');
+  // Terms
+  setVal('delivery',  '25 days from order confirmation & advance receipt');
+  setVal('warranty',  '12 months comprehensive from installation date');
+  setVal('scopeNotes','Wallmounting & electrical work by hospital. Configuration, calibration & go-live training by Genxiot.');
+  setVal('additionalDetails', '');
+  // Checkboxes
   setChk('chkSinglePendant', true);
   setChk('chkDoublePendant', false);
   setChk('chkDoorLight',  true);
@@ -1052,16 +1084,16 @@ function resetQuote(force = false) {
   setChk('chkGateway',    true);
   setChk('chkRepeater',   true);
   setChk('chkDataLog',    false);
-  setVal('bankName',     'Genxiot LLP');
-  setVal('bankAcc',      '0624073000000447');
-  setVal('bankIfsc',     'SIBL0000624');
+  // Bank
+  setVal('bankName',  'Genxiot LLP');
+  setVal('bankAcc',   '0624073000000447');
+  setVal('bankIfsc',  'SIBL0000624');
   updateBankDetails();
 
   floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
   generateLocalQtn();
   recalc();
-
 }
 
 // ─── EVENT LISTENERS ─────────────────────────────────────────────
