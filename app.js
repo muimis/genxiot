@@ -849,9 +849,10 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   // Cover page
   // Quotation page header
+  const quoteDate = document.getElementById('quoteDate')?.value;
   setText('qDocRef',        quoteRef);
   setText('qDocRef2',       quoteRef);
-  setText('qDocDate',       todayStr());
+  setText('qDocDate',       formatDate(quoteDate));
   setText('qDocValid',      getValidDate());
   setText('qClientName',    clientName);
   setText('qClientLoc',     clientLoc);
@@ -861,6 +862,14 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qBdmName',       bdmName);
   setText('qFacility',
     `${beds} Beds · ${rooms} Rooms · ${washrooms} Washrooms · ${wards} Nursing Stations`);
+
+  // PO Reference row
+  if (poRef.trim()) {
+    setText('qPORef', poRef.trim());
+    if (document.getElementById('qPORow')) document.getElementById('qPORow').style.display = '';
+  } else {
+    if (document.getElementById('qPORow')) document.getElementById('qPORow').style.display = 'none';
+  }
 
   // Client GST row (only shown if GST is entered)
   const qClientGstRow = document.getElementById('qClientGstRow');
@@ -952,7 +961,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
       const tr  = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align:center;color:#999;white-space:nowrap">${sr++}</td>
-        <td style="white-space:nowrap;font-family:'Roboto Mono',monospace;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
+        <td style="white-space:nowrap;font-family:'Roboto Mono',monospace;font-weight:400;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
         <td>
           <strong style="font-size:.78rem">${item.name}</strong>
           <div style="font-size:.68rem;color:#888;margin-top:2px">${item.desc}</div>
@@ -1030,6 +1039,12 @@ function todayStr() {
   return new Date().toLocaleDateString('en-IN', {
     day:'2-digit', month:'short', year:'numeric'
   });
+}
+function formatDate(dateStr) {
+  if (!dateStr) return todayStr();
+  const d = new Date(dateStr);
+  if (isNaN(d)) return todayStr();
+  return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
 }
 function getValidDate() {
   const days = parseInt(document.getElementById('validityDays')?.value) || 30;
@@ -1451,7 +1466,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
     if (el('qValidRow'))     el('qValidRow').style.display   = '';
-    if (el('qPORow'))        el('qPORow').style.display      = 'none';
+    if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';      // restore on exit
