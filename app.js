@@ -469,13 +469,14 @@ function saveQuote() {
     chkDataLog:        document.getElementById('chkDataLog')?.checked         || false,
     bankName:          document.getElementById('bankName')?.value            || '',
     bankAcc:           document.getElementById('bankAcc')?.value             || '',
-    bankIfsc:          document.getElementById('bankIfsc')?.value            || ''
+    bankIfsc:          document.getElementById('bankIfsc')?.value            || '',
+    clientGst:         document.getElementById('clientGst')?.value           || ''
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
   // This guarantees settings survive even if the GAS only stores bomData.
   const settingsMeta = {
-    code: '__SETTINGS__', name: 'Document Settings', desc: JSON.stringify(settings),
+    code: '__SETTINGS__', name:  'Document Settings (HSN: 85311090)', desc: JSON.stringify(settings),
     group: '__META__', qty: 0, rate: 0, _isSettings: true
   };
   const bomWithMeta = [settingsMeta, ...bom.filter(b => b.code !== '__SETTINGS__')];
@@ -605,6 +606,7 @@ function restoreQuote(data) {
   setVal('clientState',    data.clientState);
   setVal('contactPerson',  data.contactPerson);
   setVal('poRef',          data.poRef);
+  setVal('clientGst',      data.clientGst || '');
 
   // ── Checkboxes ─────────────────────────────────────────────────
   setChk('chkSinglePendant', data.chkSinglePendant !== undefined ? data.chkSinglePendant : true);
@@ -640,7 +642,7 @@ function restoreQuote(data) {
   // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
     ? data.floors
-    : [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+    : [{ name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
 
   // Restore BOM (already stripped of __SETTINGS__ entry above)
@@ -656,7 +658,7 @@ function restoreQuote(data) {
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
 
-let floors = [{name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0}];
+let floors = [{name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0}];
 
 function renderFloors() {
   const container = document.getElementById('floorsContainer');
@@ -843,9 +845,9 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const scopeNotes    = (document.getElementById('scopeNotes')?.value)    || '';
   const additionalDetails = (document.getElementById('additionalDetails')?.value) || '';
   const poRef         = (document.getElementById('poRef')?.value)         || '';
+  const clientGst     = (document.getElementById('clientGst')?.value)     || '';
 
   // Cover page
-      
   // Quotation page header
   setText('qDocRef',        quoteRef);
   setText('qDocRef2',       quoteRef);
@@ -859,6 +861,17 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qBdmName',       bdmName);
   setText('qFacility',
     `${beds} Beds · ${rooms} Rooms · ${washrooms} Washrooms · ${wards} Nursing Stations`);
+
+  // Client GST row (only shown if GST is entered)
+  const qClientGstRow = document.getElementById('qClientGstRow');
+  if (qClientGstRow) {
+    if (clientGst.trim()) {
+      setText('qClientGst', clientGst.trim().toUpperCase());
+      qClientGstRow.style.display = '';
+    } else {
+      qClientGstRow.style.display = 'none';
+    }
+  }
 
   let floorBreakupHtml = '';
   if (floors && floors.length > 0) {
@@ -938,15 +951,15 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
       const amt = item.qty * item.rate;
       const tr  = document.createElement('tr');
       tr.innerHTML = `
-        <td style="text-align:center;color:#999">${sr++}</td>
-        <td style="font-size:.7rem;color:var(--brand-indigo)">${item.code}</td>
+        <td style="text-align:center;color:#999;white-space:nowrap">${sr++}</td>
+        <td style="white-space:nowrap;font-family:'Roboto Mono',monospace;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
         <td>
           <strong style="font-size:.78rem">${item.name}</strong>
           <div style="font-size:.68rem;color:#888;margin-top:2px">${item.desc}</div>
         </td>
-        <td style="text-align:center;font-weight:600">${item.qty}</td>
-        <td style="text-align:right">${fmt(item.rate)}</td>
-        <td style="text-align:right;font-weight:600">${fmt(amt)}</td>
+        <td style="text-align:center;font-weight:600;white-space:nowrap">${item.qty}</td>
+        <td style="text-align:right;white-space:nowrap">${fmt(item.rate)}</td>
+        <td style="text-align:right;font-weight:600;white-space:nowrap">${fmt(amt)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -1063,6 +1076,7 @@ function resetQuote(force = false) {
   setVal('clientState',    '');
   setVal('contactPerson',  '');
   setVal('poRef',          '');
+  setVal('clientGst',      '');
   // Financial
   setVal('discType',  'none');
   setVal('discVal',   '0');
@@ -1090,7 +1104,7 @@ function resetQuote(force = false) {
   setVal('bankIfsc',  'SIBL0000624');
   updateBankDetails();
 
-  floors = [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+  floors = [{ name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
   generateLocalQtn();
   recalc();
@@ -1428,6 +1442,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qPORow'))        el('qPORow').style.display      = '';
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = '';
     if (el('qProformaNote')) el('qProformaNote').style.display = '';
+    if (el('qOptionalNote')) el('qOptionalNote').style.display = 'none';  // hide on PI
     if (el('qPORef'))        el('qPORef').textContent        = poRef  || '—';
     if (el('qDueDate'))      el('qDueDate').textContent      = dueDate || '';
     if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Proforma Invoice Preview';
@@ -1439,6 +1454,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qPORow'))        el('qPORow').style.display      = 'none';
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
+    if (el('qOptionalNote')) el('qOptionalNote').style.display = '';      // restore on exit
     if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Executive Techno-Commercial Proposal Preview';
   }
 }

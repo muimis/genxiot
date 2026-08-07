@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <title>Genxiot LLP – Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css?v=4.4">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -155,6 +155,8 @@
         </div>
         <label>PO / Work Order Reference</label>
         <input id="poRef" placeholder="Client PO / WO number (optional)" oninput="recalc()">
+        <label>Client GSTIN <span style="font-weight:400;color:#aaa">(optional)</span></label>
+        <input id="clientGst" placeholder="e.g. 32ABCDE1234F1Z5" oninput="recalc()" style="font-family:'Roboto Mono',monospace;letter-spacing:0.04em;">
       </div>
     </div>
 
@@ -446,6 +448,7 @@
             <div class="party-label">SUBMITTED TO</div>
             <div class="party-name" id="qClientName">Hospital Name</div>
             <div class="party-sub" id="qClientLoc">Trivandrum, Kerala</div>
+            <div class="party-sub" id="qClientGstRow" style="display:none;font-family:'Roboto Mono',monospace;font-size:0.72rem;letter-spacing:0.03em;">GSTIN: <span id="qClientGst"></span></div>
             <div class="party-sub">Attn: <span id="qContactPerson">Medical Director</span></div>
           </div>
           <div class="party">
@@ -465,26 +468,28 @@
         <div class="bom-tbl-wrap" style="overflow: visible;">
         <table class="qtn-boq-tbl" style="margin-bottom: 0; border-bottom: none;">
           <colgroup>
-            <col style="width:22px">
-            <col style="width:72px">
+            <col style="width:1%">
+            <col style="width:1%">
             <col>
-            <col style="width:36px">
-            <col style="width:70px">
-            <col style="width:82px">
+            <col style="width:1%">
+            <col style="width:1%">
+            <col style="width:1%">
           </colgroup>
           <thead>
             <tr>
-              <th style="width:22px;text-align:center;white-space:nowrap">#</th>
-              <th style="width:72px;white-space:nowrap">Item Code</th>
-              <th style="white-space:nowrap">Description</th>
-              <th style="width:36px;text-align:center;white-space:nowrap">Qty</th>
-              <th style="width:70px;text-align:right;white-space:nowrap">Rate (&#8377;)</th>
-              <th style="width:82px;text-align:right;white-space:nowrap">Amount (&#8377;)</th>
+              <th style="text-align:center;white-space:nowrap">#</th>
+              <th style="white-space:nowrap;font-family:'Roboto Mono',monospace;font-size:0.72rem">Item Code</th>
+              <th>Description</th>
+              <th style="text-align:center;white-space:nowrap">Qty</th>
+              <th style="text-align:right;white-space:nowrap">Rate (&#8377;)</th>
+              <th style="text-align:right;white-space:nowrap">Amount (&#8377;)</th>
             </tr>
           </thead>
           <tbody id="qBomBody"></tbody>
         </table>
         </div>
+
+        <div id="qOptionalNote"></div>
         
         <div style="page-break-inside: avoid; margin: 20px 38px;">
           <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Details</h3>
