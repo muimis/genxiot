@@ -1379,62 +1379,71 @@ function getProformaDueDate() {
 }
 
 /**
- * Switch document into Proforma Invoice mode, print, then restore Quotation mode.
+ * Enter or exit proforma invoice mode on the printable document.
+ * @param {boolean} on     - true = proforma mode, false = restore quotation mode
+ * @param {string}  piRef  - Proforma Invoice number (only needed when on=true)
+ * @param {string}  poRef  - PO Reference value (only needed when on=true)
+ * @param {string}  dueDate - Payment due date string (only needed when on=true)
+ */
+function _applyProformaMode(on, piRef, poRef, dueDate) {
+  const el = (id) => document.getElementById(id);
+
+  if (on) {
+    // ── Proforma Mode ON ──────────────────────────────────
+    if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'PROFORMA INVOICE';
+    if (el('qDocRef'))       el('qDocRef').textContent       = piRef || '';
+    if (el('qValidRow'))     el('qValidRow').style.display   = 'none';
+    if (el('qPORow'))        el('qPORow').style.display      = '';
+    if (el('qDueDateRow'))   el('qDueDateRow').style.display = '';
+    if (el('qProformaNote')) el('qProformaNote').style.display = '';
+    if (el('qPORef'))        el('qPORef').textContent        = poRef  || '—';
+    if (el('qDueDate'))      el('qDueDate').textContent      = dueDate || '';
+    if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Proforma Invoice Preview';
+  } else {
+    // ── Restore Quotation Mode ────────────────────────────
+    if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
+    if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
+    if (el('qValidRow'))     el('qValidRow').style.display   = '';
+    if (el('qPORow'))        el('qPORow').style.display      = 'none';
+    if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
+    if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
+    if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Executive Techno-Commercial Proposal Preview';
+  }
+}
+
+/**
+ * Print a Proforma Invoice.
+ * Flow: sync UI → open modal → apply proforma fields → print → restore quotation mode
  */
 function printProforma() {
-  recalc(); // Ensure all fields are up to date
+  // Step 1: sync all fields into the document (quotation mode)
+  recalc();
 
   const piRef   = generatePIRef();
-  const poRef   = document.getElementById('poRef')?.value || '—';
+  const poRef   = (document.getElementById('poRef')?.value || '').trim() || '—';
   const dueDate = getProformaDueDate();
 
-  // --- Enter Proforma Mode ---
-  document.getElementById('qDocTypeLabel').textContent = 'PROFORMA INVOICE';
-  document.getElementById('qDocRef2') && setText('qDocRef2', piRef); // second ref if exists
-  setText('qDocRef', piRef);
-
-  // Show proforma-specific rows, hide quotation-specific rows
-  const validRow = document.getElementById('qValidRow');
-  const poRow    = document.getElementById('qPORow');
-  const dueDateRow = document.getElementById('qDueDateRow');
-  const proformaNote = document.getElementById('qProformaNote');
-
-  if (validRow)    validRow.style.display    = 'none';
-  if (poRow)       poRow.style.display       = '';
-  if (dueDateRow)  dueDateRow.style.display  = '';
-  if (proformaNote) proformaNote.style.display = '';
-
-  setText('qPORef',  poRef || '—');
-  setText('qDueDate', dueDate);
-
-  // Update modal title
-  const modalTitle = document.getElementById('modalTitle');
-  if (modalTitle) modalTitle.textContent = 'Genxiot · Proforma Invoice Preview';
-
-  // Open modal so print includes the document
+  // Step 2: open the modal (same as Preview)
   const mb = document.getElementById('modalBg');
-  mb.classList.add('open');
-  mb.scrollTop = 0;
+  if (mb) {
+    mb.classList.add('open');
+    mb.scrollTop = 0;
+  }
 
-  // Print after a short delay for render
+  // Step 3: AFTER the modal renders, switch to proforma mode then print.
+  //         We do this in a short timeout so the browser has rendered the modal
+  //         and recalc's syncDoc has already finished its own synchronous work.
   setTimeout(() => {
-    window.print();
+    _applyProformaMode(true, piRef, poRef, dueDate);
 
-    // --- Restore Quotation Mode after print ---
     setTimeout(() => {
-      document.getElementById('qDocTypeLabel').textContent = 'QUOTATION REF';
-      const quoteRef = document.getElementById('quoteRef')?.value || '';
-      setText('qDocRef', quoteRef);
+      window.print();
 
-      if (validRow)    validRow.style.display    = '';
-      if (poRow)       poRow.style.display       = 'none';
-      if (dueDateRow)  dueDateRow.style.display  = 'none';
-      if (proformaNote) proformaNote.style.display = 'none';
-
-      if (modalTitle) modalTitle.textContent = 'Genxiot · Executive Techno-Commercial Proposal Preview';
-
-      // Restore original doc ref
-      recalc();
-    }, 500);
-  }, 600);
+      // Step 4: After the print dialog is dismissed, restore quotation mode.
+      setTimeout(() => {
+        _applyProformaMode(false);
+      }, 800);
+    }, 400);
+  }, 200);
 }
+
