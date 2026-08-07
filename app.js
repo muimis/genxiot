@@ -771,6 +771,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const delivery      = (document.getElementById('delivery')?.value)      || '';
   const warranty      = (document.getElementById('warranty')?.value)      || '';
   const scopeNotes    = (document.getElementById('scopeNotes')?.value)    || '';
+  const additionalDetails = (document.getElementById('additionalDetails')?.value) || '';
+  const poRef         = (document.getElementById('poRef')?.value)         || '';
 
   // Cover page
       
@@ -913,6 +915,21 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qDelivery', delivery);
   setText('qWarranty', warranty);
   setText('qScope',    scopeNotes);
+
+  // Additional Details
+  const qAdditional    = document.getElementById('qAdditionalDetails');
+  const qAdditionalTxt = document.getElementById('qAdditionalDetailsText');
+  if (qAdditional && qAdditionalTxt) {
+    if (additionalDetails.trim()) {
+      qAdditionalTxt.textContent = additionalDetails;
+      qAdditional.style.display = '';
+    } else {
+      qAdditional.style.display = 'none';
+    }
+  }
+
+  // PO Ref (shown in proforma mode; stored for use)
+  setText('qPORef',  poRef || '–');
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────
@@ -1004,13 +1021,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modalBg').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
-  // Preset dropdown toggle
-  document.getElementById('presetBtn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    document.getElementById('presetDrop').classList.toggle('open');
-  });
+  // Preset dropdown toggle — guard: element may not exist on all pages
+  const presetBtn = document.getElementById('presetBtn');
+  if (presetBtn) {
+    presetBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('presetDrop').classList.toggle('open');
+    });
+  }
   document.addEventListener('click', () => {
-    document.getElementById('presetDrop').classList.remove('open');
+    const drop = document.getElementById('presetDrop');
+    if (drop) drop.classList.remove('open');
   });
 });
 
@@ -1284,3 +1305,87 @@ window.addEventListener('DOMContentLoaded', () => {
     showDashboard();
   }
 });
+
+// ─── PROFORMA INVOICE ────────────────────────────────────────────
+
+/**
+ * Generate a Proforma Invoice number in the format GEN-PI-YYYYMMDD-XXXX
+ */
+function generatePIRef(dateObj) {
+  const d = dateObj || new Date();
+  const yyyy = d.getFullYear();
+  const mm   = String(d.getMonth() + 1).padStart(2, '0');
+  const dd   = String(d.getDate()).padStart(2, '0');
+  const rand = Math.floor(Math.random() * 9000 + 1000);
+  return `GEN-PI-${yyyy}${mm}${dd}-${rand}`;
+}
+
+/**
+ * Calculate due date: today + 7 days for proforma payment
+ */
+function getProformaDueDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+/**
+ * Switch document into Proforma Invoice mode, print, then restore Quotation mode.
+ */
+function printProforma() {
+  recalc(); // Ensure all fields are up to date
+
+  const piRef   = generatePIRef();
+  const poRef   = document.getElementById('poRef')?.value || '—';
+  const dueDate = getProformaDueDate();
+
+  // --- Enter Proforma Mode ---
+  document.getElementById('qDocTypeLabel').textContent = 'PROFORMA INVOICE';
+  document.getElementById('qDocRef2') && setText('qDocRef2', piRef); // second ref if exists
+  setText('qDocRef', piRef);
+
+  // Show proforma-specific rows, hide quotation-specific rows
+  const validRow = document.getElementById('qValidRow');
+  const poRow    = document.getElementById('qPORow');
+  const dueDateRow = document.getElementById('qDueDateRow');
+  const proformaNote = document.getElementById('qProformaNote');
+
+  if (validRow)    validRow.style.display    = 'none';
+  if (poRow)       poRow.style.display       = '';
+  if (dueDateRow)  dueDateRow.style.display  = '';
+  if (proformaNote) proformaNote.style.display = '';
+
+  setText('qPORef',  poRef || '—');
+  setText('qDueDate', dueDate);
+
+  // Update modal title
+  const modalTitle = document.getElementById('modalTitle');
+  if (modalTitle) modalTitle.textContent = 'Genxiot · Proforma Invoice Preview';
+
+  // Open modal so print includes the document
+  const mb = document.getElementById('modalBg');
+  mb.classList.add('open');
+  mb.scrollTop = 0;
+
+  // Print after a short delay for render
+  setTimeout(() => {
+    window.print();
+
+    // --- Restore Quotation Mode after print ---
+    setTimeout(() => {
+      document.getElementById('qDocTypeLabel').textContent = 'QUOTATION REF';
+      const quoteRef = document.getElementById('quoteRef')?.value || '';
+      setText('qDocRef', quoteRef);
+
+      if (validRow)    validRow.style.display    = '';
+      if (poRow)       poRow.style.display       = 'none';
+      if (dueDateRow)  dueDateRow.style.display  = 'none';
+      if (proformaNote) proformaNote.style.display = 'none';
+
+      if (modalTitle) modalTitle.textContent = 'Genxiot · Executive Techno-Commercial Proposal Preview';
+
+      // Restore original doc ref
+      recalc();
+    }, 500);
+  }, 600);
+}

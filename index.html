@@ -153,6 +153,8 @@
             <input type="date" id="quoteDate" oninput="recalc()">
           </div>
         </div>
+        <label>PO / Work Order Reference</label>
+        <input id="poRef" placeholder="Client PO / WO number (optional)" oninput="recalc()">
       </div>
     </div>
 
@@ -315,6 +317,8 @@
           <input id="warranty" value="12 months comprehensive from installation date" oninput="recalc()">
           <label>Scope Notes</label>
           <textarea id="scopeNotes" rows="3" oninput="recalc()">Wallmounting &amp; electrical work by hospital. Configuration, calibration &amp; go-live training by Genxiot.</textarea>
+          <label style="margin-top:0.75rem;">Additional Details / Special Instructions</label>
+          <textarea id="additionalDetails" rows="3" placeholder="Any special instructions, site conditions, or notes to include in the proposal…" oninput="recalc()"></textarea>
           <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;">
             <div style="font-weight:700; font-size:0.75rem; color:var(--brand-indigo); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.05em;">Bank Account Details</div>
             <div class="row2">
@@ -361,6 +365,9 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
         <i data-lucide="eye" size="16"></i> <span>Preview</span>
       </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="printProforma()" title="Generate Proforma Invoice">
+        <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
+      </button>
       <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
         <i data-lucide="printer" size="16"></i> <span>Print</span>
       </button>
@@ -377,9 +384,12 @@
 
     <!-- Toolbar (web only) -->
     <div class="modal-ctrl no-print">
-      <span class="mctrl-title">Genxiot · Executive Techno-Commercial Proposal Preview</span>
+      <span class="mctrl-title" id="modalTitle">Genxiot · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
-        <button class="btn btn-cyan" onclick="printDoc()">
+        <button class="btn btn-ghost" onclick="printProforma()" id="modalProformaBtn" title="Print as Proforma Invoice">
+          <i data-lucide="file-check" size="15"></i> Proforma
+        </button>
+        <button class="btn btn-cyan" onclick="printDoc()" id="modalPrintBtn">
           <i data-lucide="printer" size="15"></i> Print Proposal
         </button>
         <button class="btn btn-ghost" onclick="closeModal()">
@@ -404,14 +414,18 @@
             <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="qtn-logo">
             <div class="qtn-company">GENXIOT LLP</div>
             <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
-            <div class="qtn-addr">6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
+            <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
+            <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Niivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
+            <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN/UIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; State: Kerala &nbsp;|&nbsp; Code: 32</div>
             <div class="qtn-contact">+91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
           </div>
           <div class="qtn-h-right">
-            <div class="qmeta-label">QUOTATION REF</div>
+            <div class="qmeta-label" id="qDocTypeLabel">QUOTATION REF</div>
             <div class="qmeta-ref" id="qDocRef">SAL-QTN-2024-00478</div>
             <div class="qmeta-row"><strong>Date:</strong> <span id="qDocDate">–</span></div>
-            <div class="qmeta-row"><strong>Valid Till:</strong> <span id="qDocValid">–</span></div>
+            <div class="qmeta-row" id="qValidRow"><strong>Valid Till:</strong> <span id="qDocValid">–</span></div>
+            <div class="qmeta-row proforma-only" id="qPORow" style="display:none;"><strong>PO Ref:</strong> <span id="qPORef">–</span></div>
+            <div class="qmeta-row proforma-only" id="qDueDateRow" style="display:none;"><strong>Due Date:</strong> <span id="qDueDate">–</span></div>
           </div>
         </div>
 
@@ -554,13 +568,28 @@
         </div>
         
         <div id="qOptionalNote" style="margin: 10px 38px 10px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
+
+        <!-- Additional Details -->
+        <div id="qAdditionalDetails" style="margin: 0 38px 10px; display:none;">
+          <div style="border:1px solid var(--border); border-radius:4px; padding:10px 14px; background:#f9fafb;">
+            <div style="font-weight:700; font-size:0.75rem; color:var(--brand-navy); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">Additional Details / Special Instructions</div>
+            <div id="qAdditionalDetailsText" style="font-size:0.82rem; color:#333; white-space:pre-wrap; line-height:1.5;"></div>
+          </div>
+        </div>
+
+        <!-- Proforma Invoice Note -->
+        <div class="proforma-only" id="qProformaNote" style="display:none; margin: 6px 38px 10px;">
+          <div style="border:1px solid #f0a500; border-radius:4px; padding:8px 14px; background:#fffbf0; font-size:0.78rem; color:#7a5200;">
+            <strong>Note:</strong> This is a Proforma Invoice only and not a Tax Invoice. Goods/services will be supplied upon receipt of payment as per the payment schedule above.
+          </div>
+        </div>
       </div>
 
       <!-- ── PAGE 10: T&C ─── -->
       <div class="doc-page page-break" id="pageTerms">
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">
-            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP, 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala 695581.</p>
+            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. Registered Address: 4/275, Arun Niivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
             <p><strong>Payment:</strong> 50% advance, 30% on delivery, and 20% post-installation. Bank charges of Buyer's bank borne by Buyer.</p>
             <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
             <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by Genxiot. 200 beds can be installed in a single day.</span></p>
@@ -594,8 +623,8 @@
             <td style="padding: 0 12mm;">
         <div class="doc-footer">
           <div class="df-line"></div>
-          <p>Genxiot LLP &nbsp;·&nbsp; 6th Floor STPI Building, Technopark, Thiruvananthapuram &nbsp;·&nbsp; +91 9496557777 &nbsp;·&nbsp; info@genxiot.com</p>
-          <p class="footer-tiny">Core Wireless Technology | Alamo LoRa Engine | GENXIOT LLP | ISO 13485 Certified</p>
+          <p>Genxiot LLP &nbsp;·&nbsp; Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram – 695581 &nbsp;·&nbsp; Regd: 4/275, Arun Niivas, Kanjiramkulam Kazhavur, TVM – 695526</p>
+          <p class="footer-tiny">GSTIN: 32ABDFG7210J1ZP &nbsp;·&nbsp; +91 9496557777 &nbsp;·&nbsp; info@genxiot.com &nbsp;·&nbsp; Core Wireless Technology | Alamo LoRa Engine | GENXIOT LLP | ISO 13485 Certified</p>
         </div>
               <div style="height: 12mm;"></div>
             </td>
