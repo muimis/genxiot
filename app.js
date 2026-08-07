@@ -470,7 +470,8 @@ function saveQuote() {
     bankName:          document.getElementById('bankName')?.value            || '',
     bankAcc:           document.getElementById('bankAcc')?.value             || '',
     bankIfsc:          document.getElementById('bankIfsc')?.value            || '',
-    clientGst:         document.getElementById('clientGst')?.value           || ''
+    clientGst:         document.getElementById('clientGst')?.value           || '',
+    piRef:             document.getElementById('piRef')?.value               || ''
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -607,6 +608,7 @@ function restoreQuote(data) {
   setVal('contactPerson',  data.contactPerson);
   setVal('poRef',          data.poRef);
   setVal('clientGst',      data.clientGst || '');
+  setVal('piRef',          data.piRef || '');
 
   // ── Checkboxes ─────────────────────────────────────────────────
   setChk('chkSinglePendant', data.chkSinglePendant !== undefined ? data.chkSinglePendant : true);
@@ -1092,6 +1094,7 @@ function resetQuote(force = false) {
   setVal('contactPerson',  '');
   setVal('poRef',          '');
   setVal('clientGst',      '');
+  setVal('piRef',          '');
   // Financial
   setVal('discType',  'none');
   setVal('discVal',   '0');
@@ -1482,7 +1485,12 @@ function printProforma() {
   // Step 1: sync all fields into the document (quotation mode)
   recalc();
 
-  const piRef   = generatePIRef();
+  let piRef = document.getElementById('piRef')?.value;
+  if (!piRef) {
+    piRef = generatePIRef();
+    if (document.getElementById('piRef')) document.getElementById('piRef').value = piRef;
+  }
+  
   const poRef   = (document.getElementById('poRef')?.value || '').trim() || '—';
   const dueDate = getProformaDueDate();
 
