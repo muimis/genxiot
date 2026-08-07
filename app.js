@@ -448,13 +448,36 @@ function saveQuote() {
     action: 'saveQuote',
     quoteRef: qtn,
     clientName: cName,
-    location:  document.getElementById('clientLocation').value,
+    location:       document.getElementById('clientLocation')?.value || '',
+    clientDistrict: document.getElementById('clientDistrict')?.value || '',
+    clientState:    document.getElementById('clientState')?.value    || '',
     totalAmount: document.getElementById('calcGT').textContent,
-    contactPerson: document.getElementById('contactPerson').value,
+    contactPerson: document.getElementById('contactPerson')?.value || '',
+    poRef:         document.getElementById('poRef')?.value          || '',
     totalBeds: floors.reduce((a, f) => a + (f.beds || 0), 0),
     floors: floors,
+    // Checkboxes
     chkSinglePendant: document.getElementById('chkSinglePendant')?.checked || false,
     chkDoublePendant: document.getElementById('chkDoublePendant')?.checked || false,
+    chkDoorLight:     document.getElementById('chkDoorLight')?.checked     || false,
+    chkWashroom:      document.getElementById('chkWashroom')?.checked      || false,
+    chkPullCord:      document.getElementById('chkPullCord')?.checked      || false,
+    chkNsBasic:       document.getElementById('chkNsBasic')?.checked       || false,
+    chkNsTv:          document.getElementById('chkNsTv')?.checked          || false,
+    chkGateway:       document.getElementById('chkGateway')?.checked       || false,
+    chkRepeater:      document.getElementById('chkRepeater')?.checked      || false,
+    chkDataLog:       document.getElementById('chkDataLog')?.checked       || false,
+    // Financial fields
+    discType: document.getElementById('discType')?.value || 'none',
+    discVal:  document.getElementById('discVal')?.value  || '0',
+    shipping: document.getElementById('shipping')?.value || '3500',
+    advPct:   document.getElementById('advPct')?.value   || '50',
+    // Terms fields
+    delivery:          document.getElementById('delivery')?.value          || '',
+    warranty:          document.getElementById('warranty')?.value          || '',
+    scopeNotes:        document.getElementById('scopeNotes')?.value        || '',
+    additionalDetails: document.getElementById('additionalDetails')?.value || '',
+    // Bank details
     bankDetails: {
       name:   document.getElementById('bankName')?.value   || '',
       acc:    document.getElementById('bankAcc')?.value    || '',
@@ -551,17 +574,41 @@ function restoreQuote(data) {
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v || ''; };
   const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
 
+  // ── Client / Deal Info ─────────────────────────────────────────
   setVal('quoteRef',       data.quoteRef);
   setVal('quoteDate',      data.date ? data.date.split('T')[0] : '');
   setVal('clientName',     data.clientName);
   setVal('clientLocation', data.location);
+  setVal('clientDistrict', data.clientDistrict);
+  setVal('clientState',    data.clientState);
   setVal('contactPerson',  data.contactPerson);
+  setVal('poRef',          data.poRef);
 
-  // Pendant checkboxes
+  // ── Checkboxes ─────────────────────────────────────────────────
   setChk('chkSinglePendant', data.chkSinglePendant !== undefined ? data.chkSinglePendant : true);
   setChk('chkDoublePendant', data.chkDoublePendant || false);
+  setChk('chkDoorLight',     data.chkDoorLight     !== undefined ? data.chkDoorLight     : true);
+  setChk('chkWashroom',      data.chkWashroom       !== undefined ? data.chkWashroom       : true);
+  setChk('chkPullCord',      data.chkPullCord       !== undefined ? data.chkPullCord       : true);
+  setChk('chkNsBasic',       data.chkNsBasic        !== undefined ? data.chkNsBasic        : true);
+  setChk('chkNsTv',          data.chkNsTv           || false);
+  setChk('chkGateway',       data.chkGateway        !== undefined ? data.chkGateway        : true);
+  setChk('chkRepeater',      data.chkRepeater       !== undefined ? data.chkRepeater       : true);
+  setChk('chkDataLog',       data.chkDataLog        || false);
 
-  // Bank details (optional fields)
+  // ── Financial fields ───────────────────────────────────────────
+  setVal('discType', data.discType || 'none');
+  setVal('discVal',  data.discVal  || '0');
+  setVal('shipping', data.shipping !== undefined ? data.shipping : '3500');
+  setVal('advPct',   data.advPct   !== undefined ? data.advPct   : '50');
+
+  // ── Terms & Notes ──────────────────────────────────────────────
+  if (data.delivery)          setVal('delivery',          data.delivery);
+  if (data.warranty)          setVal('warranty',          data.warranty);
+  if (data.scopeNotes)        setVal('scopeNotes',        data.scopeNotes);
+  if (data.additionalDetails) setVal('additionalDetails', data.additionalDetails);
+
+  // ── Bank details ───────────────────────────────────────────────
   if (data.bankDetails) {
     setVal('bankName',   data.bankDetails.name);
     setVal('bankAcc',    data.bankDetails.acc);
@@ -569,6 +616,7 @@ function restoreQuote(data) {
     if (typeof updateBankDetails === 'function') updateBankDetails();
   }
 
+  // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
     ? data.floors
     : [{ name: 'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
@@ -581,7 +629,8 @@ function restoreQuote(data) {
   } else {
     calcEstimator(); // fallback: recalculate from floors
   }
-  recalc();
+
+  recalc(); // Recompute totals with all restored financial fields
 }
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
