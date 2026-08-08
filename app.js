@@ -643,7 +643,10 @@ function restoreQuote(data) {
 
   // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
-    ? data.floors
+    ? data.floors.map(f => {
+        if (f.name) f.name = f.name.replace(/\s*\(HSN:\s*85311090\)/gi, '');
+        return f;
+      })
     : [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
 
@@ -1147,7 +1150,7 @@ function resetQuote(force = false) {
   setVal('bankIfsc',  'SIBL0000624');
   updateBankDetails();
 
-  floors = [{ name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+  floors = [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
   generateLocalQtn();
   recalc();
