@@ -711,10 +711,10 @@ function removeFloor(index) {
 function calcEstimator() {
   let beds = 0, rooms = 0, bathrooms = 0, nsTotal = 0;
   floors.forEach(f => {
-    beds += f.beds || 0;
-    rooms += f.rooms || 0;
-    bathrooms += f.baths || 0;
-    nsTotal += f.ns || 0;
+    beds += parseInt(f.beds) || 0;
+    rooms += parseInt(f.rooms) || 0;
+    bathrooms += parseInt(f.baths) || 0;
+    nsTotal += parseInt(f.ns) || 0;
   });
 
   const isChecked = (id) => document.getElementById(id)?.checked;
@@ -870,11 +870,16 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
   
+  const hasBilledBeds = bom.some(b => b.driverKey === 'beds' && b.qty > 0);
+  const hasBilledRooms = bom.some(b => b.driverKey === 'rooms' && b.qty > 0);
+  const hasBilledBaths = bom.some(b => (b.driverKey === 'bathrooms' || b.code === 'ALAMO-CP-B') && b.qty > 0);
+  const hasBilledNs = bom.some(b => (b.driverKey === 'ns_basic' || b.driverKey === 'ns_tv') && b.qty > 0);
+
   const facilityParts = [];
-  if (beds > 0) facilityParts.push(`${beds} Beds`);
-  if (rooms > 0) facilityParts.push(`${rooms} Rooms`);
-  if (washrooms > 0) facilityParts.push(`${washrooms} Washrooms`);
-  if (wards > 0) facilityParts.push(`${wards} Nursing Stations`);
+  if (beds > 0 && hasBilledBeds) facilityParts.push(`${beds} Beds`);
+  if (rooms > 0 && hasBilledRooms) facilityParts.push(`${rooms} Rooms`);
+  if (washrooms > 0 && hasBilledBaths) facilityParts.push(`${washrooms} Washrooms`);
+  if (wards > 0 && hasBilledNs) facilityParts.push(`${wards} Nursing Stations`);
   setText('qFacility', facilityParts.join(' · '));
 
   // PO Reference row
@@ -901,10 +906,10 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     floors.forEach((f, i) => {
       let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
       let parts = [];
-      if ((f.beds || 0) > 0) parts.push(`${f.beds} Beds`);
-      if ((f.rooms || 0) > 0) parts.push(`${f.rooms} Rooms`);
-      if ((f.baths || 0) > 0) parts.push(`${f.baths} Washrooms`);
-      if ((f.ns || 0) > 0) parts.push(`${f.ns} Nursing Stations`);
+      if ((parseInt(f.beds) || 0) > 0 && hasBilledBeds) parts.push(`${f.beds} Beds`);
+      if ((parseInt(f.rooms) || 0) > 0 && hasBilledRooms) parts.push(`${f.rooms} Rooms`);
+      if ((parseInt(f.baths) || 0) > 0 && hasBilledBaths) parts.push(`${f.baths} Washrooms`);
+      if ((parseInt(f.ns) || 0) > 0 && hasBilledNs) parts.push(`${f.ns} Nursing Stations`);
       
       if (parts.length > 0) {
         floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
