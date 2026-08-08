@@ -644,12 +644,19 @@ function restoreQuote(data) {
   // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
     ? data.floors
-    : [{ name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+    : [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
 
   // Restore BOM (already stripped of __SETTINGS__ entry above)
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
-    bom = data.bomData.filter(b => b.code !== '__SETTINGS__'); // safety strip
+    bom = data.bomData.filter(b => b.code !== '__SETTINGS__').map(b => {
+      const catItem = CATALOGUE.find(c => c.code === b.code);
+      if (catItem) {
+        b.name = catItem.name;
+        b.desc = catItem.desc;
+      }
+      return b;
+    });
     renderBOM();
   } else {
     calcEstimator();
@@ -660,7 +667,7 @@ function restoreQuote(data) {
 
 // ─── ESTIMATOR ───────────────────────────────────────────────────
 
-let floors = [{name:  'Floor 1 (HSN: 85311090)', beds: 0, rooms: 0, baths: 0, ns: 0}];
+let floors = [{name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0}];
 
 function renderFloors() {
   const container = document.getElementById('floorsContainer');
