@@ -89,8 +89,8 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Alamo M1 & M2 Call Point – Patient Room (HSN: 85311090)',
-    desc:  'Call Point with LoRa Transmitter for each bedside or washroom',
+    name:  'Call Point Service and Nurse Call',
+    desc:  'Call Point with Lora Transmitter for each bedside or washroom. Included one function for call Nurse, Housepeeking, Presence and Cancel Calls. Wall Mountable with two 1/2 inch screws',
     group: 'Bed Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -100,8 +100,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Alamo Pendant Button (HSN: 85311090)',
-    desc:  'Pendant Button Accessory with Wall Mount for call point',
+    name:  'Pendant Single Switch (Accessory)',
+    desc:  'Single Switch Pendant Button',
     group: 'Bed Components',
     mrp:   600,
     landingPrice: 400,
@@ -202,7 +202,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  'Nursing Station Display (32" Android panel) (HSN: 85311090)',
+    name:  '32 inch bluetooth smart TV',
     desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
     mrp:   12000,
@@ -213,8 +213,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Nursing Station Cloud / On-Premise Gateway (HSN: 85176290)',
-    desc:  'Gateway for communication from call lights to Android devices or Cloud Server.',
+    name:  'Gateway (Network Device)',
+    desc:  'Includes B type charger,product stand and screws for assembly',
     group: 'Infrastructure & Network',
     mrp:   12000,
     landingPrice: 8000,
@@ -224,8 +224,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater / Range Extender (HSN: 85176290)',
-    desc:  'Range extender for extended signal coverage in large areas.',
+    name:  'Repeater ( Networking Device )',
+    desc:  'Includes B type charger, product stand and screws for assembly. Installed in between main receiver/ display rooms. Need 220V supply Plug Point',
     group: 'Infrastructure & Network',
     mrp:   4000,
     landingPrice: 2500,
@@ -862,8 +862,13 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qClientState',   clientState);
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
-  setText('qFacility',
-    `${beds} Beds · ${rooms} Rooms · ${washrooms} Washrooms · ${wards} Nursing Stations`);
+  
+  const facilityParts = [];
+  if (beds > 0) facilityParts.push(`${beds} Beds`);
+  if (rooms > 0) facilityParts.push(`${rooms} Rooms`);
+  if (washrooms > 0) facilityParts.push(`${washrooms} Washrooms`);
+  if (wards > 0) facilityParts.push(`${wards} Nursing Stations`);
+  setText('qFacility', facilityParts.join(' · '));
 
   // PO Reference row
   if (poRef.trim()) {
@@ -888,7 +893,15 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   if (floors && floors.length > 0) {
     floors.forEach((f, i) => {
       let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
-      floorBreakupHtml += `<strong>${flName}:</strong> ${f.beds || 0} Beds, ${f.rooms || 0} Rooms, ${f.baths || 0} Washrooms, ${f.ns || 0} Nursing Stations<br>`;
+      let parts = [];
+      if ((f.beds || 0) > 0) parts.push(`${f.beds} Beds`);
+      if ((f.rooms || 0) > 0) parts.push(`${f.rooms} Rooms`);
+      if ((f.baths || 0) > 0) parts.push(`${f.baths} Washrooms`);
+      if ((f.ns || 0) > 0) parts.push(`${f.ns} Nursing Stations`);
+      
+      if (parts.length > 0) {
+        floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
+      }
     });
   }
   const qFloorBreakup = document.getElementById('qFloorBreakup');
@@ -963,7 +976,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
       const tr  = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align:center;color:#999;white-space:nowrap">${sr++}</td>
-        <td style="white-space:nowrap;font-family:'Roboto Mono',monospace;font-weight:400;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
+        <td style="white-space:nowrap;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
         <td>
           <strong style="font-size:.78rem">${item.name}</strong>
           <div style="font-size:.68rem;color:#888;margin-top:2px">${item.desc}</div>
