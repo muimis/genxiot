@@ -1007,6 +1007,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   // Totals in proposal
   setText('qSub',      '₹' + fmt(subtotal));
   setText('qShipping', '₹' + fmt(shipping));
+  setText('qTaxable',  '₹' + fmt(taxable));
   setText('qCGST',     '₹' + fmt(cgst));
   setText('qSGST',     '₹' + fmt(sgst));
   setText('qGT',       '₹' + fmt(grand));
