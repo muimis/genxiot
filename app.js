@@ -1102,6 +1102,8 @@ function openModal() {
 }
 function closeModal() {
   document.getElementById('modalBg').classList.remove('open');
+  if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+  if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
 }
 function printDoc() {
   recalc();
@@ -1614,25 +1616,17 @@ function _applyCoverPageMode(on) {
 }
 
 /**
- * Print the Cover Page.
+ * Preview the Cover Page in the modal.
  */
-function printCoverPage() {
+function previewCoverPage() {
   recalc();
   const mb = document.getElementById('modalBg');
   if (mb) {
     mb.classList.add('open');
     mb.scrollTop = 0;
   }
-  
-  setTimeout(() => {
-    _applyCoverPageMode(true);
-    setTimeout(() => {
-      window.print();
-      setTimeout(() => {
-        _applyCoverPageMode(false);
-      }, 800);
-    }, 400);
-  }, 200);
+  _applyCoverPageMode(true);
 }
+
 
 

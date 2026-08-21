@@ -384,7 +384,7 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="printProforma()" title="Generate Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
-      <button class="btn btn-ghost btn-lg action-text-btn" onclick="printCoverPage()" title="Generate Final Cover Page">
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewCoverPage()" title="Preview Final Cover Page">
         <i data-lucide="file-text" size="16"></i> <span>Cover Page</span>
       </button>
       <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
@@ -408,7 +408,7 @@
         <button class="btn btn-ghost" onclick="printProforma()" id="modalProformaBtn" title="Print as Proforma Invoice">
           <i data-lucide="file-check" size="15"></i> Proforma
         </button>
-        <button class="btn btn-ghost" onclick="printCoverPage()" id="modalCoverBtn" title="Print Cover Page">
+        <button class="btn btn-ghost" onclick="previewCoverPage()" id="modalCoverBtn" title="Preview Cover Page">
           <i data-lucide="file-text" size="15"></i> Cover Page
         </button>
         <button class="btn btn-cyan" onclick="printDoc()" id="modalPrintBtn">
@@ -655,7 +655,7 @@
         </div>
 
         <div style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 0 38px 20px;">
-          <p>Dear <span id="cContactNameInline">Client</span>,</p>
+          <p>Dear Sir/Madam,</p>
           <p>Thank you for your business. Please find attached the final invoice for your order.</p>
           <p>Below is the summary of your account for this transaction:</p>
         </div>
@@ -725,7 +725,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 <script>
   lucide.createIcons();
 </script>
