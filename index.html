@@ -158,6 +158,19 @@
         <input id="poRef" placeholder="Client PO / WO number (optional)" oninput="recalc()">
         <label>Client GSTIN <span style="font-weight:400;color:#aaa">(optional)</span></label>
         <input id="clientGst" placeholder="e.g. 32ABCDE1234F1Z5" oninput="recalc()" style="font-family:Consolas, 'Courier New', monospace;font-weight:400;letter-spacing:0.04em;">
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
+          <div style="font-size:0.75rem; font-weight:bold; color:var(--brand-indigo); margin-bottom:8px; text-transform:uppercase;">Final Cover Page Overrides</div>
+          <div class="row2">
+            <div>
+              <label>Final Value</label>
+              <input type="number" id="coverFinalAmt" placeholder="Auto" oninput="recalc()">
+            </div>
+            <div>
+              <label>Advance Received</label>
+              <input type="number" id="coverAdvAmt" placeholder="Auto" oninput="recalc()">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -371,6 +384,9 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="printProforma()" title="Generate Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="printCoverPage()" title="Generate Final Cover Page">
+        <i data-lucide="file-text" size="16"></i> <span>Cover Page</span>
+      </button>
       <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
         <i data-lucide="printer" size="16"></i> <span>Print</span>
       </button>
@@ -391,6 +407,9 @@
       <div class="mctrl-btns">
         <button class="btn btn-ghost" onclick="printProforma()" id="modalProformaBtn" title="Print as Proforma Invoice">
           <i data-lucide="file-check" size="15"></i> Proforma
+        </button>
+        <button class="btn btn-ghost" onclick="printCoverPage()" id="modalCoverBtn" title="Print Cover Page">
+          <i data-lucide="file-text" size="15"></i> Cover Page
         </button>
         <button class="btn btn-cyan" onclick="printDoc()" id="modalPrintBtn">
           <i data-lucide="printer" size="15"></i> Print Proposal
@@ -621,6 +640,69 @@
         </div>
 
         <!-- Footer moved to global tfoot -->
+      </div>
+
+      <!-- ── COVER PAGE ── -->
+      <div class="doc-page" id="pageCover" style="display:none;">
+        <div class="qtn-parties" style="margin-bottom: 30px;">
+          <div class="party">
+            <div class="party-label">TO</div>
+            <div class="party-name" id="cClientName">Hospital Name</div>
+            <div class="party-sub" id="cClientLoc">Trivandrum, Kerala</div>
+            <div class="party-sub" id="cClientGstRow" style="display:none;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:0.72rem;letter-spacing:0.03em;">GSTIN: <span id="cClientGst"></span></div>
+            <div class="party-sub">Attn: <span id="cContactPerson">Medical Director</span></div>
+          </div>
+        </div>
+
+        <div style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 0 38px 20px;">
+          <p>Dear <span id="cContactNameInline">Client</span>,</p>
+          <p>Thank you for your business. Please find attached the final invoice for your order.</p>
+          <p>Below is the summary of your account for this transaction:</p>
+        </div>
+
+        <div style="margin: 20px 38px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Payment Summary</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 0.9rem;">
+            <colgroup>
+              <col>
+              <col style="width:140px">
+            </colgroup>
+            <tbody>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="font-weight: 600; padding: 10px 12px; background: #f8f9ff; border: 1px solid var(--border);">Total Invoice Value</td>
+                <td class="tf-val" id="cTotalAmt" style="text-align: right; padding: 10px 12px; background: #fff; border: 1px solid var(--border); font-weight:600;">₹0.00</td>
+              </tr>
+              <tr class="tf-row">
+                <td class="tf-lbl" style="font-weight: 600; padding: 10px 12px; background: #f8f9ff; border: 1px solid var(--border); color: #e02020;">Less: Advance Received</td>
+                <td class="tf-val" id="cAdvAmt" style="text-align: right; padding: 10px 12px; background: #fff; border: 1px solid var(--border); color: #e02020; font-weight:600;">-₹0.00</td>
+              </tr>
+              <tr class="tf-row tf-grand">
+                <td class="tf-lbl" style="background: var(--brand-navy) !important; color: #fff !important; padding: 12px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.95rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Final Balance Due</td>
+                <td class="tf-val" id="cBalAmt" style="text-align: right; background: var(--brand-navy) !important; color: #fff !important; padding: 12px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.95rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">₹0.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin: 30px 38px;">
+          <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Payment Instructions</h3>
+          <p style="font-size: 0.85rem; color: #444; margin-bottom: 10px;">Please remit the Final Balance Due to the following account:</p>
+          <div style="border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
+            <table style="width: 100%; font-size: 0.85rem; line-height: 1.6; border: none;">
+              <tr><td style="width: 130px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankName">Genxiot LLP</td></tr>
+              <tr><td style="color: #666; border: none; padding: 2px 0;">Account Number:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankAcc">0624073000000447</td></tr>
+              <tr><td style="color: #666; border: none; padding: 2px 0;">IFSC Code:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankIfsc">SIBL0000624</td></tr>
+              <tr><td style="color: #666; border: none; padding: 2px 0;">Bank &amp; Branch:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankBranch">South Indian Bank, Technopark Trivandrum</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 40px 38px 0;">
+          <p>For the complete itemized billing details, please refer to the attached official invoice.</p>
+          <p>If you have any questions regarding this balance, please contact us at info@genxiot.com or +91 9496557777.</p>
+          <p style="margin-top: 30px;">Sincerely,</p>
+          <p style="margin-top: 20px; font-weight: 600;">Genxiot LLP</p>
+        </div>
       </div>
 
             </td>

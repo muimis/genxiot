@@ -471,7 +471,9 @@ function saveQuote() {
     bankAcc:           document.getElementById('bankAcc')?.value             || '',
     bankIfsc:          document.getElementById('bankIfsc')?.value            || '',
     clientGst:         document.getElementById('clientGst')?.value           || '',
-    piRef:             document.getElementById('piRef')?.value               || ''
+    piRef:             document.getElementById('piRef')?.value               || '',
+    coverFinalAmt:     document.getElementById('coverFinalAmt')?.value       || '',
+    coverAdvAmt:       document.getElementById('coverAdvAmt')?.value         || ''
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -627,6 +629,8 @@ function restoreQuote(data) {
   setVal('discVal',  data.discVal  !== undefined ? data.discVal  : '0');
   setVal('shipping', data.shipping !== undefined ? data.shipping : '3500');
   setVal('advPct',   data.advPct   !== undefined ? data.advPct   : '50');
+  setVal('coverFinalAmt', data.coverFinalAmt !== undefined ? data.coverFinalAmt : '');
+  setVal('coverAdvAmt',   data.coverAdvAmt   !== undefined ? data.coverAdvAmt   : '');
 
   // ── Terms & Notes ──────────────────────────────────────────────
   if (data.delivery)          setVal('delivery',          data.delivery);
@@ -1124,6 +1128,8 @@ function resetQuote(force = false) {
   setVal('poRef',          '');
   setVal('clientGst',      '');
   setVal('piRef',          '');
+  setVal('coverFinalAmt',  '');
+  setVal('coverAdvAmt',    '');
   // Financial
   setVal('discType',  'none');
   setVal('discVal',   '0');
@@ -1546,4 +1552,87 @@ function printProforma() {
     }, 400);
   }, 200);
 }
+
+
+/**
+ * Enter or exit Cover Page mode on the printable document.
+ */
+function _applyCoverPageMode(on) {
+  const el = (id) => document.getElementById(id);
+  if (on) {
+    if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'FINAL SUMMARY';
+    if (el('qDocRef'))       el('qDocRef').textContent       = (el('poRef')?.value || '').trim() || '—';
+    if (el('pageQuote'))     el('pageQuote').style.display   = 'none';
+    if (el('pageTerms'))     el('pageTerms').style.display   = 'none';
+    if (el('pageCover'))     el('pageCover').style.display   = 'block';
+    if (el('qValidRow'))     el('qValidRow').style.display   = 'none';
+    if (el('qPORow'))        el('qPORow').style.display      = 'none';
+    if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
+    if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
+    if (el('qOptionalNote')) el('qOptionalNote').style.display = 'none';
+
+    // Populate Cover Page specifics
+    const finalVal = parseFloat(el('coverFinalAmt')?.value) || parseFloat((el('calcGT')?.textContent || '0').replace(/[^0-9.]/g, ''));
+    const advVal   = parseFloat(el('coverAdvAmt')?.value) || (finalVal * (parseFloat(el('advPct')?.value) || 50) / 100);
+    const balVal   = finalVal - advVal;
+
+    if (el('cClientName')) el('cClientName').textContent = el('clientName')?.value || 'Client';
+    if (el('cClientLoc')) el('cClientLoc').textContent = el('clientLocation')?.value || '';
+    if (el('cContactPerson')) el('cContactPerson').textContent = el('contactPerson')?.value || 'Director';
+    if (el('cContactNameInline')) el('cContactNameInline').textContent = (el('contactPerson')?.value || 'Client').split('/')[0].trim();
+    if (el('cClientGstRow')) {
+      if (el('clientGst')?.value) {
+        el('cClientGstRow').style.display = '';
+        el('cClientGst').textContent = 'GSTIN: ' + el('clientGst')?.value;
+      } else {
+        el('cClientGstRow').style.display = 'none';
+      }
+    }
+
+    if (el('cTotalAmt')) el('cTotalAmt').textContent = '₹' + fmt(finalVal);
+    if (el('cAdvAmt'))   el('cAdvAmt').textContent   = '-₹' + fmt(advVal);
+    if (el('cBalAmt'))   el('cBalAmt').textContent   = '₹' + fmt(balVal);
+
+    if (el('cBankName')) el('cBankName').textContent = el('bankName')?.value || 'Genxiot LLP';
+    if (el('cBankAcc'))  el('cBankAcc').textContent  = el('bankAcc')?.value || '';
+    if (el('cBankIfsc')) el('cBankIfsc').textContent = el('bankIfsc')?.value || '';
+    
+    if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Final Cover Page Preview';
+  } else {
+    // Restore Quotation Mode
+    if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
+    if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
+    if (el('pageQuote'))     el('pageQuote').style.display   = 'block';
+    if (el('pageTerms'))     el('pageTerms').style.display   = 'block';
+    if (el('pageCover'))     el('pageCover').style.display   = 'none';
+    if (el('qValidRow'))     el('qValidRow').style.display   = '';
+    if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';
+    if (el('qOptionalNote')) el('qOptionalNote').style.display = '';
+    
+    if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Executive Techno-Commercial Proposal Preview';
+  }
+}
+
+/**
+ * Print the Cover Page.
+ */
+function printCoverPage() {
+  recalc();
+  const mb = document.getElementById('modalBg');
+  if (mb) {
+    mb.classList.add('open');
+    mb.scrollTop = 0;
+  }
+  
+  setTimeout(() => {
+    _applyCoverPageMode(true);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        _applyCoverPageMode(false);
+      }, 800);
+    }, 400);
+  }, 200);
+}
+
 
