@@ -370,7 +370,7 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
         <i data-lucide="eye" size="16"></i> <span>Preview</span>
       </button>
-      <button class="btn btn-ghost btn-lg action-text-btn" onclick="printProforma()" title="Generate Proforma Invoice">
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewProforma()" title="Preview Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openPdfMerger()" title="Merge Cover with Invoice">
@@ -397,14 +397,17 @@
     <div class="modal-ctrl no-print">
       <span class="mctrl-title" id="modalTitle">Genxiot · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
-        <button class="btn btn-ghost" onclick="printProforma()" id="modalProformaBtn" title="Print as Proforma Invoice">
+        <button class="btn btn-ghost" onclick="openModal()" title="Preview Quotation">
+          <i data-lucide="file" size="15"></i> Quotation
+        </button>
+        <button class="btn btn-ghost" onclick="previewProforma()" id="modalProformaBtn" title="Preview Proforma Invoice">
           <i data-lucide="file-check" size="15"></i> Proforma
         </button>
         <button class="btn btn-ghost" onclick="previewCoverPage()" id="modalCoverBtn" title="Preview Cover Page">
           <i data-lucide="file-text" size="15"></i> Cover Page
         </button>
         <button class="btn btn-cyan" onclick="printDoc()" id="modalPrintBtn">
-          <i data-lucide="printer" size="15"></i> Print Proposal
+          <i data-lucide="printer" size="15"></i> PRINT CURRENT VIEW
         </button>
         <button class="btn btn-ghost" onclick="closeModal()">
           <i data-lucide="x" size="15"></i>
@@ -730,7 +733,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=13"></script>
+<script src="app.js?v=15"></script>
 <script>
   lucide.createIcons();
 </script>

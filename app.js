@@ -1099,6 +1099,9 @@ function openModal() {
   mb.classList.add('open');
   mb.scrollTop = 0;
   if (window.lucide) lucide.createIcons();
+
+  if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+  if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
 }
 function closeModal() {
   document.getElementById('modalBg').classList.remove('open');
@@ -1480,6 +1483,37 @@ function getProformaDueDate() {
 }
 
 /**
+ * Preview a Proforma Invoice.
+ * Flow: sync UI → open modal → apply proforma fields (no auto print)
+ */
+function previewProforma() {
+  // Step 1: sync all fields into the document (quotation mode)
+  recalc();
+
+  let piRef = document.getElementById('piRef')?.value;
+  if (!piRef) {
+    piRef = generatePIRef();
+    if (document.getElementById('piRef')) document.getElementById('piRef').value = piRef;
+  }
+  
+  const poRef   = (document.getElementById('poRef')?.value || '').trim() || '—';
+  const dueDate = getProformaDueDate();
+
+  // Step 2: open the modal (same as Preview)
+  const mb = document.getElementById('modalBg');
+  if (mb) {
+    mb.classList.add('open');
+    mb.scrollTop = 0;
+  }
+
+  // Reset Cover Page Mode just in case
+  if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+
+  // Step 3: Switch to proforma mode
+  _applyProformaMode(true, piRef, poRef, dueDate);
+}
+
+/**
  * Enter or exit proforma invoice mode on the printable document.
  * @param {boolean} on     - true = proforma mode, false = restore quotation mode
  * @param {string}  piRef  - Proforma Invoice number (only needed when on=true)
@@ -1513,48 +1547,6 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Executive Techno-Commercial Proposal Preview';
   }
 }
-
-/**
- * Print a Proforma Invoice.
- * Flow: sync UI → open modal → apply proforma fields → print → restore quotation mode
- */
-function printProforma() {
-  // Step 1: sync all fields into the document (quotation mode)
-  recalc();
-
-  let piRef = document.getElementById('piRef')?.value;
-  if (!piRef) {
-    piRef = generatePIRef();
-    if (document.getElementById('piRef')) document.getElementById('piRef').value = piRef;
-  }
-  
-  const poRef   = (document.getElementById('poRef')?.value || '').trim() || '—';
-  const dueDate = getProformaDueDate();
-
-  // Step 2: open the modal (same as Preview)
-  const mb = document.getElementById('modalBg');
-  if (mb) {
-    mb.classList.add('open');
-    mb.scrollTop = 0;
-  }
-
-  // Step 3: AFTER the modal renders, switch to proforma mode then print.
-  //         We do this in a short timeout so the browser has rendered the modal
-  //         and recalc's syncDoc has already finished its own synchronous work.
-  setTimeout(() => {
-    _applyProformaMode(true, piRef, poRef, dueDate);
-
-    setTimeout(() => {
-      window.print();
-
-      // Step 4: After the print dialog is dismissed, restore quotation mode.
-      setTimeout(() => {
-        _applyProformaMode(false);
-      }, 800);
-    }, 400);
-  }, 200);
-}
-
 
 /**
  * Enter or exit Cover Page mode on the printable document.
@@ -1627,6 +1619,7 @@ function previewCoverPage() {
     mb.classList.add('open');
     mb.scrollTop = 0;
   }
+  if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
   _applyCoverPageMode(true);
 }
 
