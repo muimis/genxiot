@@ -1572,6 +1572,7 @@ function _applyCoverPageMode(on) {
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = 'none';
+    if (el('coverPageSettings')) el('coverPageSettings').style.display = 'flex';
 
     // Populate Cover Page specifics
     const finalVal = parseFloat(el('coverFinalAmt')?.value) || parseFloat((el('calcGT')?.textContent || '0').replace(/[^0-9.]/g, ''));
@@ -1610,6 +1611,7 @@ function _applyCoverPageMode(on) {
     if (el('qValidRow'))     el('qValidRow').style.display   = '';
     if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';
+    if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
     
     if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Executive Techno-Commercial Proposal Preview';
   }
