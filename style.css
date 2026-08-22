@@ -909,7 +909,11 @@ textarea { resize:vertical; }
 
   /* Cover page: lock to one page */
   .doc-page.cover-page {
-    height: 100vh;
+    height: 1122px !important;
+    max-height: 297mm;
+    overflow: hidden !important;
+    page-break-after: always;
+    break-after: page;
     page-break-inside: avoid;
     break-inside: avoid;
   }

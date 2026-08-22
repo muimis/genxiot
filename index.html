@@ -12,6 +12,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <link rel="stylesheet" href="style.css?v=4.4">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </head>
 <body>
 
@@ -158,19 +159,7 @@
         <input id="poRef" placeholder="Client PO / WO number (optional)" oninput="recalc()">
         <label>Client GSTIN <span style="font-weight:400;color:#aaa">(optional)</span></label>
         <input id="clientGst" placeholder="e.g. 32ABCDE1234F1Z5" oninput="recalc()" style="font-family:Consolas, 'Courier New', monospace;font-weight:400;letter-spacing:0.04em;">
-        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border);">
-          <div style="font-size:0.75rem; font-weight:bold; color:var(--brand-indigo); margin-bottom:8px; text-transform:uppercase;">Final Cover Page Overrides</div>
-          <div class="row2">
-            <div>
-              <label>Final Value</label>
-              <input type="number" id="coverFinalAmt" placeholder="Auto" oninput="recalc()">
-            </div>
-            <div>
-              <label>Advance Received</label>
-              <input type="number" id="coverAdvAmt" placeholder="Auto" oninput="recalc()">
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
 
@@ -384,6 +373,9 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="printProforma()" title="Generate Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="openPdfMerger()" title="Merge Cover with Invoice">
+        <i data-lucide="combine" size="16"></i> <span>Merge PDF</span>
+      </button>
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewCoverPage()" title="Preview Final Cover Page">
         <i data-lucide="file-text" size="16"></i> <span>Cover Page</span>
       </button>
@@ -417,6 +409,19 @@
         <button class="btn btn-ghost" onclick="closeModal()">
           <i data-lucide="x" size="15"></i>
         </button>
+      </div>
+    </div>
+
+    <!-- Cover Page Settings (Visible only when Cover Page mode is active) -->
+    <div class="modal-ctrl no-print" id="coverPageSettings" style="display:none; background: #f8f9ff; border-top: 1px solid #e2e8f0; justify-content: flex-start; padding: 10px 20px;">
+      <span style="font-size:0.75rem; font-weight:bold; color:var(--brand-indigo); text-transform:uppercase; margin-right: 20px;">Overrides:</span>
+      <div style="display: flex; gap: 10px; align-items: center; margin-right: 20px;">
+        <label style="margin:0; font-size: 0.8rem; font-weight: 500;">Final Value (₹)</label>
+        <input type="number" id="coverFinalAmt" placeholder="Auto" oninput="_applyCoverPageMode(true)" style="width: 120px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;">
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <label style="margin:0; font-size: 0.8rem; font-weight: 500;">Advance (₹)</label>
+        <input type="number" id="coverAdvAmt" placeholder="Auto" oninput="_applyCoverPageMode(true)" style="width: 120px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;">
       </div>
     </div>
 
@@ -643,7 +648,7 @@
       </div>
 
       <!-- ── COVER PAGE ── -->
-      <div class="doc-page" id="pageCover" style="display:none;">
+      <div class="doc-page cover-page" id="pageCover" style="display:none;">
         <div class="qtn-parties" style="margin-bottom: 30px;">
           <div class="party">
             <div class="party-label">TO</div>
@@ -725,7 +730,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 <script>
   lucide.createIcons();
 </script>
@@ -746,6 +751,28 @@
 
 <!-- FABs Removed because they overlap with the fixed bottom action bar -->
 
+</div>
+
+<!-- MERGE PDF MODAL -->
+<div class="modal-bg" id="pdfMergeModal">
+  <div class="modal-wrap" style="max-width: 500px; padding: 20px;">
+    <h3 style="margin-top: 0;">Combine Cover Page & Tally Invoice</h3>
+    <p style="font-size: 0.85rem; color: #555;">Select the Cover Page PDF you just saved, and your official Tally Invoice PDF to merge them together into one file.</p>
+    
+    <div style="margin: 15px 0;">
+      <label style="font-weight: 600; display: block; margin-bottom: 5px;">1. Cover Page PDF</label>
+      <input type="file" id="coverPdfFile" accept="application/pdf" style="width: 100%;">
+    </div>
+    <div style="margin: 15px 0 25px;">
+      <label style="font-weight: 600; display: block; margin-bottom: 5px;">2. Tally Invoice PDF</label>
+      <input type="file" id="tallyPdfFile" accept="application/pdf" style="width: 100%;">
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn btn-ghost" onclick="document.getElementById('pdfMergeModal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-cyan" onclick="mergePdfs()" id="mergePdfsBtn">Merge & Download</button>
+    </div>
+  </div>
 </div>
 
 <div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>

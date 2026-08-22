@@ -1628,5 +1628,73 @@ function previewCoverPage() {
   _applyCoverPageMode(true);
 }
 
+/**
+ * Open the PDF merger modal.
+ */
+function openPdfMerger() {
+  const mb = document.getElementById('pdfMergeModal');
+  if (mb) {
+    mb.classList.add('open');
+  }
+}
+
+/**
+ * Merge the Cover Page and the uploaded Invoice PDF using pdf-lib.
+ */
+async function mergePdfs() {
+  const coverInput = document.getElementById('coverPdfFile');
+  const tallyInput = document.getElementById('tallyPdfFile');
+  
+  if (!coverInput || !tallyInput || !coverInput.files[0] || !tallyInput.files[0]) {
+    alert("Please select both the Cover Page PDF and the Tally Invoice PDF.");
+    return;
+  }
+
+  const btn = document.getElementById('mergePdfsBtn');
+  const originalText = btn.textContent;
+  btn.textContent = "Merging...";
+  btn.disabled = true;
+
+  try {
+    const coverBytes = await coverInput.files[0].arrayBuffer();
+    const tallyBytes = await tallyInput.files[0].arrayBuffer();
+
+    const pdfDoc = await PDFLib.PDFDocument.create();
+    
+    // Add Cover Page
+    const coverPdf = await PDFLib.PDFDocument.load(coverBytes);
+    const coverPages = await pdfDoc.copyPages(coverPdf, coverPdf.getPageIndices());
+    coverPages.forEach((page) => pdfDoc.addPage(page));
+
+    // Add Tally Invoice
+    const tallyPdf = await PDFLib.PDFDocument.load(tallyBytes);
+    const tallyPages = await pdfDoc.copyPages(tallyPdf, tallyPdf.getPageIndices());
+    tallyPages.forEach((page) => pdfDoc.addPage(page));
+
+    // Save and download
+    const mergedPdfBytes = await pdfDoc.save();
+    const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Final_Invoice_Package.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    document.getElementById('pdfMergeModal').classList.remove('open');
+    coverInput.value = '';
+    tallyInput.value = '';
+  } catch (err) {
+    console.error("PDF Merge Error:", err);
+    alert("There was an error merging the PDFs. Ensure both files are valid PDF documents.");
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+
 
 
