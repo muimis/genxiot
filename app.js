@@ -526,7 +526,7 @@ function deleteQuote() {
     .catch(err => {
       console.error(err);
       btn.innerHTML = orig;
-      btn.disabled = false;
+      btn.disabled  = false;
       if (window.lucide) lucide.createIcons({ root: btn });
       alert('Error deleting quote. Check your internet connection.');
     });
@@ -1363,12 +1363,11 @@ function fetchDashboardData() {
   .catch(err => console.error("Error fetching dashboard data:", err));
 }
 
+window.allDashboardQuotes = []; // Global store for filtering
+
 function renderDashboard(quotes) {
   let totalVal = 0;
   let totalBeds = 0;
-  
-  const tbody = document.getElementById('dashTableBody');
-  tbody.innerHTML = '';
   
   const clientValues = {};
   
@@ -1380,6 +1379,8 @@ function renderDashboard(quotes) {
     return (dB || 0) - (dA || 0);
   });
 
+  window.allDashboardQuotes = validQuotes;
+
   validQuotes.forEach((q, idx) => {
     const val = parseFloat(q.totalAmount) || 0;
     totalVal += val;
@@ -1388,19 +1389,10 @@ function renderDashboard(quotes) {
     // Aggregating for chart
     if(!clientValues[q.clientName]) clientValues[q.clientName] = 0;
     clientValues[q.clientName] += val;
-    
-    // Table (show only top 10 recent)
-    if (idx < 10) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${q.date ? q.date.split('T')[0] : ''}</td>
-        <td>${q.quoteRef}</td>
-        <td>${q.clientName}</td>
-        <td>₹ ${val.toLocaleString('en-IN')}</td>
-      `;
-      tbody.appendChild(tr);
-    }
   });
+  
+  // Render table with top results initially
+  renderDashboardTable(validQuotes);
   
   // Update Cards
   document.getElementById('dashTotalValue').innerText = `₹ ${totalVal.toLocaleString('en-IN')}`;
@@ -1684,3 +1676,56 @@ async function mergePdfs() {
 
 
 
+
+function renderDashboardTable(list) {
+  const tbody = document.getElementById('dashTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  // Show top 30 matches
+  list.slice(0, 30).forEach(q => {
+    const val = parseFloat(q.totalAmount) || 0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${q.date ? q.date.split('T')[0] : ''}</td>
+      <td>${q.quoteRef}</td>
+      <td>${q.clientName}</td>
+      <td>₹ ${val.toLocaleString('en-IN')}</td>
+      <td><button class="btn btn-sm btn-ghost" style="padding: 2px 8px; font-size: 0.75rem; color: var(--brand-cyan);" onclick="loadQuoteFromDashboard(event, '${q.quoteRef}')">Open</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterDashboardQuotes() {
+  const query = (document.getElementById('dashSearchInput').value || '').toLowerCase();
+  const filtered = window.allDashboardQuotes.filter(q => 
+    (q.quoteRef || '').toLowerCase().includes(query) || 
+    (q.clientName || '').toLowerCase().includes(query)
+  );
+  renderDashboardTable(filtered);
+}
+
+function loadQuoteFromDashboard(event, ref) {
+  const btn = event.currentTarget;
+  const origText = btn.innerText;
+  btn.innerText = '...';
+  btn.disabled = true;
+  
+  fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'searchQuote', query: ref }) })
+    .then(r => r.json())
+    .then(data => {
+      btn.innerText = origText;
+      btn.disabled = false;
+      if (data.status === 'success' && data.data) {
+        restoreQuote(data.data);
+        showCalculator();
+      } else {
+        alert('Quote not found.');
+      }
+    })
+    .catch(err => {
+      btn.innerText = origText;
+      btn.disabled = false;
+      alert('Error loading quote.');
+    });
+}
