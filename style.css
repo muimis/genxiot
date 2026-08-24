@@ -860,10 +860,11 @@ textarea { resize:vertical; }
   .mobile-nav,
   #dashboardView,
   #calculatorView > header,
-  #calculatorView > main { display: none !important; }
+  #calculatorView > main,
+  #pdfMergeModal { display: none !important; }
 
   /* ── Show the modal / printDoc as a flat document ── */
-  .modal-bg {
+  #modalBg {
     position: static !important;
     background: none !important;
     display: block !important;

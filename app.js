@@ -383,6 +383,9 @@ function loadPreset(preset) {
   const p = presets[preset];
   if (!p) return;
 
+  // Unlock all items when loading a fresh preset
+  bom.forEach(item => item.isLocked = false);
+
   // Set up floors dynamically
     floors = [];
     const numFloors = p.floors || 1;
@@ -467,9 +470,6 @@ function saveQuote() {
     chkGateway:        document.getElementById('chkGateway')?.checked         || false,
     chkRepeater:       document.getElementById('chkRepeater')?.checked        || false,
     chkDataLog:        document.getElementById('chkDataLog')?.checked         || false,
-    bankName:          document.getElementById('bankName')?.value            || '',
-    bankAcc:           document.getElementById('bankAcc')?.value             || '',
-    bankIfsc:          document.getElementById('bankIfsc')?.value            || '',
     clientGst:         document.getElementById('clientGst')?.value           || '',
     piRef:             document.getElementById('piRef')?.value               || '',
     coverFinalAmt:     document.getElementById('coverFinalAmt')?.value       || '',
@@ -499,7 +499,6 @@ function saveQuote() {
     floors:       floors,
     // Spread top-level copies for GAS columns (best effort)
     ...settings,
-    bankDetails: { name: settings.bankName, acc: settings.bankAcc, ifsc: settings.bankIfsc },
     bomData:     bomWithMeta   // settings also embedded here as fallback
   };
 
@@ -639,11 +638,7 @@ function restoreQuote(data) {
   if (data.additionalDetails) setVal('additionalDetails', data.additionalDetails);
 
   // ── Bank details ───────────────────────────────────────────────
-  const bd = data.bankDetails || {};
-  if (bd.name || data.bankName)  setVal('bankName',  bd.name  || data.bankName);
-  if (bd.acc  || data.bankAcc)   setVal('bankAcc',   bd.acc   || data.bankAcc);
-  if (bd.ifsc || data.bankIfsc)  setVal('bankIfsc',  bd.ifsc  || data.bankIfsc);
-  if (typeof updateBankDetails === 'function') updateBankDetails();
+  // Bank details are now strictly hardcoded in the HTML output and need not be loaded
 
   // ── Floors & BOM ───────────────────────────────────────────────
   floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
@@ -938,8 +933,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     }
   }
 
-  if (!bomCodes.includes('ALAMO-DATALOG')) {
-    let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-DATALOG');
+  if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
+    let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
     if (dataLogItem) {
       dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Evegate Lora Gateway @ ₹10,000/pc)' };
       optionalItems.push(dataLogItem);
@@ -1083,7 +1078,9 @@ function formatDate(dateStr) {
 }
 function getValidDate() {
   const days = parseInt(document.getElementById('validityDays')?.value) || 30;
-  const d    = new Date();
+  const qDateStr = document.getElementById('quoteDate')?.value;
+  let d = qDateStr ? new Date(qDateStr) : new Date();
+  if (isNaN(d)) d = new Date();
   d.setDate(d.getDate() + days);
   return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
 }
@@ -1156,11 +1153,7 @@ function resetQuote(force = false) {
   setChk('chkGateway',    true);
   setChk('chkRepeater',   true);
   setChk('chkDataLog',    false);
-  // Bank
-  setVal('bankName',  'Genxiot LLP');
-  setVal('bankAcc',   '0624073000000447');
-  setVal('bankIfsc',  'SIBL0000624');
-  updateBankDetails();
+
 
   floors = [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
   renderFloors();
@@ -1239,16 +1232,7 @@ function exportCSV() {
 }
 
 
-// Bank Details Sync
-function updateBankDetails() {
-  const bName   = document.getElementById('bankName')?.value   || 'Genxiot LLP';
-  const bAcc    = document.getElementById('bankAcc')?.value    || '0624073000000447';
-  const bIfsc   = document.getElementById('bankIfsc')?.value   || 'SIBL0000624';
-  
-  if(document.getElementById('docBankName'))   document.getElementById('docBankName').textContent   = bName;
-  if(document.getElementById('docBankAcc'))    document.getElementById('docBankAcc').textContent    = bAcc;
-  if(document.getElementById('docBankIfsc'))   document.getElementById('docBankIfsc').textContent   = bIfsc;
-}
+
 
 // ==========================================================================
 // MOBILE PWA TAB LOGIC
@@ -1567,9 +1551,13 @@ function _applyCoverPageMode(on) {
     if (el('coverPageSettings')) el('coverPageSettings').style.display = 'flex';
 
     // Populate Cover Page specifics
-    const finalVal = parseFloat(el('coverFinalAmt')?.value) || parseFloat((el('calcGT')?.textContent || '0').replace(/[^0-9.]/g, ''));
-    const advVal   = parseFloat(el('coverAdvAmt')?.value) || (finalVal * (parseFloat(el('advPct')?.value) || 50) / 100);
-    const balVal   = finalVal - advVal;
+    const finalInput = el('coverFinalAmt')?.value;
+    const finalVal   = (finalInput && finalInput.trim() !== '') ? parseFloat(finalInput) : parseFloat((el('calcGT')?.textContent || '0').replace(/[^0-9.]/g, ''));
+    
+    const advInput   = el('coverAdvAmt')?.value;
+    const advVal     = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : (finalVal * (parseFloat(el('advPct')?.value) || 50) / 100);
+    
+    const balVal     = finalVal - advVal;
 
     if (el('cClientName')) el('cClientName').textContent = el('clientName')?.value || 'Client';
     if (el('cClientLoc')) el('cClientLoc').textContent = el('clientLocation')?.value || '';
@@ -1588,9 +1576,9 @@ function _applyCoverPageMode(on) {
     if (el('cAdvAmt'))   el('cAdvAmt').textContent   = '-₹' + fmt(advVal);
     if (el('cBalAmt'))   el('cBalAmt').textContent   = '₹' + fmt(balVal);
 
-    if (el('cBankName')) el('cBankName').textContent = el('bankName')?.value || 'Genxiot LLP';
-    if (el('cBankAcc'))  el('cBankAcc').textContent  = el('bankAcc')?.value || '';
-    if (el('cBankIfsc')) el('cBankIfsc').textContent = el('bankIfsc')?.value || '';
+    if (el('cBankName')) el('cBankName').textContent = 'Genxiot LLP';
+    if (el('cBankAcc'))  el('cBankAcc').textContent  = '0624073000000447';
+    if (el('cBankIfsc')) el('cBankIfsc').textContent = 'SIBL0000624';
     
     if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Final Cover Page Preview';
   } else {
