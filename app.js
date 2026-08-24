@@ -630,7 +630,10 @@ function restoreQuote(data) {
 
   // Restore BOM (already stripped of __SETTINGS__ entry above)
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
-    bom = data.bomData.filter(b => b.code !== '__SETTINGS__').map(b => {
+    bom = data.bomData
+      .filter(b => b.code !== '__SETTINGS__')
+      .filter(b => CATALOGUE.some(c => c.code === b.code)) // Strip removed items from old saved quotes
+      .map(b => {
       const catItem = CATALOGUE.find(c => c.code === b.code);
       if (catItem) {
         b.name = catItem.name;
@@ -907,7 +910,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   if (bomCodes.includes('ALAMO-NS-BASIC') && !bomCodes.includes('ALAMO-NS-TV')) {
     let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
     if (tvItem) {
-      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Evegate Lora Gateway @ ₹10,000/pc)' };
+      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
       optionalItems.push(tvItem);
     }
   }
@@ -915,7 +918,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
     let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
     if (dataLogItem) {
-      dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Evegate Lora Gateway @ ₹10,000/pc)' };
+      dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
       optionalItems.push(dataLogItem);
     }
   }
@@ -924,18 +927,26 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   if (qOptionalNote) {
     if (optionalItems.length > 0) {
         let optHtml = `
-          <div style="margin-top: 10px; padding: 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
-            <h4 style="margin: 0 0 4px 0; font-size: 0.85rem; color: #444;">AVAILABLE OPTIONAL UPGRADES</h4>
-            <p style="margin: 0 0 6px 0; font-size: 0.75rem; color: #666;">The following components are not included in the main Bill of Quantities above but can be added to your configuration or upgraded at anytime at the per-piece rates listed below:</p>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.75rem; color: #555;">
+          <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
+            <h4 style="margin: 0 0 2px 0; font-size: 0.8rem; color: #444;">OPTIONAL UPGRADES</h4>
+            <p style="margin: 0 0 4px 0; font-size: 0.72rem; color: #666;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #555;">
         `;
         optionalItems.forEach(item => {
-          const itemName = item.name.split(' (HSN:')[0];
+          let itemName = item.name.split(' (HSN:')[0].replace(/^Alamo\s+/i, '');
+          
+          let itemDesc = item.desc;
+          if (item.code === 'ALAMO-NS-TV') {
+            itemDesc = '32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+          } else if (item.code === 'ALAMO-CLOUD-SW') {
+            itemDesc = 'Cloud data logging & historical analytics.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+          }
+
           optHtml += `
             <tr>
-              <td style="padding: 5px 8px 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 25%;">${itemName}</td>
-              <td style="padding: 5px 8px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${item.desc}</td>
-              <td style="padding: 5px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap;">₹${fmt(item.rate)} / pc</td>
+              <td style="padding: 3px 6px 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 22%;">${itemName}</td>
+              <td style="padding: 3px 6px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${itemDesc}</td>
+              <td style="padding: 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
             </tr>
           `;
         });
