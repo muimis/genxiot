@@ -61,7 +61,10 @@
         <canvas id="pipelineChart"></canvas>
       </div>
       <div class="table-container">
-        <h3>Recent Quotes</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0;">Saved Quotes</h3>
+          <input type="text" id="dashSearchInput" placeholder="Search by Name or Ref..." style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 220px; font-size: 0.85rem;" onkeyup="filterDashboardQuotes()">
+        </div>
         <table class="dashboard-table">
           <thead>
             <tr>
@@ -69,6 +72,7 @@
               <th>Quote Ref</th>
               <th>Client Name</th>
               <th>Value</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody id="dashTableBody">
