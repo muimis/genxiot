@@ -1107,8 +1107,19 @@ function closeModal() {
 }
 function printDoc() {
   recalc();
+  const ctrls = document.querySelectorAll('.modal-ctrl');
+  ctrls.forEach(c => c.style.display = 'none');
   document.getElementById('modalBg').classList.add('open');
-  setTimeout(() => window.print(), 600);
+  setTimeout(() => {
+    window.print();
+    ctrls.forEach(c => {
+      if (c.id === 'coverPageSettings') {
+        c.style.display = (document.getElementById('pageCover')?.style.display === 'block') ? 'flex' : 'none';
+      } else {
+        c.style.display = '';
+      }
+    });
+  }, 600);
 }
 
 
@@ -1540,6 +1551,7 @@ function _applyCoverPageMode(on) {
   if (on) {
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'FINAL SUMMARY';
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('poRef')?.value || '').trim() || '—';
+    if (el('quoteTable'))    el('quoteTable').style.display  = 'none';
     if (el('pageQuote'))     el('pageQuote').style.display   = 'none';
     if (el('pageTerms'))     el('pageTerms').style.display   = 'none';
     if (el('pageCover'))     el('pageCover').style.display   = 'block';
@@ -1585,6 +1597,7 @@ function _applyCoverPageMode(on) {
     // Restore Quotation Mode
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
+    if (el('quoteTable'))    el('quoteTable').style.display  = 'table';
     if (el('pageQuote'))     el('pageQuote').style.display   = 'block';
     if (el('pageTerms'))     el('pageTerms').style.display   = 'block';
     if (el('pageCover'))     el('pageCover').style.display   = 'none';
