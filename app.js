@@ -143,28 +143,7 @@ const CATALOGUE = [
     img:   '',
     driverKey: 'rooms'
   },
-  {
-    code:  'ALAMO-M2-TX',
-    name:  'Alamo M2 Transmitter Module (HSN: 85311090)',
-    desc:  'Base transmitter module for bathroom or room modules. Requires mounting in Legrand back box (two-module box not included)',
-    group: 'Room Components',
-    mrp:   3200,
-    landingPrice: 2200,
-    rate:  3200,
-    img:   '',
-    driverKey: 'fixed'
-  },
-  {
-    code:  'ALAMO-M2-BTN',
-    name:  'Alamo M2 Button Module (HSN: 85311090)',
-    desc:  'Two-button or single-button module for call system. Can be paired with transmitter module. Multiple buttons can be loop connected to one transmitter',
-    group: 'Room Components',
-    mrp:   1200,
-    landingPrice: 800,
-    rate:  1200,
-    img:   '',
-    driverKey: 'fixed'
-  },
+
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
