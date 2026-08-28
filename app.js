@@ -296,6 +296,7 @@ function renderBOM() {
 
 function updateQty(idx, val) {
   bom[idx].qty = Math.max(0, parseInt(val) || 0);
+  bom[idx].isLocked = true; // Lock so calcEstimator doesn't override manual entry
   const el = document.getElementById('amt-' + idx);
   if (el) el.textContent = '₹' + fmt(bom[idx].qty * bom[idx].rate);
   recalc();
@@ -1393,6 +1394,7 @@ function fetchDashboardData() {
 window.allDashboardQuotes = []; // Global store for filtering
 
 function renderDashboard(quotes) {
+  if (!Array.isArray(quotes)) return;
   let totalVal = 0;
   let totalBeds = 0;
   
