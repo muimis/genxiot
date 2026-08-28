@@ -404,13 +404,37 @@ document.addEventListener("DOMContentLoaded", () => {
   generateLocalQtn(d);
 });
 
+function generateQuoteRef() {
+  const cName = document.getElementById('clientName').value.trim();
+  const vNum = document.getElementById('quoteVersion')?.value || '1';
+  const refInput = document.getElementById('quoteRef');
+  
+  let currentRef = refInput.value || '';
+  // Safely extract existing base (supports both new 6-digit-2-digit and old 8-digit-4-digit formats)
+  let baseMatch = currentRef.match(/^(GEN-ALA-\d{6,8}-\d{2,4}-?)/);
+  let base = baseMatch ? baseMatch[1] : (window.currentBaseQtn || 'GEN-ALA-000000-00-');
+  if (!base.endsWith('-')) base += '-';
+  
+  if (!cName) {
+    refInput.value = base;
+  } else {
+    // Take first three letters (alphanumeric only)
+    let prefix = cName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
+    if (prefix.length < 3) prefix = prefix.padEnd(3, 'X'); // Pad if name is too short
+    refInput.value = base + prefix + 'V' + vNum;
+  }
+  recalc();
+}
+
 function generateLocalQtn(dateObj) {
   const d = dateObj || new Date();
-  const yyyy = d.getFullYear();
-  const mm   = String(d.getMonth() + 1).padStart(2, '0');
-  const dd   = String(d.getDate()).padStart(2, '0');
-  const rand = Math.floor(Math.random() * 9000 + 1000); // 4-digit random
-  document.getElementById('quoteRef').value = `GEN-ALA-${yyyy}${mm}${dd}-${rand}`;
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const rand = Math.floor(Math.random() * 90 + 10); // 2-digit random
+  
+  window.currentBaseQtn = `GEN-ALA-${yy}${mm}${dd}-${rand}-`;
+  generateQuoteRef();
 }
 
 // ─── SAVE / LOAD QUOTES ──────────────────────────────────────────
@@ -476,6 +500,7 @@ function saveQuote() {
     totalAmount:  gtNum,            // plain number — parseable by dashboard
     contactPerson: document.getElementById('contactPerson')?.value || '',
     totalBeds:    floors.reduce((a, f) => a + (f.beds || 0), 0),
+    quoteVersion: document.getElementById('quoteVersion')?.value || '1',
     floors:       floors,
     // Spread top-level copies for GAS columns (best effort)
     ...settings,
@@ -581,6 +606,7 @@ function restoreQuote(data) {
 
   // ── Client / Deal Info ─────────────────────────────────────────
   setVal('quoteRef',       data.quoteRef);
+  setVal('quoteVersion',   data.quoteVersion || '1');
   setVal('quoteDate',      data.date ? data.date.split('T')[0] : '');
   setVal('clientName',     data.clientName);
   setVal('clientLocation', data.location);
@@ -1149,6 +1175,7 @@ function resetQuote(force = false) {
 
   // Client / deal info
   setVal('clientName',     '');
+  setVal('quoteVersion',   '1');
   setVal('clientLocation', '');
   setVal('clientDistrict', '');
   setVal('clientState',    '');
