@@ -90,7 +90,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-CP-R',
     name:  'Call Point Service and Nurse Call',
-    desc:  'Call Point with Lora Transmitter for each bedside or washroom. Included one function for call Nurse, Housepeeking, Presence and Cancel Calls. Wall Mountable with two 1/2 inch screws',
+    desc:  'Call Point with Lora Transmitter for each bedside or washroom. Includes functions for Nurse Call, Housekeeping, Presence, and Cancel Calls. Wall Mountable with two 1/2 inch screws',
     group: 'Bed Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -193,7 +193,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-GW',
     name:  'Gateway (Network Device)',
-    desc:  'Includes B type charger,product stand and screws for assembly',
+    desc:  'Includes B-type charger, product stand, and screws for assembly',
     group: 'Infrastructure & Network',
     mrp:   12000,
     landingPrice: 8000,
@@ -203,8 +203,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater ( Networking Device )',
-    desc:  'Includes B type charger, product stand and screws for assembly. Installed in between main receiver/ display rooms. Need 220V supply Plug Point',
+    name:  'Repeater (Networking Device)',
+    desc:  'Includes B-type charger, product stand, and screws for assembly. Installed in between main receiver/ display rooms. Requires a 220V power outlet.',
     group: 'Infrastructure & Network',
     mrp:   4000,
     landingPrice: 2500,
@@ -790,15 +790,28 @@ function recalc() {
   const taxableValue  = afterDiscount + shipping;
   const cgst          = taxableValue * 0.09;
   const sgst          = taxableValue * 0.09;
-  const grandTotal    = taxableValue + cgst + sgst;
+  const exactGrandTotal = taxableValue + cgst + sgst;
+  const roundedGrandTotal = Math.round(exactGrandTotal);
+  const roundOff = Number((roundedGrandTotal - exactGrandTotal).toFixed(2));
 
   // Update web UI
   setText('calcSub',    '₹' + fmt(subtotal));
   setText('calcTax',    '₹' + fmt(taxableValue));
   setText('calcCGST',   '₹' + fmt(cgst));
   setText('calcSGST',   '₹' + fmt(sgst));
-  setText('calcGT',     '₹' + fmt(grandTotal));
-  setText('stickyTotal','₹' + fmt(grandTotal));
+  
+  const roundOffRow = document.getElementById('roundOffRow');
+  if (roundOffRow) {
+    if (Math.abs(roundOff) > 0.001) {
+      roundOffRow.style.display = 'flex';
+      setText('calcRoundOff', '₹' + fmt(roundOff));
+    } else {
+      roundOffRow.style.display = 'none';
+    }
+  }
+
+  setText('calcGT',     '₹' + fmt(roundedGrandTotal));
+  setText('stickyTotal','₹' + fmt(roundedGrandTotal));
 
   const discRow = document.getElementById('discRow');
   if (discRow) {
@@ -813,14 +826,14 @@ function recalc() {
   const postPct = document.getElementById('postPct');
   if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
 
-  syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, grandTotal, advPct, shipping);
+  syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff);
 }
 
 
 
 
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
-function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping) {
+function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff) {
   const clientName    = (document.getElementById('clientName')?.value)    || '';
   const clientLoc     = (document.getElementById('clientLocation')?.value) || '';
   const clientDist    = (document.getElementById('clientDistrict')?.value) || '';
@@ -860,10 +873,10 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const hasBilledNs = bom.some(b => (b.driverKey === 'ns_basic' || b.driverKey === 'ns_tv') && b.qty > 0);
 
   const facilityParts = [];
-  if (beds > 0 && hasBilledBeds) facilityParts.push(`${beds} Beds`);
-  if (rooms > 0 && hasBilledRooms) facilityParts.push(`${rooms} Rooms`);
-  if (washrooms > 0 && hasBilledBaths) facilityParts.push(`${washrooms} Washrooms`);
-  if (wards > 0 && hasBilledNs) facilityParts.push(`${wards} Nursing Stations`);
+  if (beds > 0 && hasBilledBeds) facilityParts.push(`${beds} Bed${beds > 1 ? 's' : ''}`);
+  if (rooms > 0 && hasBilledRooms) facilityParts.push(`${rooms} Room${rooms > 1 ? 's' : ''}`);
+  if (washrooms > 0 && hasBilledBaths) facilityParts.push(`${washrooms} Washroom${washrooms > 1 ? 's' : ''}`);
+  if (wards > 0 && hasBilledNs) facilityParts.push(`${wards} Nursing Station${wards > 1 ? 's' : ''}`);
   setText('qFacility', facilityParts.join(' · '));
 
   // PO Reference row
@@ -890,10 +903,11 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     floors.forEach((f, i) => {
       let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
       let parts = [];
-      if ((parseInt(f.beds) || 0) > 0 && hasBilledBeds) parts.push(`${f.beds} Beds`);
-      if ((parseInt(f.rooms) || 0) > 0 && hasBilledRooms) parts.push(`${f.rooms} Rooms`);
-      if ((parseInt(f.baths) || 0) > 0 && hasBilledBaths) parts.push(`${f.baths} Washrooms`);
-      if ((parseInt(f.ns) || 0) > 0 && hasBilledNs) parts.push(`${f.ns} Nursing Stations`);
+      let b = parseInt(f.beds) || 0, r = parseInt(f.rooms) || 0, w = parseInt(f.baths) || 0, n = parseInt(f.ns) || 0;
+      if (b > 0 && hasBilledBeds) parts.push(`${b} Bed${b > 1 ? 's' : ''}`);
+      if (r > 0 && hasBilledRooms) parts.push(`${r} Room${r > 1 ? 's' : ''}`);
+      if (w > 0 && hasBilledBaths) parts.push(`${w} Washroom${w > 1 ? 's' : ''}`);
+      if (n > 0 && hasBilledNs) parts.push(`${n} Nursing Station${n > 1 ? 's' : ''}`);
       
       if (parts.length > 0) {
         floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
@@ -1000,6 +1014,16 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qCGST',     '₹' + fmt(cgst));
   setText('qSGST',     '₹' + fmt(sgst));
   setText('qGT',       '₹' + fmt(grand));
+  
+  const qRoundOffRow = document.getElementById('qRoundOffRow');
+  if (qRoundOffRow) {
+    if (roundOff !== undefined && Math.abs(roundOff) > 0.001) {
+      qRoundOffRow.style.display = '';
+      setText('qRoundOff', '₹' + fmt(roundOff));
+    } else {
+      qRoundOffRow.style.display = 'none';
+    }
+  }
 
   const qDiscRow = document.getElementById('qDiscRow');
   if (qDiscRow) {
@@ -1012,8 +1036,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const delPctVal = 30;
   const postPctVal = 100 - advPctVal - delPctVal;
 
-  const advAmt  = grand * advPctVal / 100;
-  const delAmt  = grand * delPctVal / 100;
+  const advAmt  = Math.round(grand * advPctVal / 100);
+  const delAmt  = Math.round(grand * delPctVal / 100);
   const postAmt = grand - advAmt - delAmt;
 
   setText('qAdvPct',  advPctVal + '%');

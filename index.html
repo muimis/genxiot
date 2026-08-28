@@ -295,6 +295,7 @@
           <div class="fin-row"><span>Taxable Value</span><span id="calcTax">₹0.00</span></div>
           <div class="fin-row"><span>CGST 9%</span><span id="calcCGST">₹0.00</span></div>
           <div class="fin-row"><span>SGST 9%</span><span id="calcSGST">₹0.00</span></div>
+          <div class="fin-row" id="roundOffRow" style="display:none"><span>Round Off</span><span id="calcRoundOff">₹0.00</span></div>
           <div class="fin-divider"></div>
           <div class="fin-row fin-total">
             <span>Grand Total (incl. 18% GST)</span>
@@ -495,7 +496,7 @@
             <div class="qtn-company">GENXIOT LLP</div>
             <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
             <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
-            <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Niivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
+            <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Nivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
             <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; State: Kerala &nbsp;|&nbsp; Code: 32</div>
             <div class="qtn-contact">+91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
           </div>
@@ -601,6 +602,10 @@
               <tr class="tf-row">
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">SGST (9%)</td>
                 <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
+              </tr>
+              <tr class="tf-row" id="qRoundOffRow" style="display:none">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Round Off</td>
+                <td class="tf-val" id="qRoundOff" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
               </tr>
               <tr class="tf-row tf-grand">
                 <td class="tf-lbl" style="background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
