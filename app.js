@@ -1234,7 +1234,9 @@ function exportCSV() {
   const taxable = subtotal - discount + shipping;
   const cgst = taxable * 0.09;
   const sgst = taxable * 0.09;
-  const grand = taxable + cgst + sgst;
+  const exactGrand = taxable + cgst + sgst;
+  const grand = Math.round(exactGrand);
+  const roundOff = Number((grand - exactGrand).toFixed(2));
 
   csv += '\n,,,,,';
   csv += `\nSubtotal,,,,,${subtotal}`;
@@ -1243,6 +1245,7 @@ function exportCSV() {
   csv += `\nTaxable Value,,,,,${taxable}`;
   csv += `\nCGST (9%),,,,,${cgst}`;
   csv += `\nSGST (9%),,,,,${sgst}`;
+  if (Math.abs(roundOff) > 0.001) csv += `\nRound Off,,,,,${roundOff}`;
   csv += `\nGrand Total,,,,,${grand}`;
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1573,7 +1576,7 @@ function _applyCoverPageMode(on) {
     const finalVal   = (finalInput && finalInput.trim() !== '') ? parseFloat(finalInput) : parseFloat((el('calcGT')?.textContent || '0').replace(/[^0-9.]/g, ''));
     
     const advInput   = el('coverAdvAmt')?.value;
-    const advVal     = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : (finalVal * (parseFloat(el('advPct')?.value) || 50) / 100);
+    const advVal     = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : Math.round(finalVal * (parseFloat(el('advPct')?.value) || 50) / 100);
     
     const balVal     = finalVal - advVal;
 
