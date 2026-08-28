@@ -89,7 +89,7 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Call Point Service and Nurse Call',
+    name:  'Bed Call Point (Service & Nurse Call) (HSN: 85356090)',
     desc:  'Call Point with Lora Transmitter for each bedside or washroom. Includes functions for Nurse Call, Housekeeping, Presence, and Cancel Calls. Wall Mountable with two 1/2 inch screws',
     group: 'Bed Components',
     mrp:   2400,
@@ -100,7 +100,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Pendant Single Switch (Accessory)',
+    name:  'Pendant Single Switch (Accessory) (HSN: 85356090)',
     desc:  'Single Switch Pendant Button',
     group: 'Bed Components',
     mrp:   600,
@@ -158,7 +158,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PL',
-    name:  'Alamo Pullcord (HSN: 85311090)',
+    name:  'Alamo Pullcord (Washroom Accessory) (HSN: 85311090)',
     desc:  'Pull Cord accessory for connecting to call point in washroom',
     group: 'Washroom Components',
     mrp:   600,
@@ -169,9 +169,9 @@ const CATALOGUE = [
   },
   // ── WARD-DRIVEN ────────────────────────────────
   {
-    code:  'ALAMO-NS-BASIC',
-    name:  'Pixel Matrix Display (HSN: 85311090)',
-    desc:  'Pixel Matrix Display for Nursing Station Alerts. Works with Android app for adding call buttons. Can work without gateway.',
+    code:  'ALAMO-MINI',
+    name:  'Mini Station - Tetris (Alert System) (HSN: 85318000)',
+    desc:  'Tetris style mini indicator display. Works with Android app for adding call buttons. Can work without gateway.',
     group: 'Nursing Station',
     mrp:   12000,
     landingPrice: 10000,
@@ -181,7 +181,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  '32 inch bluetooth smart TV',
+    name:  '32 inch Bluetooth Smart TV (HSN: 85287213)',
     desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
     group: 'Nursing Station',
     mrp:   12000,
@@ -192,7 +192,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Gateway (Network Device)',
+    name:  'Gateway (Network Device) (HSN: 85176230)',
     desc:  'Includes B-type charger, product stand, and screws for assembly',
     group: 'Infrastructure & Network',
     mrp:   12000,
@@ -203,7 +203,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater (Networking Device)',
+    name:  'Repeater (Networking Device) (HSN: 85176290)',
     desc:  'Includes B-type charger, product stand, and screws for assembly. Installed in between main receiver/ display rooms. Requires a 220V power outlet.',
     group: 'Infrastructure & Network',
     mrp:   4000,
@@ -215,7 +215,7 @@ const CATALOGUE = [
   // ── SOFTWARE / FIXED ─────────────────────────────────────
   {
     code:  'ALAMO-CLOUD-SW',
-    name:  'Cloud Software (SAC: 9983)',
+    name:  'Cloud Software & Historical Analytics (SAC: 9983)',
     desc:  'Cloud software for Escalation, Reporting and Code Blue Alerts (₹15000 per nursing station for 3 years)',
     group: 'Software & Services',
     mrp:   15000,
@@ -659,6 +659,11 @@ function restoreQuote(data) {
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
     bom = data.bomData
       .filter(b => b.code !== '__SETTINGS__')
+      .map(b => {
+        // Backwards compatibility migration
+        if (b.code === 'ALAMO-NS-BASIC') b.code = 'ALAMO-MINI';
+        return b;
+      })
       .filter(b => CATALOGUE.some(c => c.code === b.code)) // Strip removed items from old saved quotes
       .map(b => {
       const catItem = CATALOGUE.find(c => c.code === b.code);
@@ -948,7 +953,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
   let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
   
-  if (bomCodes.includes('ALAMO-NS-BASIC') && !bomCodes.includes('ALAMO-NS-TV')) {
+  if (bomCodes.includes('ALAMO-MINI') && !bomCodes.includes('ALAMO-NS-TV')) {
     let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
     if (tvItem) {
       tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
