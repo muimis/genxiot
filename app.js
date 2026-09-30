@@ -90,7 +90,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-CP-R',
     name:  'Bed Call Point (Service & Nurse Call) (HSN: 85356090)',
-    desc:  'Call Point with Lora Transmitter for each bedside or washroom. Includes functions for Nurse Call, Housekeeping, Presence, and Cancel Calls. Wall Mountable with two 1/2 inch screws',
+    desc:  'Call Point with LoRa transmitter for bedside nurse call applications. Includes functions for Nurse Call, Housekeeping, Presence, and Cancel Calls. Wall Mountable with two 1/2 inch screws',
     group: 'Bed Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -204,7 +204,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-RPT',
     name:  'Repeater (Networking Device) (HSN: 85176290)',
-    desc:  'Includes B-type charger, product stand, and screws for assembly. Installed in between main receiver/ display rooms. Requires a 220V power outlet.',
+    desc:  'Includes B-type charger, product stand, and screws for assembly. Installed between the main gateway and display/room locations. Requires a 220V power outlet.',
     group: 'Infrastructure & Network',
     mrp:   4000,
     landingPrice: 2500,
@@ -231,8 +231,17 @@ let bom = CATALOGUE.map((item, i) => ({ ...item, qty: 0, baseRate: item.mrp || i
 
 // ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const qDateEl = document.getElementById('quoteDate');
+  if (qDateEl && !qDateEl.value) {
+    qDateEl.value = `${yyyy}-${mm}-${dd}`;
+  }
+  generateLocalQtn(d);
   renderBOM();
-    renderFloors();
+  renderFloors();
   calcEstimator();
   recalc();
   fillDocDates();
@@ -396,25 +405,41 @@ function loadPreset(preset) {
   calcEstimator();
 }
 
-// ─── INIT API ───────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  const d = new Date();
-  document.getElementById('quoteDate').valueAsDate = d;
-  // Generate a local QTN ID immediately — no server call needed on load
-  generateLocalQtn(d);
-});
+// ─── INIT API & QUOTE REF GENERATOR ─────────────────────────────
+function getQuoteDateParts() {
+  const qDateVal = document.getElementById('quoteDate')?.value;
+  let d;
+  if (qDateVal) {
+    const parts = qDateVal.split('-');
+    if (parts.length === 3) {
+      d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+  }
+  if (!d || isNaN(d.getTime())) d = new Date();
+  
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return { yy, mm, dd, dateStr: `${yy}${mm}${dd}` };
+}
 
 function generateQuoteRef() {
-  const cName = document.getElementById('clientName').value.trim();
+  const cName = document.getElementById('clientName')?.value.trim() || '';
   const vNum = document.getElementById('quoteVersion')?.value || '1';
   const refInput = document.getElementById('quoteRef');
-  
+  if (!refInput) return;
+
+  const { dateStr } = getQuoteDateParts();
   let currentRef = refInput.value || '';
-  // Safely extract existing base (supports both new 6-digit-2-digit and old 8-digit-4-digit formats)
-  let baseMatch = currentRef.match(/^(GEN-ALA-\d{6,8}-\d{2,4}-?)/);
-  let base = baseMatch ? baseMatch[1] : (window.currentBaseQtn || 'GEN-ALA-000000-00-');
-  if (!base.endsWith('-')) base += '-';
   
+  // Safely extract existing random number if already generated, otherwise use currentRandom or generate new
+  let randMatch = currentRef.match(/^GEN-ALA-\d{6,8}-(\d{2,4})-?/);
+  let rand = randMatch ? randMatch[1] : (window.currentRandom || Math.floor(Math.random() * 90 + 10));
+  window.currentRandom = rand;
+
+  let base = `GEN-ALA-${dateStr}-${rand}-`;
+  window.currentBaseQtn = base;
+
   if (!cName) {
     refInput.value = base;
   } else {
@@ -428,12 +453,15 @@ function generateQuoteRef() {
 
 function generateLocalQtn(dateObj) {
   const d = dateObj || new Date();
-  const yy = String(d.getFullYear()).slice(-2);
+  const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
   const dd = String(d.getDate()).padStart(2, '0');
-  const rand = Math.floor(Math.random() * 90 + 10); // 2-digit random
   
-  window.currentBaseQtn = `GEN-ALA-${yy}${mm}${dd}-${rand}-`;
+  const qDateEl = document.getElementById('quoteDate');
+  if (qDateEl && !qDateEl.value) {
+    qDateEl.value = `${yyyy}-${mm}-${dd}`;
+  }
+  window.currentRandom = Math.floor(Math.random() * 90 + 10);
   generateQuoteRef();
 }
 
@@ -872,7 +900,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const clientState   = (document.getElementById('clientState')?.value) || '';
   const contactPerson = (document.getElementById('contactPerson')?.value)  || '';
   const quoteRef      = (document.getElementById('quoteRef')?.value)      || '';
-  const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'Genxiot Sales Team';
+  const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'GenXIoT Sales Team';
   const beds          = floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0);
   const rooms         = floors.reduce((acc, f) => acc + parseInt(f.rooms || 0), 0);
   const washrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
@@ -1124,20 +1152,33 @@ function todayStr() {
 }
 function formatDate(dateStr) {
   if (!dateStr) return todayStr();
-  const d = new Date(dateStr);
-  if (isNaN(d)) return todayStr();
+  const parts = dateStr.split('-');
+  let d;
+  if (parts.length === 3) {
+    d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  } else {
+    d = new Date(dateStr);
+  }
+  if (!d || isNaN(d.getTime())) return todayStr();
   return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
 }
 function getValidDate() {
   const days = parseInt(document.getElementById('validityDays')?.value) || 30;
   const qDateStr = document.getElementById('quoteDate')?.value;
-  let d = qDateStr ? new Date(qDateStr) : new Date();
-  if (isNaN(d)) d = new Date();
+  let d;
+  if (qDateStr) {
+    const parts = qDateStr.split('-');
+    if (parts.length === 3) {
+      d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+  }
+  if (!d || isNaN(d.getTime())) d = new Date();
   d.setDate(d.getDate() + days);
   return d.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
 }
 function fillDocDates() {
-  setText('qDocDate',  todayStr());
+  const qDateVal = document.getElementById('quoteDate')?.value;
+  setText('qDocDate',  formatDate(qDateVal));
   setText('qDocValid', getValidDate());
 }
 
@@ -1204,7 +1245,7 @@ function resetQuote(force = false) {
   // Terms
   setVal('delivery',  '25 days from order confirmation & advance receipt');
   setVal('warranty',  '12 months comprehensive from installation date');
-  setVal('scopeNotes','Wallmounting & electrical work by hospital. Configuration, calibration & go-live training by Genxiot.');
+  setVal('scopeNotes','Wall mounting and electrical work by the hospital. Configuration, calibration & go-live training by GenXIoT.');
   setVal('additionalDetails', '');
   // Checkboxes
   setChk('chkSinglePendant', true);
@@ -1248,7 +1289,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ─── EXPORT TO CSV (EXCEL) ───────────────────────────────────────
 function exportCSV() {
   const clientName = document.getElementById('clientName')?.value || 'Client';
-  let csv = 'Genxiot Quotation - Bill of Quantities\n\n';
+  let csv = 'GenXIoT Quotation - Bill of Quantities\n\n';
   csv += 'Item Code,Name,Description,Quantity,Unit Rate (INR),Total Amount (INR)\n';
 
   let subtotal = 0;
@@ -1291,7 +1332,7 @@ function exportCSV() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `Genxiot_BOQ_${clientName.replace(/\s+/g, '_')}.csv`);
+  link.setAttribute('download', `GenXIoT_BOQ_${clientName.replace(/\s+/g, '_')}.csv`);
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();
@@ -1343,7 +1384,7 @@ function downloadPDF() {
   const clientName = document.getElementById('clientName').value || 'Client';
   
   // Format filename cleanly
-  const filename = `Genxiot_Quote_${clientName.replace(/\s+/g, '_')}_${quoteRef}.pdf`;
+  const filename = `GenXIoT_Quote_${clientName.replace(/\s+/g, '_')}_${quoteRef}.pdf`;
 
   // Provide user feedback
   const originalBtns = document.querySelectorAll('button[onclick="downloadPDF()"]');
@@ -1578,7 +1619,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qOptionalNote')) el('qOptionalNote').style.display = 'none';  // hide on PI
     if (el('qPORef'))        el('qPORef').textContent        = poRef  || '—';
     if (el('qDueDate'))      el('qDueDate').textContent      = dueDate || '';
-    if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Proforma Invoice Preview';
+    if (el('modalTitle'))    el('modalTitle').textContent    = 'GenXIoT · Proforma Invoice Preview';
   } else {
     // ── Restore Quotation Mode ────────────────────────────
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
@@ -1588,7 +1629,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';      // restore on exit
-    if (el('modalTitle'))    el('modalTitle').textContent    = 'Genxiot · Executive Techno-Commercial Proposal Preview';
+    if (el('modalTitle'))    el('modalTitle').textContent    = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
   }
 }
 
@@ -1637,11 +1678,11 @@ function _applyCoverPageMode(on) {
     if (el('cAdvAmt'))   el('cAdvAmt').textContent   = '-₹' + fmt(advVal);
     if (el('cBalAmt'))   el('cBalAmt').textContent   = '₹' + fmt(balVal);
 
-    if (el('cBankName')) el('cBankName').textContent = 'Genxiot LLP';
+    if (el('cBankName')) el('cBankName').textContent = 'GenXIoT LLP';
     if (el('cBankAcc'))  el('cBankAcc').textContent  = '0624073000000447';
     if (el('cBankIfsc')) el('cBankIfsc').textContent = 'SIBL0000624';
     
-    if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Final Cover Page Preview';
+    if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Final Cover Page Preview';
   } else {
     // Restore Quotation Mode
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
@@ -1655,7 +1696,7 @@ function _applyCoverPageMode(on) {
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';
     if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
     
-    if (el('modalTitle')) el('modalTitle').textContent = 'Genxiot · Executive Techno-Commercial Proposal Preview';
+    if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
   }
 }
 

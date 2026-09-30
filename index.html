@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>Genxiot LLP – Proposal</title>
+<title>GenXIoT LLP – Proposal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -26,7 +26,7 @@
   <header class="app-header">
     <div class="header-inner">
       <div class="brand-group">
-        <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="hdr-logo">
+        <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="hdr-logo">
         <div>
           <div class="hdr-title">GENXIOT LLP</div>
           <div class="hdr-sub">PIPELINE DASHBOARD</div>
@@ -90,7 +90,7 @@
 <header class="app-header no-print">
   <div class="header-inner">
     <div class="brand-group">
-      <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="hdr-logo">
+      <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="hdr-logo">
       <div>
         <div class="hdr-title">GENXIOT LLP</div>
         <div class="hdr-sub">INTELLIGENT HEALTHCARE IoT SOLUTIONS</div>
@@ -152,12 +152,13 @@
         <div class="row2">
           <div>
             <label>Quote Ref #</label>
-            <input id="quoteRef" title="Quote Reference Number">
+            <input id="quoteRef" title="Quote Reference Number" oninput="recalc()">
             <input type="hidden" id="piRef" value="">
+            <input type="hidden" id="quoteVersion" value="1">
           </div>
           <div>
             <label>Date</label>
-            <input type="date" id="quoteDate" oninput="recalc()">
+            <input type="date" id="quoteDate" oninput="generateQuoteRef()" onchange="generateQuoteRef()">
           </div>
         </div>
         <label>PO / Work Order Reference</label>
@@ -327,7 +328,7 @@
           <label>Warranty</label>
           <input id="warranty" value="12 months comprehensive from installation date" oninput="recalc()">
           <label>Scope Notes</label>
-          <textarea id="scopeNotes" rows="3" oninput="recalc()">Wallmounting &amp; electrical work by hospital. Configuration, calibration &amp; go-live training by Genxiot.</textarea>
+          <textarea id="scopeNotes" rows="3" oninput="recalc()">Wall mounting and electrical work by the hospital. Configuration, calibration &amp; go-live training by GenXIoT.</textarea>
           <label style="margin-top:0.75rem;">Additional Details / Special Instructions</label>
           <textarea id="additionalDetails" rows="3" placeholder="Any special instructions, site conditions, or notes to include in the proposal…" oninput="recalc()"></textarea>
 
@@ -383,7 +384,7 @@
 
     <!-- Toolbar (web only) -->
     <div class="modal-ctrl no-print">
-      <span class="mctrl-title" id="modalTitle">Genxiot · Executive Techno-Commercial Proposal Preview</span>
+      <span class="mctrl-title" id="modalTitle">GenXIoT · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
         <button class="btn btn-ghost" onclick="openModal()" title="Preview Quotation">
           <i data-lucide="file" size="15"></i> Quotation
@@ -418,7 +419,6 @@
 
     <!-- ════════════════════════════════════════
          PRINTABLE DOCUMENT
-         10 pages matching SAL-QTN-2024-00478
     ════════════════════════════════════════ -->
     <div id="printDoc">
 
@@ -469,7 +469,7 @@
           <p style="font-size: 0.85rem; color: #444; margin-bottom: 10px;">Please remit the Final Balance Due to the following account:</p>
           <div style="border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
             <table style="width: 100%; font-size: 0.85rem; line-height: 1.6; border: none;">
-              <tr><td style="width: 130px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankName">Genxiot LLP</td></tr>
+              <tr><td style="width: 130px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankName">GenXIoT LLP</td></tr>
               <tr><td style="color: #666; border: none; padding: 2px 0;">Account Number:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankAcc">0624073000000447</td></tr>
               <tr><td style="color: #666; border: none; padding: 2px 0;">IFSC Code:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankIfsc">SIBL0000624</td></tr>
               <tr><td style="color: #666; border: none; padding: 2px 0;">Bank &amp; Branch:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="cBankBranch">South Indian Bank, Technopark Trivandrum</td></tr>
@@ -481,7 +481,7 @@
           <p>For the complete itemized billing details, please refer to the attached official invoice.</p>
           <p>If you have any questions regarding this balance, please contact us at info@genxiot.com or +91 9496557777.</p>
           <p style="margin-top: 30px;">Sincerely,</p>
-          <p style="margin-top: 20px; font-weight: 600;">Genxiot LLP</p>
+          <p style="margin-top: 20px; font-weight: 600;">GenXIoT LLP</p>
         </div>
       </div>
 
@@ -493,7 +493,7 @@
         <!-- Header -->
         <div class="qtn-header">
           <div class="qtn-h-left">
-            <img src="genxiot-logo.7fba30b0.png" alt="Genxiot" class="qtn-logo">
+            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
             <div class="qtn-company">GENXIOT LLP</div>
             <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
             <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
@@ -503,7 +503,7 @@
           </div>
           <div class="qtn-h-right">
             <div class="qmeta-label" id="qDocTypeLabel">QUOTATION REF</div>
-            <div class="qmeta-ref" id="qDocRef">SAL-QTN-2024-00478</div>
+            <div class="qmeta-ref" id="qDocRef">–</div>
             <div class="qmeta-row"><strong>Date:</strong> <span id="qDocDate">–</span></div>
             <div class="qmeta-row" id="qValidRow"><strong>Valid Till:</strong> <span id="qDocValid">–</span></div>
             <div class="qmeta-row" id="qPORow" style="display:none;"><strong>PO Ref:</strong> <span id="qPORef">–</span></div>
@@ -537,7 +537,8 @@
             <div class="party-label">SUBMITTED BY</div>
             <div class="party-name">GENXIOT LLP</div>
             <div class="party-sub">Authorized Alamo Integration Partner</div>
-            <div class="party-sub">Rep: <span id="qBdmName">Genxiot Sales Team</span></div>
+            <div class="party-sub">Rep: <span id="qBdmName">GenXIoT Sales Team</span></div>
+            <div class="party-sub">BDM Contact: +91 88916 70903</div>
           </div>
         </div>
 
@@ -651,7 +652,7 @@
             <div style="flex: 1; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
               <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Remittance Details</div>
               <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border: none;">
-                <tr><td style="width: 110px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">Genxiot LLP</td></tr>
+                <tr><td style="width: 110px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">GenXIoT LLP</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">Account Number:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankAcc">0624073000000447</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">IFSC Code:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankIfsc">SIBL0000624</td></tr>
                 <tr><td style="color: #666; border: none; padding: 2px 0;">Bank &amp; Branch:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankBranch">South Indian Bank, Technopark Trivandrum</td></tr>
@@ -681,10 +682,10 @@
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">
-            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with Genxiot LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
+            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with GenXIoT LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
             <p><strong>Payment:</strong> 50% advance, 30% on delivery, and 20% post-installation. Bank charges of Buyer's bank borne by Buyer.</p>
             <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
-            <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by Genxiot. 200 beds can be installed in a single day.</span></p>
+            <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by GenXIoT. 200 beds can be installed in a single day.</span></p>
             <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within 24 to 48 hours.</p>
           <p><strong>Inspection:</strong> Buyer must inspect packaging and products within 5 days of delivery and report defects.</p>
           <p><strong>Warranty:</strong> <span id="qWarranty">12 months comprehensive from date of Installation Protocol signoff. Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.</span></p>
@@ -715,7 +716,7 @@
           <tr>
             <td style="padding: 0 12mm;">
         <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.75rem; padding-top: 8px; border-top: 1px solid #eee;">
-          <span style="font-weight: 600; color: #444;">Genxiot LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
+          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
               <div style="height: 12mm;"></div>
             </td>
@@ -726,7 +727,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=17"></script>
+<script src="app.js?v=18"></script>
 <script>
   lucide.createIcons();
 </script>
