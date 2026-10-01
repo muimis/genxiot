@@ -1050,8 +1050,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
         tbody.appendChild(gtr);
       }
 
-      const itemRate = item.mrp || item.rate;
-      const amt = item.qty * itemRate;
+      const amt = item.qty * item.rate;
       const tr  = document.createElement('tr');
 
       tr.innerHTML = `
@@ -1062,7 +1061,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
           <div style="font-size:.68rem;color:#888;margin-top:2px">${item.desc}</div>
         </td>
         <td style="text-align:center;font-weight:600;white-space:nowrap">${item.qty}</td>
-        <td style="text-align:right;white-space:nowrap">${fmt(itemRate)}</td>
+        <td style="text-align:right;white-space:nowrap">${fmt(item.rate)}</td>
         <td style="text-align:right;font-weight:600;white-space:nowrap">${fmt(amt)}</td>
       `;
       tbody.appendChild(tr);
@@ -1070,11 +1069,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   }
 
   // Totals in proposal
-  // Calculate raw MRP subtotal for the printed document to anchor higher perceived value
-  const mrpSubtotal = bom.reduce((sum, item) => sum + (item.qty * (item.mrp || item.rate)), 0);
-  const printedDiscount = Math.max(0, (mrpSubtotal - subtotal) + discount);
-
-  setText('qSub',      '₹' + fmt(mrpSubtotal));
+  setText('qSub',      '₹' + fmt(subtotal));
   setText('qShipping', '₹' + fmt(shipping));
   setText('qTaxable',  '₹' + fmt(taxable));
   setText('qCGST',     '₹' + fmt(cgst));
@@ -1093,8 +1088,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   const qDiscRow = document.getElementById('qDiscRow');
   if (qDiscRow) {
-    qDiscRow.style.display = printedDiscount > 0 ? '' : 'none';
-    setText('qDisc', '−₹' + fmt(printedDiscount));
+    qDiscRow.style.display = discount > 0 ? '' : 'none';
+    setText('qDisc', '−₹' + fmt(discount));
   }
 
   // Payment milestones
