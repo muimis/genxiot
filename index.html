@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=4.6">
+<link rel="stylesheet" href="style.css?v=4.7">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -42,44 +42,114 @@
 
   <main class="dashboard-main">
     <div class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-title">Total Pipeline Value</div>
+      <div class="metric-card card-pipeline-active">
+        <div class="metric-hd">
+          <span class="metric-title">Active Pipeline Value</span>
+          <span class="metric-pill pill-cyan">Live Deals</span>
+        </div>
         <div class="metric-value" id="dashTotalValue">₹ 0</div>
+        <div class="metric-sub" id="dashActiveDealsSub">0 active deals (latest versions only)</div>
       </div>
+
+      <div class="metric-card card-pipeline-won">
+        <div class="metric-hd">
+          <span class="metric-title">Closed Won Revenue</span>
+          <span class="metric-pill pill-green">Won</span>
+        </div>
+        <div class="metric-value metric-won" id="dashWonValue">₹ 0</div>
+        <div class="metric-sub" id="dashWonDealsSub">0 closed orders</div>
+      </div>
+
       <div class="metric-card">
-        <div class="metric-title">Total Quotes</div>
+        <div class="metric-hd">
+          <span class="metric-title">Active Deals</span>
+          <span class="metric-pill pill-indigo">Pipeline</span>
+        </div>
+        <div class="metric-value" id="dashActiveDealsCount">0</div>
+        <div class="metric-sub" id="dashBedsSub">0 total beds quoted</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-hd">
+          <span class="metric-title">Total Quotes Logged</span>
+          <span class="metric-pill pill-gray">Archive</span>
+        </div>
         <div class="metric-value" id="dashTotalQuotes">0</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-title">Total Beds Quoted</div>
-        <div class="metric-value" id="dashTotalBeds">0</div>
+        <div class="metric-sub" id="dashRevisionsSub">Including all historical revisions</div>
       </div>
     </div>
     
     <div class="dashboard-content-grid">
       <div class="chart-container">
-        <h3>Deal Value by Client</h3>
+        <div class="chart-header">
+          <div>
+            <h3 style="margin: 0;">Deal Value by Client</h3>
+            <span class="chart-sub" id="chartFilterSub">Active pipeline (latest versions only)</span>
+          </div>
+          <div class="chart-filter-toggle">
+            <button type="button" class="btn-chart-toggle active" id="btnChartActive" onclick="setChartMode('active')">Active</button>
+            <button type="button" class="btn-chart-toggle" id="btnChartWon" onclick="setChartMode('won')">Won</button>
+            <button type="button" class="btn-chart-toggle" id="btnChartAll" onclick="setChartMode('all')">All</button>
+          </div>
+        </div>
         <canvas id="pipelineChart"></canvas>
       </div>
+
       <div class="table-container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <h3 style="margin: 0;">Saved Quotes</h3>
-          <input type="text" id="dashSearchInput" placeholder="Search by Name or Ref..." style="padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 220px; font-size: 0.85rem;" onkeyup="filterDashboardQuotes()">
+        <div class="table-header-row">
+          <div>
+            <h3 style="margin: 0 0 2px 0;">Hospital Quotes & Pipeline</h3>
+            <div class="table-sub">Manage quote lifecycle, revisions, and deal statuses</div>
+          </div>
+          <div class="table-search-wrap">
+            <input type="text" id="dashSearchInput" placeholder="Search hospital, ref, location..." onkeyup="filterDashboardQuotes()">
+          </div>
         </div>
-        <table class="dashboard-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Quote Ref</th>
-              <th>Client Name</th>
-              <th>Value</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="dashTableBody">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
+
+        <div class="dashboard-filter-tabs">
+          <button class="filter-tab active" data-tab="active" onclick="setDashboardTab('active')">
+            <span>🌟 Active Deals</span>
+            <span class="tab-count" id="countTabActive">0</span>
+          </button>
+          <button class="filter-tab" data-tab="all" onclick="setDashboardTab('all')">
+            <span>📋 All Quotes</span>
+            <span class="tab-count" id="countTabAll">0</span>
+          </button>
+          <button class="filter-tab" data-tab="pending" onclick="setDashboardTab('pending')">
+            <span>⏳ Pending</span>
+            <span class="tab-count" id="countTabPending">0</span>
+          </button>
+          <button class="filter-tab" data-tab="won" onclick="setDashboardTab('won')">
+            <span>🏆 Won</span>
+            <span class="tab-count" id="countTabWon">0</span>
+          </button>
+          <button class="filter-tab" data-tab="lost" onclick="setDashboardTab('lost')">
+            <span>❌ Lost</span>
+            <span class="tab-count" id="countTabLost">0</span>
+          </button>
+          <button class="filter-tab" data-tab="revised" onclick="setDashboardTab('revised')">
+            <span>🔄 Revised</span>
+            <span class="tab-count" id="countTabRevised">0</span>
+          </button>
+        </div>
+
+        <div class="table-scroll-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Quote Ref & Version</th>
+                <th>Hospital / Client</th>
+                <th>Value</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="dashTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </main>
@@ -154,11 +224,33 @@
             <label>Quote Ref #</label>
             <input id="quoteRef" title="Quote Reference Number" oninput="recalc()">
             <input type="hidden" id="piRef" value="">
-            <input type="hidden" id="quoteVersion" value="1">
           </div>
           <div>
             <label>Date</label>
             <input type="date" id="quoteDate" oninput="generateQuoteRef()" onchange="generateQuoteRef()">
+          </div>
+        </div>
+        <div class="row2" style="margin-top: 6px;">
+          <div>
+            <label>Deal Status</label>
+            <select id="dealStatus" class="status-select status-pending" onchange="onDealStatusChange()">
+              <option value="Pending">⏳ Pending (Active)</option>
+              <option value="Closed Won">🏆 Closed Won</option>
+              <option value="Closed Lost">❌ Closed Lost</option>
+              <option value="Revised">🔄 Revised</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Quote Version</span>
+              <span id="versionLabelBadge" class="badge-v-latest">V1 (Latest)</span>
+            </label>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <input type="number" id="quoteVersion" value="1" min="1" max="99" style="width:58px; font-weight:700;" onchange="onVersionManualChange()">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="createNewRevision()" title="Create next revision (e.g. V2)" style="flex:1; font-size:0.75rem; white-space:nowrap; padding:5px 8px; border:1px solid var(--border); color:var(--brand-indigo); font-weight:600;">
+                <i data-lucide="git-branch" size="13"></i> + New Rev
+              </button>
+            </div>
           </div>
         </div>
         <label>PO / Work Order Reference</label>
@@ -727,7 +819,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=19"></script>
+<script src="app.js?v=20"></script>
 <script>
   lucide.createIcons();
 </script>
@@ -768,6 +860,38 @@
     <div style="display: flex; gap: 10px; justify-content: flex-end;">
       <button class="btn btn-ghost" onclick="document.getElementById('pdfMergeModal').classList.remove('open')">Cancel</button>
       <button class="btn btn-cyan" onclick="mergePdfs()" id="mergePdfsBtn">Merge & Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVISION HISTORY MODAL -->
+<div class="modal-bg" id="revisionModal">
+  <div class="modal-wrap" style="max-width: 720px; padding: 24px; border-radius: 12px; margin: 50px auto; min-height: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+      <div>
+        <h3 id="revModalTitle" style="margin: 0 0 4px 0; color: var(--brand-navy); font-size: 1.15rem;">Deal Revision History</h3>
+        <p id="revModalSubtitle" style="margin: 0; font-size: 0.82rem; color: var(--mid);">Chronological versions for this client</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeRevisionModal()" style="padding: 4px 10px; font-weight: 600;">✕ Close</button>
+    </div>
+
+    <div style="max-height: 400px; overflow-y: auto;">
+      <table class="revision-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border); text-align: left; font-size: 0.72rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em;">
+            <th style="padding: 8px 6px;">Version</th>
+            <th style="padding: 8px 6px;">Quote Ref</th>
+            <th style="padding: 8px 6px;">Date</th>
+            <th style="padding: 8px 6px;">Beds</th>
+            <th style="padding: 8px 6px;">Value</th>
+            <th style="padding: 8px 6px;">Status</th>
+            <th style="padding: 8px 6px; text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="revModalTableBody">
+          <!-- Populated dynamically -->
+        </tbody>
+      </table>
     </div>
   </div>
 </div>

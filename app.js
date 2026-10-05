@@ -423,6 +423,120 @@ function getQuoteDateParts() {
   return { yy, mm, dd, dateStr: `${yy}${mm}${dd}` };
 }
 
+// ─── TOAST NOTIFICATIONS ──────────────────────────────────────────
+function showToast(msg, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerText = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.transition = 'opacity 0.3s, transform 0.3s';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
+    setTimeout(() => toast.remove(), 350);
+  }, duration);
+}
+
+// ─── LOCAL STATUS CACHE / OVERRIDES ──────────────────────────────
+function getLocalStatusOverrides() {
+  try {
+    return JSON.parse(localStorage.getItem('genxiot_quote_statuses') || '{}');
+  } catch(e) {
+    return {};
+  }
+}
+
+function setLocalStatusOverride(quoteRef, status) {
+  if (!quoteRef) return;
+  try {
+    const overrides = getLocalStatusOverrides();
+    overrides[quoteRef] = status;
+    localStorage.setItem('genxiot_quote_statuses', JSON.stringify(overrides));
+  } catch(e) {}
+}
+
+// ─── CALCULATOR DEAL STATUS & VERSIONING ──────────────────────────
+function onDealStatusChange() {
+  const select = document.getElementById('dealStatus');
+  if (!select) return;
+  const val = select.value;
+  select.className = 'status-select';
+  if (val === 'Closed Won') select.classList.add('status-won');
+  else if (val === 'Closed Lost') select.classList.add('status-lost');
+  else if (val === 'Revised') select.classList.add('status-revised');
+  else select.classList.add('status-pending');
+}
+
+function updateVersionBadge(vNum) {
+  const badge = document.getElementById('versionLabelBadge');
+  if (!badge) return;
+  const num = parseInt(vNum, 10) || 1;
+  badge.textContent = `V${num}`;
+  if (num > 1) {
+    badge.className = 'badge-v-rev';
+    badge.textContent = `V${num} (Rev)`;
+  } else {
+    badge.className = 'badge-v-latest';
+    badge.textContent = `V${num} (Latest)`;
+  }
+}
+
+function onVersionManualChange() {
+  const vInput = document.getElementById('quoteVersion');
+  if (!vInput) return;
+  let v = parseInt(vInput.value, 10);
+  if (isNaN(v) || v < 1) v = 1;
+  vInput.value = v;
+  updateVersionBadge(v);
+  generateQuoteRef();
+}
+
+function createNewRevision() {
+  const refInput = document.getElementById('quoteRef');
+  const vInput   = document.getElementById('quoteVersion');
+  const cName    = document.getElementById('clientName')?.value.trim() || '';
+
+  if (!cName) {
+    alert('Please enter a Hospital Name first.');
+    return;
+  }
+
+  const currentRef = refInput ? refInput.value : '';
+  const currentVersion = parseInt(vInput?.value, 10) || 1;
+  const nextVersion = currentVersion + 1;
+
+  if (vInput) vInput.value = nextVersion;
+
+  // Track the previous quote reference so we retire it upon saving
+  if (currentRef && !currentRef.includes('Generating')) {
+    window.previousRevisionRef = currentRef;
+  }
+
+  // Update Quote Ref with new version suffix
+  if (refInput && currentRef) {
+    if (/V\d+$/i.test(currentRef)) {
+      refInput.value = currentRef.replace(/V\d+$/i, 'V' + nextVersion);
+    } else {
+      refInput.value = currentRef + '-V' + nextVersion;
+    }
+  } else {
+    generateQuoteRef();
+  }
+
+  // Set deal status to Pending for the new revision
+  const statusEl = document.getElementById('dealStatus');
+  if (statusEl) {
+    statusEl.value = 'Pending';
+    onDealStatusChange();
+  }
+
+  updateVersionBadge(nextVersion);
+  showToast(`Revision V${nextVersion} created! Make adjustments and click Save.`, 'info', 4000);
+  recalc();
+}
+
 function generateQuoteRef() {
   const cName = document.getElementById('clientName')?.value.trim() || '';
   const vNum = document.getElementById('quoteVersion')?.value || '1';
@@ -448,6 +562,7 @@ function generateQuoteRef() {
     if (prefix.length < 3) prefix = prefix.padEnd(3, 'X'); // Pad if name is too short
     refInput.value = base + prefix + 'V' + vNum;
   }
+  updateVersionBadge(vNum);
   recalc();
 }
 
@@ -473,6 +588,9 @@ function saveQuote() {
   const cName = document.getElementById('clientName').value;
   if (!cName.trim()) { alert('Please enter a Hospital Name before saving.'); return; }
 
+  const dealStatus = document.getElementById('dealStatus')?.value || 'Pending';
+  const quoteVer   = document.getElementById('quoteVersion')?.value || '1';
+
   const btn = document.querySelector('button[onclick="saveQuote()"]');
   const orig = btn.innerHTML;
   btn.innerHTML = '<i data-lucide="loader" size="14"></i> <span>Saving…</span>';
@@ -492,6 +610,8 @@ function saveQuote() {
     poRef:             document.getElementById('poRef')?.value             || '',
     clientDistrict:    document.getElementById('clientDistrict')?.value    || '',
     clientState:       document.getElementById('clientState')?.value       || '',
+    status:            dealStatus,
+    quoteVersion:      quoteVer,
     chkSinglePendant:  document.getElementById('chkSinglePendant')?.checked  || false,
     chkDoublePendant:  document.getElementById('chkDoublePendant')?.checked  || false,
     chkDoorLight:      document.getElementById('chkDoorLight')?.checked      || false,
@@ -528,7 +648,8 @@ function saveQuote() {
     totalAmount:  gtNum,            // plain number — parseable by dashboard
     contactPerson: document.getElementById('contactPerson')?.value || '',
     totalBeds:    floors.reduce((a, f) => a + (f.beds || 0), 0),
-    quoteVersion: document.getElementById('quoteVersion')?.value || '1',
+    quoteVersion: quoteVer,
+    status:       dealStatus,
     floors:       floors,
     // Spread top-level copies for GAS columns (best effort)
     ...settings,
@@ -538,6 +659,16 @@ function saveQuote() {
   fetch(API_URL, { method: 'POST', body: JSON.stringify(dealData) })
     .then(r => r.json())
     .then(() => {
+      setLocalStatusOverride(qtn, dealStatus);
+      if (window.previousRevisionRef && window.previousRevisionRef !== qtn) {
+        setLocalStatusOverride(window.previousRevisionRef, 'Revised');
+        fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'updateStatus', quoteRef: window.previousRevisionRef, status: 'Revised' })
+        }).catch(e => console.warn('Retiring previous revision async:', e));
+        window.previousRevisionRef = null;
+      }
+      showToast(`Quote "${qtn}" saved (${dealStatus})`, 'success');
       btn.innerHTML = '<i data-lucide="check" size="14"></i> <span>Saved!</span>';
       if (window.lucide) lucide.createIcons({ root: btn });
       setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; if (window.lucide) lucide.createIcons({ root: btn }); }, 2500);
@@ -635,6 +766,10 @@ function restoreQuote(data) {
   // ── Client / Deal Info ─────────────────────────────────────────
   setVal('quoteRef',       data.quoteRef);
   setVal('quoteVersion',   data.quoteVersion || '1');
+  const restoredStatus = data.status || getLocalStatusOverrides()[data.quoteRef] || 'Pending';
+  setVal('dealStatus',     restoredStatus);
+  onDealStatusChange();
+  updateVersionBadge(data.quoteVersion || '1');
   setVal('quoteDate',      data.date ? data.date.split('T')[0] : '');
   setVal('clientName',     data.clientName);
   setVal('clientLocation', data.location);
@@ -1223,6 +1358,10 @@ function resetQuote(force = false) {
   // Client / deal info
   setVal('clientName',     '');
   setVal('quoteVersion',   '1');
+  setVal('dealStatus',     'Pending');
+  onDealStatusChange();
+  updateVersionBadge('1');
+  window.previousRevisionRef = null;
   setVal('clientLocation', '');
   setVal('clientDistrict', '');
   setVal('clientState',    '');
@@ -1450,13 +1589,11 @@ function createNewQuote() {
 }
 
 function fetchDashboardData() {
-  const webhookUrl = "https://script.google.com/macros/s/AKfycbydh0kfLEiWIYXpdd-jVmyVcDQ-edFZR1x111UF24ogYCi9j2Wsn8rPBNBWCAL4XO-guw/exec";
-  
-  fetch(webhookUrl, {
+  fetch(API_URL, {
     method: 'POST',
     body: JSON.stringify({ action: 'getAllQuotes' })
   })
-  .then(res => { return res.json(); })
+  .then(res => res.json())
   .then(data => {
     if(data.status === 'success') {
       renderDashboard(data.data);
@@ -1465,51 +1602,227 @@ function fetchDashboardData() {
   .catch(err => console.error("Error fetching dashboard data:", err));
 }
 
-window.allDashboardQuotes = []; // Global store for filtering
+window.allDashboardQuotes = [];
+window.enrichedDashboardQuotes = [];
+window.currentDashboardTab = 'active';
+window.currentChartMode = 'active';
+
+function enrichQuotesWithVersionAndStatus(rawQuotes) {
+  const localOverrides = getLocalStatusOverrides();
+
+  // First pass: extract version and group key
+  const parsed = rawQuotes.map(q => {
+    const ref = (q.quoteRef || '').trim();
+    let version = parseInt(q.quoteVersion, 10);
+    const vMatch = ref.match(/V(\d+)$/i);
+    if (vMatch) {
+      version = parseInt(vMatch[1], 10);
+    } else if (!version || isNaN(version)) {
+      version = 1;
+    }
+
+    // Group key: client name normalized (e.g. "jeevamedicarehospital")
+    const clientKey = (q.clientName || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    const rootMatch = ref.match(/^(GEN-ALA-\d{6,8}-\d{2,4}-[A-Z0-9]{3})/i);
+    const rootRef = rootMatch ? rootMatch[1].toUpperCase() : '';
+    const groupKey = clientKey || rootRef || ref;
+
+    return {
+      ...q,
+      version: version,
+      groupKey: groupKey,
+      rootRef: rootRef
+    };
+  });
+
+  // Group quotes by deal key
+  const groupMap = {};
+  parsed.forEach(q => {
+    if (!groupMap[q.groupKey]) groupMap[q.groupKey] = [];
+    groupMap[q.groupKey].push(q);
+  });
+
+  // Within each group, sort by version descending, then date descending
+  const enriched = [];
+  Object.keys(groupMap).forEach(key => {
+    const group = groupMap[key];
+    group.sort((a, b) => {
+      if (b.version !== a.version) return b.version - a.version;
+      const tA = a.date ? new Date(a.date).getTime() : 0;
+      const tB = b.date ? new Date(b.date).getTime() : 0;
+      return tB - tA;
+    });
+
+    const totalRevisions = group.length;
+
+    group.forEach((q, idx) => {
+      const isLatest = (idx === 0);
+
+      // Determine effective status:
+      // 1. Explicit local override
+      // 2. Remote status from Google Sheet
+      // 3. Intelligent default: older revision -> Revised; latest -> Pending
+      let st = localOverrides[q.quoteRef] || q.status;
+      if (!st || st.trim() === '') {
+        if (!isLatest && totalRevisions > 1) {
+          st = 'Revised';
+        } else {
+          st = 'Pending';
+        }
+      }
+
+      enriched.push({
+        ...q,
+        isLatest: isLatest,
+        totalRevisions: totalRevisions,
+        groupKey: key,
+        groupQuotes: group,
+        status: st
+      });
+    });
+  });
+
+  // Sort overall by date descending
+  enriched.sort((a, b) => {
+    const tA = a.date ? new Date(a.date).getTime() : 0;
+    const tB = b.date ? new Date(b.date).getTime() : 0;
+    return tB - tA;
+  });
+
+  return enriched;
+}
 
 function renderDashboard(quotes) {
   if (!Array.isArray(quotes)) return;
-  let totalVal = 0;
-  let totalBeds = 0;
-  
-  const clientValues = {};
-  
-  // Filter out blank rows and sort quotes by date descending
+
   const validQuotes = quotes.filter(q => q.quoteRef && q.quoteRef.trim() !== '');
-  validQuotes.sort((a, b) => {
-    const dA = a.date ? new Date(a.date).getTime() : 0;
-    const dB = b.date ? new Date(b.date).getTime() : 0;
-    return (dB || 0) - (dA || 0);
-  });
-
   window.allDashboardQuotes = validQuotes;
+  window.enrichedDashboardQuotes = enrichQuotesWithVersionAndStatus(validQuotes);
 
-  validQuotes.forEach((q, idx) => {
+  // Compute metrics:
+  let activePipelineValue = 0;
+  let wonRevenue = 0;
+  let activeDealsCount = 0;
+  let activeBeds = 0;
+
+  let countActive = 0;
+  let countAll = window.enrichedDashboardQuotes.length;
+  let countPending = 0;
+  let countWon = 0;
+  let countLost = 0;
+  let countRevised = 0;
+
+  window.enrichedDashboardQuotes.forEach(q => {
     const val = parseFloat(q.totalAmount) || 0;
-    totalVal += val;
-    totalBeds += parseInt(q.totalBeds) || 0;
-    
-    // Aggregating for chart
-    if(!clientValues[q.clientName]) clientValues[q.clientName] = 0;
-    clientValues[q.clientName] += val;
+    const beds = parseInt(q.totalBeds, 10) || 0;
+    const st = q.status;
+
+    if (st === 'Closed Won') {
+      wonRevenue += val;
+      countWon++;
+    } else if (st === 'Closed Lost') {
+      countLost++;
+    } else if (st === 'Revised') {
+      countRevised++;
+    } else {
+      // Pending
+      countPending++;
+    }
+
+    // Active pipeline: Deals that are Pending and the Latest version!
+    if (q.isLatest && (st === 'Pending' || !st)) {
+      activePipelineValue += val;
+      activeDealsCount++;
+      activeBeds += beds;
+      countActive++;
+    }
   });
-  
-  // Render table with top results initially
-  renderDashboardTable(validQuotes);
-  
-  // Update Cards
-  document.getElementById('dashTotalValue').innerText = `₹ ${totalVal.toLocaleString('en-IN')}`;
-  document.getElementById('dashTotalQuotes').innerText = quotes.length;
-  document.getElementById('dashTotalBeds').innerText = totalBeds;
-  
-  // Draw Chart
+
+  // Update Metric Cards
+  const valEl = document.getElementById('dashTotalValue');
+  if (valEl) valEl.innerText = `₹ ${Math.round(activePipelineValue).toLocaleString('en-IN')}`;
+
+  const activeSubEl = document.getElementById('dashActiveDealsSub');
+  if (activeSubEl) activeSubEl.innerText = `${activeDealsCount} live deals in active pipeline`;
+
+  const wonEl = document.getElementById('dashWonValue');
+  if (wonEl) wonEl.innerText = `₹ ${Math.round(wonRevenue).toLocaleString('en-IN')}`;
+
+  const wonSubEl = document.getElementById('dashWonDealsSub');
+  if (wonSubEl) wonSubEl.innerText = `${countWon} closed won orders`;
+
+  const activeDealsEl = document.getElementById('dashActiveDealsCount');
+  if (activeDealsEl) activeDealsEl.innerText = activeDealsCount;
+
+  const bedsSubEl = document.getElementById('dashBedsSub');
+  if (bedsSubEl) bedsSubEl.innerText = `${activeBeds} beds in active pipeline`;
+
+  const totalQuotesEl = document.getElementById('dashTotalQuotes');
+  if (totalQuotesEl) totalQuotesEl.innerText = countAll;
+
+  const revSubEl = document.getElementById('dashRevisionsSub');
+  if (revSubEl) revSubEl.innerText = `${countRevised} revisions · ${countLost} lost`;
+
+  // Update tab counts
+  setTabCount('countTabActive', countActive);
+  setTabCount('countTabAll', countAll);
+  setTabCount('countTabPending', countPending);
+  setTabCount('countTabWon', countWon);
+  setTabCount('countTabLost', countLost);
+  setTabCount('countTabRevised', countRevised);
+
+  // Render Table & Chart
+  filterDashboardQuotes();
+  renderPipelineChart();
+}
+
+function setTabCount(id, count) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = count;
+}
+
+function renderPipelineChart() {
   const ctx = document.getElementById('pipelineChart');
-  if(!ctx) return;
-  
+  if (!ctx) return;
+
+  const clientValues = {};
+  const mode = window.currentChartMode || 'active';
+
+  (window.enrichedDashboardQuotes || []).forEach(q => {
+    const val = parseFloat(q.totalAmount) || 0;
+    const st = q.status;
+    const cName = q.clientName || 'Unknown';
+
+    if (mode === 'active') {
+      // Latest version of Pending deals only
+      if (q.isLatest && (st === 'Pending' || !st)) {
+        clientValues[cName] = (clientValues[cName] || 0) + val;
+      }
+    } else if (mode === 'won') {
+      if (st === 'Closed Won') {
+        clientValues[cName] = (clientValues[cName] || 0) + val;
+      }
+    } else {
+      // All deals (latest version of each client)
+      if (q.isLatest) {
+        clientValues[cName] = (clientValues[cName] || 0) + val;
+      }
+    }
+  });
+
+  const chartSub = document.getElementById('chartFilterSub');
+  if (chartSub) {
+    if (mode === 'active') chartSub.innerText = 'Active pipeline deals (latest versions only)';
+    else if (mode === 'won') chartSub.innerText = 'Confirmed Closed Won deals';
+    else chartSub.innerText = 'All clients (latest quote version per client)';
+  }
+
   if (pipelineChartInstance) {
     pipelineChartInstance.destroy();
   }
-  
+
+  const bgColors = mode === 'won' ? '#10b981' : (mode === 'active' ? '#00d4ff' : '#3b3fa8');
+
   pipelineChartInstance = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -1517,18 +1830,44 @@ function renderDashboard(quotes) {
       datasets: [{
         label: 'Deal Value (INR)',
         data: Object.values(clientValues),
-        backgroundColor: '#00d084',
+        backgroundColor: bgColors,
         borderRadius: 4
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(c) {
+              return '₹ ' + Math.round(c.raw).toLocaleString('en-IN');
+            }
+          }
+        }
+      },
       scales: {
-        y: { beginAtZero: true }
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(v) { return '₹' + (v >= 100000 ? (v / 100000).toFixed(1) + 'L' : v.toLocaleString('en-IN')); }
+          }
+        }
       }
     }
   });
+}
+
+function setChartMode(mode) {
+  window.currentChartMode = mode;
+  ['btnChartActive', 'btnChartWon', 'btnChartAll'].forEach(id => {
+    const b = document.getElementById(id);
+    if (b) b.classList.remove('active');
+  });
+  const activeBtn = document.getElementById(`btnChart${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
+  if (activeBtn) activeBtn.classList.add('active');
+  renderPipelineChart();
 }
 
 // On App Load, show dashboard by default
@@ -1780,32 +2119,213 @@ async function mergePdfs() {
 
 
 
+function setDashboardTab(tabName) {
+  window.currentDashboardTab = tabName;
+  document.querySelectorAll('.filter-tab').forEach(b => {
+    if (b.getAttribute('data-tab') === tabName) {
+      b.classList.add('active');
+    } else {
+      b.classList.remove('active');
+    }
+  });
+  filterDashboardQuotes();
+}
+
+function filterDashboardQuotes() {
+  const query = (document.getElementById('dashSearchInput')?.value || '').toLowerCase().trim();
+  const tab   = window.currentDashboardTab || 'active';
+
+  let list = window.enrichedDashboardQuotes || [];
+
+  // Filter according to active tab
+  if (tab === 'active') {
+    list = list.filter(q => q.isLatest && (q.status === 'Pending' || !q.status));
+  } else if (tab === 'pending') {
+    list = list.filter(q => q.status === 'Pending' || (!q.status && q.isLatest));
+  } else if (tab === 'won') {
+    list = list.filter(q => q.status === 'Closed Won');
+  } else if (tab === 'lost') {
+    list = list.filter(q => q.status === 'Closed Lost');
+  } else if (tab === 'revised') {
+    list = list.filter(q => q.status === 'Revised');
+  }
+  // 'all' shows all rows
+
+  // Search filter
+  if (query) {
+    list = list.filter(q =>
+      (q.quoteRef || '').toLowerCase().includes(query) ||
+      (q.clientName || '').toLowerCase().includes(query) ||
+      (q.location || '').toLowerCase().includes(query) ||
+      (q.status || '').toLowerCase().includes(query)
+    );
+  }
+
+  renderDashboardTable(list);
+}
+
 function renderDashboardTable(list) {
   const tbody = document.getElementById('dashTableBody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  // Show top 30 matches
-  list.slice(0, 30).forEach(q => {
+
+  if (list.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding: 36px 12px; color: var(--muted); font-size: 0.85rem;">
+          <i data-lucide="inbox" size="24" style="margin-bottom: 6px; opacity: 0.6;"></i>
+          <div>No quotes match the selected filter.</div>
+        </td>
+      </tr>
+    `;
+    if (window.lucide) lucide.createIcons({ root: tbody });
+    return;
+  }
+
+  list.forEach(q => {
     const val = parseFloat(q.totalAmount) || 0;
+    const dateFormatted = q.date ? q.date.split('T')[0] : '';
+    const st = q.status || 'Pending';
+    const statusClass = st.toLowerCase().replace(/\s+/g, '');
+
+    const versionBadge = q.isLatest
+      ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
+      : `<span class="badge-v-rev">V${q.version} (Rev)</span>`;
+
+    const revisionBtn = q.totalRevisions > 1
+      ? `<button type="button" class="btn-view-revisions" onclick="showRevisionHistory('${q.groupKey}')" title="View all ${q.totalRevisions} revisions">
+           <i data-lucide="layers" size="12"></i> ${q.totalRevisions} Revs
+         </button>`
+      : '';
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${q.date ? q.date.split('T')[0] : ''}</td>
-      <td>${q.quoteRef}</td>
-      <td>${q.clientName}</td>
-      <td>₹ ${val.toLocaleString('en-IN')}</td>
-      <td><button class="btn btn-sm btn-ghost" style="padding: 2px 8px; font-size: 0.75rem; color: var(--brand-cyan);" onclick="loadQuoteFromDashboard(event, '${q.quoteRef}')">Open</button></td>
+      <td style="white-space:nowrap; color:var(--mid); font-family:var(--font-mono, monospace); font-size:0.75rem;">${dateFormatted}</td>
+      <td>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-weight:600; font-family:monospace; color:var(--brand-navy); font-size:0.8rem;">${q.quoteRef}</span>
+          ${versionBadge}
+          ${revisionBtn}
+        </div>
+      </td>
+      <td>
+        <div style="font-weight:600; color:var(--ink);">${q.clientName}</div>
+        ${q.location ? `<div style="font-size:0.72rem; color:var(--muted);">${q.location}</div>` : ''}
+      </td>
+      <td style="font-weight:700; white-space:nowrap; color:var(--brand-indigo);">
+        ₹ ${Math.round(val).toLocaleString('en-IN')}
+        <div style="font-size:0.7rem; font-weight:400; color:var(--muted);">${q.totalBeds || 0} Beds</div>
+      </td>
+      <td>
+        <select class="status-select status-${statusClass}" onchange="changeQuoteStatus(event, '${q.quoteRef}')">
+          <option value="Pending" ${st === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+          <option value="Closed Won" ${st === 'Closed Won' ? 'selected' : ''}>🏆 Closed Won</option>
+          <option value="Closed Lost" ${st === 'Closed Lost' ? 'selected' : ''}>❌ Closed Lost</option>
+          <option value="Revised" ${st === 'Revised' ? 'selected' : ''}>🔄 Revised</option>
+        </select>
+      </td>
+      <td style="text-align: right; white-space:nowrap;">
+        <button class="btn btn-sm btn-ghost" style="padding: 4px 10px; font-size: 0.76rem; color: var(--brand-indigo); font-weight:600;" onclick="loadQuoteFromDashboard(event, '${q.quoteRef}')">
+          <i data-lucide="folder-open" size="13"></i> Open
+        </button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+
+  if (window.lucide) lucide.createIcons({ root: tbody });
 }
 
-function filterDashboardQuotes() {
-  const query = (document.getElementById('dashSearchInput').value || '').toLowerCase();
-  const filtered = window.allDashboardQuotes.filter(q => 
-    (q.quoteRef || '').toLowerCase().includes(query) || 
-    (q.clientName || '').toLowerCase().includes(query)
-  );
-  renderDashboardTable(filtered);
+function changeQuoteStatus(event, quoteRef) {
+  const select = event.target;
+  const newStatus = select.value;
+
+  // Immediately update select styling
+  const statusClass = newStatus.toLowerCase().replace(/\s+/g, '');
+  select.className = `status-select status-${statusClass}`;
+
+  // Persist locally immediately for instant feedback
+  setLocalStatusOverride(quoteRef, newStatus);
+
+  // Update in memory models
+  if (window.enrichedDashboardQuotes) {
+    const item = window.enrichedDashboardQuotes.find(q => q.quoteRef === quoteRef);
+    if (item) item.status = newStatus;
+  }
+
+  showToast(`Updated "${quoteRef}" to ${newStatus}`, 'success', 2500);
+
+  // Send update to Google Apps Script
+  fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'updateStatus', quoteRef: quoteRef, status: newStatus })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status !== 'success') {
+      console.warn('Backend updateStatus response:', res);
+    }
+  })
+  .catch(err => {
+    console.warn('Remote updateStatus pending sync:', err);
+  });
+
+  // Re-calculate dashboard metrics and refresh
+  renderDashboard(window.allDashboardQuotes);
+}
+
+function showRevisionHistory(groupKey) {
+  const modal = document.getElementById('revisionModal');
+  const tbody = document.getElementById('revModalTableBody');
+  const titleEl = document.getElementById('revModalTitle');
+  const subEl = document.getElementById('revModalSubtitle');
+  if (!modal || !tbody) return;
+
+  const quotes = (window.enrichedDashboardQuotes || []).filter(q => q.groupKey === groupKey);
+  if (quotes.length === 0) return;
+
+  quotes.sort((a, b) => (b.version || 1) - (a.version || 1));
+
+  const clientName = quotes[0].clientName || 'Client';
+  if (titleEl) titleEl.innerText = `Revision History: ${clientName}`;
+  if (subEl) subEl.innerText = `${quotes.length} versions tracked in timeline`;
+
+  tbody.innerHTML = '';
+  quotes.forEach((q, idx) => {
+    const isLatest = (idx === 0);
+    const val = parseFloat(q.totalAmount) || 0;
+    const dateFormatted = q.date ? q.date.split('T')[0] : '';
+    const st = q.status || 'Pending';
+    const statusClass = st.toLowerCase().replace(/\s+/g, '');
+
+    const badge = isLatest
+      ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
+      : `<span class="badge-v-rev">V${q.version} (Rev)</span>`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding:10px 6px;">${badge}</td>
+      <td style="padding:10px 6px; font-family:monospace; font-weight:600; font-size:0.78rem;">${q.quoteRef}</td>
+      <td style="padding:10px 6px; font-size:0.76rem; color:var(--mid);">${dateFormatted}</td>
+      <td style="padding:10px 6px; font-size:0.76rem;">${q.totalBeds || 0}</td>
+      <td style="padding:10px 6px; font-weight:700; color:var(--brand-indigo);">₹ ${Math.round(val).toLocaleString('en-IN')}</td>
+      <td style="padding:10px 6px;">
+        <span class="status-select status-${statusClass}" style="display:inline-block; font-size:0.7rem; pointer-events:none;">${st}</span>
+      </td>
+      <td style="padding:10px 6px; text-align:right;">
+        <button class="btn btn-sm btn-ghost" style="padding:3px 8px; font-size:0.75rem; color:var(--brand-indigo); font-weight:600;" onclick="closeRevisionModal(); loadQuoteFromDashboard(event, '${q.quoteRef}')">Open</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  modal.classList.add('open');
+  if (window.lucide) lucide.createIcons({ root: tbody });
+}
+
+function closeRevisionModal() {
+  const modal = document.getElementById('revisionModal');
+  if (modal) modal.classList.remove('open');
 }
 
 function loadQuoteFromDashboard(event, ref) {
