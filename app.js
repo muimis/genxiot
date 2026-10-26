@@ -348,7 +348,8 @@ function addCustomItem() {
 
 // ─── PRESETS ─────────────────────────────────────────────────────
 function loadPreset(preset) {
-  document.getElementById('presetDrop').classList.remove('open');
+  document.getElementById('presetDrop')?.classList.remove('open');
+
 
   const presets = {
     small: {
@@ -458,6 +459,7 @@ function setLocalStatusOverride(quoteRef, status) {
 }
 
 // ─── CALCULATOR DEAL STATUS & VERSIONING ──────────────────────────
+// ─── CALCULATOR DEAL STATUS & VERSIONING ──────────────────────────
 function onDealStatusChange() {
   const select = document.getElementById('dealStatus');
   if (!select) return;
@@ -466,15 +468,19 @@ function onDealStatusChange() {
   if (val === 'Closed Won') select.classList.add('status-won');
   else if (val === 'Closed Lost') select.classList.add('status-lost');
   else if (val === 'Revised') select.classList.add('status-revised');
+  else if (val === 'Active Option') select.classList.add('status-option');
   else select.classList.add('status-pending');
 }
 
-function updateVersionBadge(vNum) {
+function updateVersionBadge(vNum, isOption) {
   const badge = document.getElementById('versionLabelBadge');
   if (!badge) return;
   const num = parseInt(vNum, 10) || 1;
-  badge.textContent = `V${num}`;
-  if (num > 1) {
+  const statusVal = document.getElementById('dealStatus')?.value;
+  if (isOption || statusVal === 'Active Option') {
+    badge.className = 'badge-v-option';
+    badge.textContent = `V${num} (Option)`;
+  } else if (num > 1) {
     badge.className = 'badge-v-rev';
     badge.textContent = `V${num} (Rev)`;
   } else {
@@ -494,14 +500,49 @@ function onVersionManualChange() {
 }
 
 function createNewRevision() {
-  const refInput = document.getElementById('quoteRef');
-  const vInput   = document.getElementById('quoteVersion');
-  const cName    = document.getElementById('clientName')?.value.trim() || '';
-
+  const cName = document.getElementById('clientName')?.value.trim() || '';
   if (!cName) {
-    alert('Please enter a Hospital Name first.');
+    showToast('Please enter a Hospital Name first.', 'error');
     return;
   }
+  const modal = document.getElementById('newRevisionModal');
+  if (modal) {
+    selectRevisionChoice('linear');
+    modal.classList.add('open');
+  }
+}
+
+function selectRevisionChoice(type) {
+  window.currentRevisionChoice = type;
+  const cLinear = document.getElementById('choiceLinear');
+  const cOption = document.getElementById('choiceOption');
+  if (cLinear && cOption) {
+    if (type === 'linear') {
+      cLinear.classList.add('active');
+      cOption.classList.remove('active');
+      const r = cLinear.querySelector('input[type="radio"]');
+      if (r) r.checked = true;
+    } else {
+      cOption.classList.add('active');
+      cLinear.classList.remove('active');
+      const r = cOption.querySelector('input[type="radio"]');
+      if (r) r.checked = true;
+    }
+  }
+}
+
+function closeNewRevisionModal() {
+  const modal = document.getElementById('newRevisionModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function confirmCreateRevision() {
+  const choice = window.currentRevisionChoice || 'linear';
+  closeNewRevisionModal();
+
+  const refInput = document.getElementById('quoteRef');
+  const vInput   = document.getElementById('quoteVersion');
+  const statusEl = document.getElementById('dealStatus');
 
   const currentRef = refInput ? refInput.value : '';
   const currentVersion = parseInt(vInput?.value, 10) || 1;
@@ -509,31 +550,52 @@ function createNewRevision() {
 
   if (vInput) vInput.value = nextVersion;
 
-  // Track the previous quote reference so we retire it upon saving
-  if (currentRef && !currentRef.includes('Generating')) {
-    window.previousRevisionRef = currentRef;
-  }
-
-  // Update Quote Ref with new version suffix
-  if (refInput && currentRef) {
-    if (/V\d+$/i.test(currentRef)) {
-      refInput.value = currentRef.replace(/V\d+$/i, 'V' + nextVersion);
-    } else {
-      refInput.value = currentRef + '-V' + nextVersion;
+  if (choice === 'linear') {
+    // Sequential revision: will retire previous version on save
+    window.selectedRevisionWithdraw = true;
+    if (currentRef && !currentRef.includes('Generating')) {
+      window.previousRevisionRef = currentRef;
     }
+
+    if (refInput && currentRef) {
+      if (/V\d+$/i.test(currentRef)) {
+        refInput.value = currentRef.replace(/V\d+$/i, 'V' + nextVersion);
+      } else {
+        refInput.value = currentRef + '-V' + nextVersion;
+      }
+    } else {
+      generateQuoteRef();
+    }
+
+    if (statusEl) {
+      statusEl.value = 'Pending';
+      onDealStatusChange();
+    }
+    updateVersionBadge(nextVersion, false);
+    showToast(`Revision V${nextVersion} created (Sequential Update). Previous quote will be marked Revised upon save.`, 'info', 4500);
   } else {
-    generateQuoteRef();
+    // Alternative Option / Scenario: Both stand active!
+    window.selectedRevisionWithdraw = false;
+    window.previousRevisionRef = null; // Do NOT retire previous version
+
+    if (refInput && currentRef) {
+      if (/V\d+$/i.test(currentRef)) {
+        refInput.value = currentRef.replace(/V\d+$/i, 'V' + nextVersion);
+      } else {
+        refInput.value = currentRef + '-V' + nextVersion;
+      }
+    } else {
+      generateQuoteRef();
+    }
+
+    if (statusEl) {
+      statusEl.value = 'Active Option';
+      onDealStatusChange();
+    }
+    updateVersionBadge(nextVersion, true);
+    showToast(`Alternative Option V${nextVersion} created! Both proposals remain active for client selection.`, 'info', 5000);
   }
 
-  // Set deal status to Pending for the new revision
-  const statusEl = document.getElementById('dealStatus');
-  if (statusEl) {
-    statusEl.value = 'Pending';
-    onDealStatusChange();
-  }
-
-  updateVersionBadge(nextVersion);
-  showToast(`Revision V${nextVersion} created! Make adjustments and click Save.`, 'info', 4000);
   recalc();
 }
 
@@ -603,9 +665,15 @@ function saveQuote() {
     discVal:           document.getElementById('discVal')?.value           || '0',
     shipping:          document.getElementById('shipping')?.value          || '3500',
     advPct:            document.getElementById('advPct')?.value            || '50',
-    delivery:          document.getElementById('delivery')?.value          || '',
-    warranty:          document.getElementById('warranty')?.value          || '',
-    scopeNotes:        document.getElementById('scopeNotes')?.value        || '',
+    delivery:                  document.getElementById('delivery')?.value                  || '',
+    warranty:                  document.getElementById('warranty')?.value                  || '',
+    extWarrantyOpt:            document.getElementById('extWarrantyOpt')?.value            || 'none',
+    extWarrantyDuration:       document.getElementById('extWarrantyDuration')?.value       || '1 Year (12 Months)',
+    extWarrantyCustomDuration: document.getElementById('extWarrantyCustomDuration')?.value || '',
+    extWarrantyPct:            document.getElementById('extWarrantyPct')?.value            || '10',
+    extWarrantyTerms:          document.getElementById('extWarrantyTerms')?.value          || '',
+    scopeNotes:                document.getElementById('scopeNotes')?.value                || '',
+
     additionalDetails: document.getElementById('additionalDetails')?.value || '',
     poRef:             document.getElementById('poRef')?.value             || '',
     clientDistrict:    document.getElementById('clientDistrict')?.value    || '',
@@ -640,6 +708,8 @@ function saveQuote() {
   const gtText = document.getElementById('calcGT')?.textContent || '0';
   const gtNum  = parseFloat(gtText.replace(/[^0-9.]/g, '')) || 0;
 
+  const shouldWithdraw = window.selectedRevisionWithdraw !== false;
+
   const dealData = {
     action: 'saveQuote',
     quoteRef:     qtn,
@@ -650,6 +720,7 @@ function saveQuote() {
     totalBeds:    floors.reduce((a, f) => a + (f.beds || 0), 0),
     quoteVersion: quoteVer,
     status:       dealStatus,
+    withdrawPrevious: shouldWithdraw,
     floors:       floors,
     // Spread top-level copies for GAS columns (best effort)
     ...settings,
@@ -660,14 +731,15 @@ function saveQuote() {
     .then(r => r.json())
     .then(() => {
       setLocalStatusOverride(qtn, dealStatus);
-      if (window.previousRevisionRef && window.previousRevisionRef !== qtn) {
+      if (shouldWithdraw && window.previousRevisionRef && window.previousRevisionRef !== qtn) {
         setLocalStatusOverride(window.previousRevisionRef, 'Revised');
         fetch(API_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'updateStatus', quoteRef: window.previousRevisionRef, status: 'Revised' })
         }).catch(e => console.warn('Retiring previous revision async:', e));
-        window.previousRevisionRef = null;
       }
+      window.previousRevisionRef = null;
+      window.selectedRevisionWithdraw = true;
       showToast(`Quote "${qtn}" saved (${dealStatus})`, 'success');
       btn.innerHTML = '<i data-lucide="check" size="14"></i> <span>Saved!</span>';
       if (window.lucide) lucide.createIcons({ root: btn });
@@ -703,8 +775,9 @@ function deleteQuote() {
       
       if (data.status === 'success') {
         alert('Quote deleted successfully.');
-        document.getElementById('dashBtn').click(); // Go back to dashboard
+        showDashboard(); // Go back to dashboard cleanly
       } else {
+
         alert(data.message || 'Error deleting quote.');
       }
     })
@@ -803,8 +876,16 @@ function restoreQuote(data) {
   // ── Terms & Notes ──────────────────────────────────────────────
   if (data.delivery)          setVal('delivery',          data.delivery);
   if (data.warranty)          setVal('warranty',          data.warranty);
+  setVal('extWarrantyOpt',            data.extWarrantyOpt !== undefined ? data.extWarrantyOpt : 'optional');
+  setVal('extWarrantyDuration',       data.extWarrantyDuration || '1 Year (12 Months)');
+  setVal('extWarrantyCustomDuration', data.extWarrantyCustomDuration || '');
+  setVal('extWarrantyPct',            data.extWarrantyPct !== undefined ? data.extWarrantyPct : '10');
+  if (data.extWarrantyTerms) setVal('extWarrantyTerms', data.extWarrantyTerms);
+  onExtWarrantyDurationChange();
+  onExtWarrantyChange();
   if (data.scopeNotes)        setVal('scopeNotes',        data.scopeNotes);
   if (data.additionalDetails) setVal('additionalDetails', data.additionalDetails);
+
 
   // ── Bank details ───────────────────────────────────────────────
   // Bank details are now strictly hardcoded in the HTML output and need not be loaded
@@ -959,12 +1040,40 @@ function applyMargin() {
   renderBOM();
 }
 
+// ─── EXTENDED WARRANTY HELPERS ──────────────────────────────────
+function getExtWarrantyDuration() {
+  const dSelect = document.getElementById('extWarrantyDuration');
+  if (!dSelect) return '1 Year (12 Months)';
+  if (dSelect.value === 'custom') {
+    return document.getElementById('extWarrantyCustomDuration')?.value.trim() || '1 Year (12 Months)';
+  }
+  return dSelect.value;
+}
+
+function onExtWarrantyDurationChange() {
+  const dSelect = document.getElementById('extWarrantyDuration');
+  const customInput = document.getElementById('extWarrantyCustomDuration');
+  if (dSelect && customInput) {
+    customInput.style.display = (dSelect.value === 'custom') ? 'block' : 'none';
+  }
+  recalc();
+}
+
+function onExtWarrantyChange() {
+  const opt = document.getElementById('extWarrantyOpt')?.value || 'none';
+  const fields = document.getElementById('extWarrantyFields');
+  if (fields) {
+    fields.style.display = (opt === 'none') ? 'none' : 'flex';
+  }
+  recalc();
+}
+
 // ─── FINANCIAL CALCULATION ───────────────────────────────────────
 // CORRECT GST LOGIC:
 //   1. Calculate subtotal (sum of all line items, ex-GST)
 //   2. Apply discount on subtotal
-//   3. Add shipping
-//   4. Taxable value = (subtotal - discount) + shipping
+//   3. Add shipping & extended warranty (if included)
+//   4. Taxable value = (subtotal - discount) + extWarrantyTaxable + shipping
 //   5. CGST = taxable × 9%
 //   6. SGST = taxable × 9%
 //   7. Grand Total = taxable + CGST + SGST
@@ -972,17 +1081,40 @@ function applyMargin() {
 function recalc() {
   const subtotal = bom.reduce((sum, item) => sum + (item.qty * item.rate), 0);
 
-  const discType = document.getElementById('discType').value;
-  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal').value) || 0);
-  const shipping = Math.max(0, parseFloat(document.getElementById('shipping').value) || 0);
-  const advPct   = Math.max(0, Math.min(100, parseFloat(document.getElementById('advPct').value) || 50));
+  const discType = document.getElementById('discType')?.value || 'none';
+  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal')?.value) || 0);
+  const shipping = Math.max(0, parseFloat(document.getElementById('shipping')?.value) || 0);
+  const advPct   = Math.max(0, Math.min(100, parseFloat(document.getElementById('advPct')?.value) || 50));
 
   let discount = 0;
   if (discType === 'pct')  discount = subtotal * (discVal / 100);
   if (discType === 'flat') discount = Math.min(discVal, subtotal); // can't exceed subtotal
 
+  // Extended Warranty Calculation
+  const extOpt = document.getElementById('extWarrantyOpt')?.value || 'none';
+  const extPct = Math.max(0, parseFloat(document.getElementById('extWarrantyPct')?.value) || 0);
+  const extDuration = getExtWarrantyDuration();
+  const extAmt = Math.round(subtotal * (extPct / 100));
+  const isExtBilled = (extOpt === 'included');
+
+  // Update badge on sidebar card
+  const badgeEl = document.getElementById('extWarrantyAmountBadge');
+  if (badgeEl) {
+    if (extOpt === 'none') {
+      badgeEl.textContent = 'Standard Only';
+      badgeEl.className = 'badge-v-rev';
+    } else if (extOpt === 'included') {
+      badgeEl.textContent = `₹${fmt(extAmt)} (Billed)`;
+      badgeEl.className = 'badge-v-latest';
+    } else {
+      badgeEl.textContent = `₹${fmt(extAmt)} (Optional)`;
+      badgeEl.className = 'badge-v-option';
+    }
+  }
+
   const afterDiscount = subtotal - discount;
-  const taxableValue  = afterDiscount + shipping;
+  const extWarrantyTaxable = isExtBilled ? extAmt : 0;
+  const taxableValue  = afterDiscount + extWarrantyTaxable + shipping;
   const cgst          = taxableValue * 0.09;
   const sgst          = taxableValue * 0.09;
   const exactGrandTotal = taxableValue + cgst + sgst;
@@ -995,6 +1127,17 @@ function recalc() {
   setText('calcCGST',   '₹' + fmt(cgst));
   setText('calcSGST',   '₹' + fmt(sgst));
   
+  const calcExtWarrantyRow = document.getElementById('calcExtWarrantyRow');
+  if (calcExtWarrantyRow) {
+    if (isExtBilled) {
+      calcExtWarrantyRow.style.display = 'flex';
+      setText('calcExtWarrantyPctLabel', `${extPct}%`);
+      setText('calcExtWarrantyVal', '₹' + fmt(extAmt));
+    } else {
+      calcExtWarrantyRow.style.display = 'none';
+    }
+  }
+
   const roundOffRow = document.getElementById('roundOffRow');
   if (roundOffRow) {
     if (Math.abs(roundOff) > 0.001) {
@@ -1021,14 +1164,18 @@ function recalc() {
   const postPct = document.getElementById('postPct');
   if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
 
-  syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff);
+  syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff, {
+    extOpt, extPct, extDuration, extAmt, isExtBilled
+  });
 }
 
 
 
 
+
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
-function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff) {
+function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff, extInfo) {
+
   const clientName    = (document.getElementById('clientName')?.value)    || '';
   const clientLoc     = (document.getElementById('clientLocation')?.value) || '';
   const clientDist    = (document.getElementById('clientDistrict')?.value) || '';
@@ -1206,6 +1353,46 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   // Totals in proposal
   setText('qSub',      '₹' + fmt(subtotal));
   setText('qShipping', '₹' + fmt(shipping));
+
+  // Commercial Details: Extended warranty bill row if included
+  const qExtWarrantyBillRow = document.getElementById('qExtWarrantyBillRow');
+  if (qExtWarrantyBillRow) {
+    if (extInfo?.isExtBilled) {
+      qExtWarrantyBillRow.style.display = '';
+      setText('qExtWarrantyBillLabel', `${extInfo.extDuration} @ ${extInfo.extPct}%`);
+      setText('qExtWarrantyBillVal', '₹' + fmt(extInfo.extAmt));
+    } else {
+      qExtWarrantyBillRow.style.display = 'none';
+    }
+  }
+
+  // Optional Note for Extended Warranty if optional
+  const qExtOptNote = document.getElementById('qExtWarrantyOptNote');
+  if (qExtOptNote) {
+    if (extInfo?.extOpt === 'optional') {
+      qExtOptNote.style.display = 'block';
+      qExtOptNote.innerHTML = `
+        <div style="padding: 10px 14px; border: 1px dashed var(--brand-indigo); border-radius: 6px; background: #f8faff; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.8rem; color: var(--brand-navy); display: flex; align-items: center; gap: 6px;">
+              <span>🛡️ OPTIONAL EXTENDED WARRANTY &amp; REPLACEMENT (${extInfo.extDuration.toUpperCase()})</span>
+            </div>
+            <div style="font-size: 0.73rem; color: #555; margin-top: 2px;">
+              Available on additional payment of ${extInfo.extPct}% of component cost (covering defective unit/part repair &amp; replacement). Consumables &amp; battery excluded.
+            </div>
+          </div>
+          <div style="text-align: right; white-space: nowrap;">
+            <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-indigo);">+₹${fmt(extInfo.extAmt)}</div>
+            <div style="font-size: 0.65rem; color: #777;">+ 18% GST (Optional)</div>
+          </div>
+        </div>
+      `;
+    } else {
+      qExtOptNote.style.display = 'none';
+      qExtOptNote.innerHTML = '';
+    }
+  }
+
   setText('qTaxable',  '₹' + fmt(taxable));
   setText('qCGST',     '₹' + fmt(cgst));
   setText('qSGST',     '₹' + fmt(sgst));
@@ -1247,6 +1434,24 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qDelivery', delivery);
   setText('qWarranty', warranty);
   setText('qScope',    scopeNotes);
+
+  // Extended Warranty Clause in Terms & Conditions
+  const extTermsText = (document.getElementById('extWarrantyTerms')?.value) || 'Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).';
+  const qExtRow = document.getElementById('qExtWarrantyRow');
+  const qExtSpan = document.getElementById('qExtWarranty');
+  if (qExtRow && qExtSpan) {
+    if (extInfo?.extOpt === 'included') {
+      qExtRow.style.display = '';
+      qExtSpan.innerHTML = `Provided for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)}). Covers ${extTermsText} Following standard warranty completion.`;
+    } else if (extInfo?.extOpt === 'optional') {
+      qExtRow.style.display = '';
+      qExtSpan.innerHTML = `Available for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)} + applicable GST). Covers ${extTermsText} May be opted at order placement or prior to standard warranty expiry.`;
+    } else {
+      qExtRow.style.display = 'none';
+      qExtSpan.textContent = '';
+    }
+  }
+
 
   // Additional Details
   const qAdditional    = document.getElementById('qAdditionalDetails');
@@ -1379,7 +1584,15 @@ function resetQuote(force = false) {
   // Terms
   setVal('delivery',  '25 days from order confirmation & advance receipt');
   setVal('warranty',  '12 months comprehensive from installation date');
+  setVal('extWarrantyOpt',            'optional');
+  setVal('extWarrantyDuration',       '1 Year (12 Months)');
+  setVal('extWarrantyCustomDuration', '');
+  setVal('extWarrantyPct',            '10');
+  setVal('extWarrantyTerms',          'Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).');
+  onExtWarrantyDurationChange();
+  onExtWarrantyChange();
   setVal('scopeNotes','Wall mounting and electrical work by the hospital. Configuration, calibration & go-live training by GenXIoT.');
+
   setVal('additionalDetails', '');
   // Checkboxes
   setChk('chkSinglePendant', true);
@@ -1411,8 +1624,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (presetBtn) {
     presetBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      document.getElementById('presetDrop').classList.toggle('open');
+      document.getElementById('presetDrop')?.classList.toggle('open');
     });
+
   }
   document.addEventListener('click', () => {
     const drop = document.getElementById('presetDrop');
@@ -1437,15 +1651,22 @@ function exportCSV() {
     csv += `${item.code},${escName},${escDesc},${item.qty},${item.rate},${amt}\n`;
   });
 
-  const discType = document.getElementById('discType').value;
-  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal').value) || 0);
-  const shipping = Math.max(0, parseFloat(document.getElementById('shipping').value) || 0);
+  const discType = document.getElementById('discType')?.value || 'none';
+  const discVal  = Math.max(0, parseFloat(document.getElementById('discVal')?.value) || 0);
+  const shipping = Math.max(0, parseFloat(document.getElementById('shipping')?.value) || 0);
 
   let discount = 0;
   if (discType === 'pct') discount = subtotal * (discVal / 100);
   if (discType === 'flat') discount = Math.min(discVal, subtotal);
 
-  const taxable = subtotal - discount + shipping;
+  const extOpt = document.getElementById('extWarrantyOpt')?.value || 'none';
+  const extPct = Math.max(0, parseFloat(document.getElementById('extWarrantyPct')?.value) || 0);
+  const extDuration = getExtWarrantyDuration();
+  const extAmt = Math.round(subtotal * (extPct / 100));
+  const isExtBilled = (extOpt === 'included');
+
+  const extTaxable = isExtBilled ? extAmt : 0;
+  const taxable = subtotal - discount + extTaxable + shipping;
   const cgst = taxable * 0.09;
   const sgst = taxable * 0.09;
   const exactGrand = taxable + cgst + sgst;
@@ -1453,14 +1674,19 @@ function exportCSV() {
   const roundOff = Number((grand - exactGrand).toFixed(2));
 
   csv += '\n,,,,,';
-  csv += `\nSubtotal,,,,,${subtotal}`;
+  csv += `\nSubtotal (Components),,,,,${subtotal}`;
   if (discount > 0) csv += `\nDiscount,,,,, -${discount}`;
+  if (isExtBilled && extAmt > 0) csv += `\nExtended Warranty (${extDuration} @ ${extPct}%),,,,, ${extAmt}`;
   if (shipping > 0) csv += `\nShipping,,,,, ${shipping}`;
   csv += `\nTaxable Value,,,,,${taxable}`;
   csv += `\nCGST (9%),,,,,${cgst}`;
   csv += `\nSGST (9%),,,,,${sgst}`;
   if (Math.abs(roundOff) > 0.001) csv += `\nRound Off,,,,,${roundOff}`;
   csv += `\nGrand Total,,,,,${grand}`;
+  if (extOpt === 'optional' && extAmt > 0) {
+    csv += `\nOptional Extended Warranty (${extDuration} @ ${extPct}%),,,,, ${extAmt} (+ 18% GST)`;
+  }
+
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -1711,6 +1937,10 @@ function renderDashboard(quotes) {
   let countWon = 0;
   let countLost = 0;
   let countRevised = 0;
+  let optionScenariosCount = 0;
+
+  // Active prospective deals grouped by client to avoid double counting alternate options
+  const activeDealsByGroup = {};
 
   window.enrichedDashboardQuotes.forEach(q => {
     const val = parseFloat(q.totalAmount) || 0;
@@ -1725,17 +1955,35 @@ function renderDashboard(quotes) {
     } else if (st === 'Revised') {
       countRevised++;
     } else {
-      // Pending
+      // Pending or Active Option
       countPending++;
+      if (st === 'Active Option') optionScenariosCount++;
     }
 
-    // Active pipeline: Deals that are Pending and the Latest version!
-    if (q.isLatest && (st === 'Pending' || !st)) {
-      activePipelineValue += val;
-      activeDealsCount++;
-      activeBeds += beds;
+    // Is this an active standing proposal?
+    const isActiveProposal = (st === 'Active Option') || (q.isLatest && (st === 'Pending' || !st));
+    if (isActiveProposal) {
       countActive++;
+      if (!activeDealsByGroup[q.groupKey]) {
+        activeDealsByGroup[q.groupKey] = {
+          quotes: [],
+          maxVal: val,
+          beds: beds
+        };
+      }
+      activeDealsByGroup[q.groupKey].quotes.push(q);
+      if (val > activeDealsByGroup[q.groupKey].maxVal) {
+        activeDealsByGroup[q.groupKey].maxVal = val;
+        activeDealsByGroup[q.groupKey].beds = beds;
+      }
     }
+  });
+
+  // Calculate clean non-duplicated active pipeline
+  Object.keys(activeDealsByGroup).forEach(k => {
+    activeDealsCount++;
+    activePipelineValue += activeDealsByGroup[k].maxVal;
+    activeBeds += activeDealsByGroup[k].beds;
   });
 
   // Update Metric Cards
@@ -1743,7 +1991,11 @@ function renderDashboard(quotes) {
   if (valEl) valEl.innerText = `₹ ${Math.round(activePipelineValue).toLocaleString('en-IN')}`;
 
   const activeSubEl = document.getElementById('dashActiveDealsSub');
-  if (activeSubEl) activeSubEl.innerText = `${activeDealsCount} live deals in active pipeline`;
+  if (activeSubEl) {
+    activeSubEl.innerText = optionScenariosCount > 0
+      ? `${activeDealsCount} live deals (${optionScenariosCount} option scenarios)`
+      : `${activeDealsCount} live deals in active pipeline`;
+  }
 
   const wonEl = document.getElementById('dashWonValue');
   if (wonEl) wonEl.innerText = `₹ ${Math.round(wonRevenue).toLocaleString('en-IN')}`;
@@ -1794,18 +2046,17 @@ function renderPipelineChart() {
     const cName = q.clientName || 'Unknown';
 
     if (mode === 'active') {
-      // Latest version of Pending deals only
-      if (q.isLatest && (st === 'Pending' || !st)) {
-        clientValues[cName] = (clientValues[cName] || 0) + val;
+      const isActiveProposal = (st === 'Active Option') || (q.isLatest && (st === 'Pending' || !st));
+      if (isActiveProposal) {
+        clientValues[cName] = Math.max(clientValues[cName] || 0, val);
       }
     } else if (mode === 'won') {
       if (st === 'Closed Won') {
         clientValues[cName] = (clientValues[cName] || 0) + val;
       }
     } else {
-      // All deals (latest version of each client)
-      if (q.isLatest) {
-        clientValues[cName] = (clientValues[cName] || 0) + val;
+      if (q.isLatest || st === 'Active Option') {
+        clientValues[cName] = Math.max(clientValues[cName] || 0, val);
       }
     }
   });
@@ -2139,9 +2390,9 @@ function filterDashboardQuotes() {
 
   // Filter according to active tab
   if (tab === 'active') {
-    list = list.filter(q => q.isLatest && (q.status === 'Pending' || !q.status));
+    list = list.filter(q => (q.status === 'Pending' || q.status === 'Active Option' || !q.status) && (q.isLatest || q.status === 'Active Option'));
   } else if (tab === 'pending') {
-    list = list.filter(q => q.status === 'Pending' || (!q.status && q.isLatest));
+    list = list.filter(q => q.status === 'Pending' || q.status === 'Active Option');
   } else if (tab === 'won') {
     list = list.filter(q => q.status === 'Closed Won');
   } else if (tab === 'lost') {
@@ -2188,9 +2439,12 @@ function renderDashboardTable(list) {
     const st = q.status || 'Pending';
     const statusClass = st.toLowerCase().replace(/\s+/g, '');
 
-    const versionBadge = q.isLatest
-      ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
-      : `<span class="badge-v-rev">V${q.version} (Rev)</span>`;
+    const isOption = (st === 'Active Option');
+    const versionBadge = isOption
+      ? `<span class="badge-v-option">V${q.version} (Option)</span>`
+      : (q.isLatest
+          ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
+          : `<span class="badge-v-rev">V${q.version} (Rev)</span>`);
 
     const revisionBtn = q.totalRevisions > 1
       ? `<button type="button" class="btn-view-revisions" onclick="showRevisionHistory('${q.groupKey}')" title="View all ${q.totalRevisions} revisions">
@@ -2219,6 +2473,7 @@ function renderDashboardTable(list) {
       <td>
         <select class="status-select status-${statusClass}" onchange="changeQuoteStatus(event, '${q.quoteRef}')">
           <option value="Pending" ${st === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+          <option value="Active Option" ${st === 'Active Option' ? 'selected' : ''}>🔀 Active Option</option>
           <option value="Closed Won" ${st === 'Closed Won' ? 'selected' : ''}>🏆 Closed Won</option>
           <option value="Closed Lost" ${st === 'Closed Lost' ? 'selected' : ''}>❌ Closed Lost</option>
           <option value="Revised" ${st === 'Revised' ? 'selected' : ''}>🔄 Revised</option>
@@ -2248,9 +2503,35 @@ function changeQuoteStatus(event, quoteRef) {
   setLocalStatusOverride(quoteRef, newStatus);
 
   // Update in memory models
+  let currentItem = null;
   if (window.enrichedDashboardQuotes) {
-    const item = window.enrichedDashboardQuotes.find(q => q.quoteRef === quoteRef);
-    if (item) item.status = newStatus;
+    currentItem = window.enrichedDashboardQuotes.find(q => q.quoteRef === quoteRef);
+    if (currentItem) currentItem.status = newStatus;
+  }
+
+  // If ANY version/option is closed as Closed Won, check for competing active options for this client
+  let retireOthers = false;
+  if (newStatus === 'Closed Won' && currentItem) {
+    const otherActive = (currentItem.groupQuotes || []).filter(o =>
+      o.quoteRef !== quoteRef && (o.status === 'Pending' || o.status === 'Active Option' || !o.status)
+    );
+    if (otherActive.length > 0) {
+      const clientName = currentItem.clientName || 'this hospital';
+      const promptText = `Deal Closed Won! 🎉\n\nThere are ${otherActive.length} other standing version(s)/option(s) for "${clientName}":\n\n` +
+        otherActive.map(o => ` • ${o.quoteRef} (₹${Math.round(o.totalAmount).toLocaleString('en-IN')})`).join('\n') +
+        `\n\nWould you like to automatically retire/withdraw them as "Revised" so your active pipeline stays clean?`;
+      if (confirm(promptText)) {
+        retireOthers = true;
+        otherActive.forEach(o => {
+          setLocalStatusOverride(o.quoteRef, 'Revised');
+          o.status = 'Revised';
+          fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'updateStatus', quoteRef: o.quoteRef, status: 'Revised' })
+          }).catch(e => console.warn('Retiring competing option failed:', e));
+        });
+      }
+    }
   }
 
   showToast(`Updated "${quoteRef}" to ${newStatus}`, 'success', 2500);
@@ -2258,7 +2539,12 @@ function changeQuoteStatus(event, quoteRef) {
   // Send update to Google Apps Script
   fetch(API_URL, {
     method: 'POST',
-    body: JSON.stringify({ action: 'updateStatus', quoteRef: quoteRef, status: newStatus })
+    body: JSON.stringify({
+      action: 'updateStatus',
+      quoteRef: quoteRef,
+      status: newStatus,
+      retireOtherVersions: retireOthers
+    })
   })
   .then(r => r.json())
   .then(res => {
@@ -2298,9 +2584,12 @@ function showRevisionHistory(groupKey) {
     const st = q.status || 'Pending';
     const statusClass = st.toLowerCase().replace(/\s+/g, '');
 
-    const badge = isLatest
-      ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
-      : `<span class="badge-v-rev">V${q.version} (Rev)</span>`;
+    const isOption = (st === 'Active Option');
+    const badge = isOption
+      ? `<span class="badge-v-option">V${q.version} (Option)</span>`
+      : (isLatest
+          ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
+          : `<span class="badge-v-rev">V${q.version} (Rev)</span>`);
 
     const tr = document.createElement('tr');
     tr.innerHTML = `

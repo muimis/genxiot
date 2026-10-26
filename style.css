@@ -857,12 +857,15 @@ textarea { resize:vertical; }
 }
 
 .table-scroll-wrap {
+  overflow-x: auto;
   overflow-y: auto;
   flex: 1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dashboard-table {
   width: 100%;
+  min-width: 620px;
   border-collapse: collapse;
 }
 
@@ -974,6 +977,46 @@ textarea { resize:vertical; }
   border-color: #cbd5e1 !important;
 }
 
+.status-option, .status-activeoption {
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #93c5fd !important;
+}
+
+.badge-v-option {
+  display: inline-block;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+}
+
+.rev-choice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: #f8f9ff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rev-choice-card:hover {
+  border-color: var(--brand-mid);
+  background: #fff;
+}
+
+.rev-choice-card.active {
+  border-color: var(--brand-indigo);
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(59,63,168,0.12);
+}
+
 .revision-table td {
   padding: 10px 6px;
   border-bottom: 1px solid #f1f3fa;
@@ -1051,31 +1094,22 @@ textarea { resize:vertical; }
     font-size: 1.05rem !important;
   }
   .ab-btns {
+    display: flex !important;
     gap: 4px !important;
   }
   .ab-btns .btn {
     padding: 5px 8px !important;
     font-size: 0.72rem !important;
   }
-}
-  .ab-label {
-    font-size: 0.6rem;
-  }
-  .ab-value {
-    font-size: 1.1rem;
-  }
-  .ab-btns {
-    display: flex;
-    gap: 6px;
-  }
   .action-text-btn span {
-    display: none; /* Hide text on mobile, icons only */
+    display: none !important; /* Hide text on mobile, icons only */
   }
   .action-text-btn {
-    padding: 8px 10px;
-    min-width: unset;
+    padding: 8px 10px !important;
+    min-width: unset !important;
   }
 }
+
 
 /* ── TOAST NOTIFICATIONS ── */
 .toast { padding: 12px 20px; border-radius: 8px; color: #fff; font-size: 0.9rem; font-weight: 500;

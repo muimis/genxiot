@@ -217,9 +217,10 @@ function handleSaveQuote(sheet, data) {
     }
   }
 
-  // If this is a revision (version > 1 or contains V2+), mark previous versions as 'Revised'
+  // If this is a revision and withdrawal of previous versions is requested, mark previous versions as 'Revised'
   var currentVersionNum = parseInt(version, 10) || 1;
-  if (currentVersionNum > 1 && clientName) {
+  var withdrawPrevious = data.withdrawPrevious !== false && data.withdrawPrevious !== 'false';
+  if (withdrawPrevious && currentVersionNum > 1 && clientName) {
     var normClient = clientName.toLowerCase().replace(/[^a-z0-9]/g, '');
     for (var r = 1; r < rows.length; r++) {
       var rowClient = String(rows[r][cClient] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -232,7 +233,17 @@ function handleSaveQuote(sheet, data) {
           if (cStatus !== undefined) {
             sheet.getRange(r + 1, cStatus + 1).setValue('Revised');
           }
+          var cPayload = colMap['payload'] !== undefined ? colMap['payload'] : (sheet.getLastColumn() - 1);
+          try {
+            var rawJson = rows[r][cPayload];
+            if (rawJson) {
+              var parsed = JSON.parse(rawJson);
+              parsed.status = 'Revised';
+              sheet.getRange(r + 1, cPayload + 1).setValue(JSON.stringify(parsed));
+            }
+          } catch (e) {}
         }
+
       }
     }
   }
@@ -306,10 +317,14 @@ function handleUpdateStatus(sheet, data) {
   }
 
   var found = false;
+  var targetClient = '';
+  var cClient = colMap['client name'] !== undefined ? colMap['client name'] : 2;
+
   for (var i = 1; i < rows.length; i++) {
     if (String(rows[i][cRef]).trim().toLowerCase() === quoteRef.toLowerCase()) {
       var rowNum = i + 1;
       sheet.getRange(rowNum, cStatus + 1).setValue(newStatus);
+      targetClient = String(rows[i][cClient] || '').trim();
 
       // Also update inside JSON payload if payload column exists
       try {
@@ -323,6 +338,32 @@ function handleUpdateStatus(sheet, data) {
 
       found = true;
       break;
+    }
+  }
+
+  // If marked as Closed Won and user wants other versions retired:
+  if (found && newStatus === 'Closed Won' && data.retireOtherVersions && targetClient) {
+    var normClient = targetClient.toLowerCase().replace(/[^a-z0-9]/g, '');
+    for (var r = 1; r < rows.length; r++) {
+      var rClient = String(rows[r][cClient] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      var rRef = String(rows[r][cRef] || '').trim();
+      if (rClient === normClient && rRef.toLowerCase() !== quoteRef.toLowerCase()) {
+        var currSt = cStatus !== undefined ? String(rows[r][cStatus] || '').trim() : '';
+        if (currSt !== 'Closed Won' && currSt !== 'Closed Lost') {
+          if (cStatus !== undefined) {
+            sheet.getRange(r + 1, cStatus + 1).setValue('Revised');
+          }
+          try {
+            var rJson = rows[r][cPayload];
+            if (rJson) {
+              var p = JSON.parse(rJson);
+              p.status = 'Revised';
+              sheet.getRange(r + 1, cPayload + 1).setValue(JSON.stringify(p));
+            }
+          } catch (e) {}
+        }
+
+      }
     }
   }
 

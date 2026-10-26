@@ -116,7 +116,7 @@
             <span class="tab-count" id="countTabAll">0</span>
           </button>
           <button class="filter-tab" data-tab="pending" onclick="setDashboardTab('pending')">
-            <span>⏳ Pending</span>
+            <span>⏳ Pending / Options</span>
             <span class="tab-count" id="countTabPending">0</span>
           </button>
           <button class="filter-tab" data-tab="won" onclick="setDashboardTab('won')">
@@ -128,7 +128,7 @@
             <span class="tab-count" id="countTabLost">0</span>
           </button>
           <button class="filter-tab" data-tab="revised" onclick="setDashboardTab('revised')">
-            <span>🔄 Revised</span>
+            <span>🔄 Revised / Withdrawn</span>
             <span class="tab-count" id="countTabRevised">0</span>
           </button>
         </div>
@@ -235,9 +235,10 @@
             <label>Deal Status</label>
             <select id="dealStatus" class="status-select status-pending" onchange="onDealStatusChange()">
               <option value="Pending">⏳ Pending (Active)</option>
+              <option value="Active Option">🔀 Active Option (Scenario)</option>
               <option value="Closed Won">🏆 Closed Won</option>
               <option value="Closed Lost">❌ Closed Lost</option>
-              <option value="Revised">🔄 Revised</option>
+              <option value="Revised">🔄 Revised / Withdrawn</option>
             </select>
           </div>
           <div>
@@ -386,7 +387,13 @@
           </div>
           <label>Shipping / Handling Charge (SAC: 996799) (₹)</label>
           <input type="number" id="shipping" value="3500" oninput="recalc()">
+          <div class="fin-row" id="calcExtWarrantyRow" style="display:none">
+            <span>Extended Warranty (<span id="calcExtWarrantyPctLabel">10%</span>)</span>
+            <span id="calcExtWarrantyVal">₹0.00</span>
+          </div>
+
           <div class="fin-row"><span>Taxable Value</span><span id="calcTax">₹0.00</span></div>
+
           <div class="fin-row"><span>CGST 9%</span><span id="calcCGST">₹0.00</span></div>
           <div class="fin-row"><span>SGST 9%</span><span id="calcSGST">₹0.00</span></div>
           <div class="fin-row" id="roundOffRow" style="display:none"><span>Round Off</span><span id="calcRoundOff">₹0.00</span></div>
@@ -417,8 +424,53 @@
             </div>
           <label>Delivery Timeline</label>
           <input id="delivery" value="25 days from order confirmation &amp; advance receipt" oninput="recalc()">
-          <label>Warranty</label>
+          <label>Standard Warranty</label>
           <input id="warranty" value="12 months comprehensive from installation date" oninput="recalc()">
+
+          <!-- Extended Warranty Configuration Box -->
+          <div class="ext-warranty-box" style="margin: 12px 0 8px; padding: 12px; background: #f8faff; border: 1px solid #c7d2fe; border-radius: 8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight: 700; font-size: 0.82rem; color: var(--brand-navy); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="shield-check" size="15" style="color:var(--brand-indigo)"></i> Extended Warranty &amp; Replacement
+              </span>
+              <span class="badge-v-option" id="extWarrantyAmountBadge" style="font-size:0.72rem;">Optional</span>
+            </div>
+            
+            <label style="font-size: 0.78rem;">Warranty Provision Option</label>
+            <select id="extWarrantyOpt" onchange="onExtWarrantyChange()" style="font-size: 0.82rem; margin-bottom: 8px;">
+              <option value="none">Standard Warranty Only (No Extended Warranty)</option>
+              <option value="optional" selected>Optional Add-on (Presented in Proposal &amp; T&amp;C)</option>
+              <option value="included">Include in Proposal Bill (Added to Commercial Total)</option>
+            </select>
+
+            <div id="extWarrantyFields" style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label style="font-size: 0.76rem;">Extended Time / Duration</label>
+                  <select id="extWarrantyDuration" onchange="onExtWarrantyDurationChange()" style="font-size: 0.82rem;">
+                    <option value="1 Year (12 Months)" selected>1 Year (12 Months)</option>
+                    <option value="2 Years (24 Months)">2 Years (24 Months)</option>
+                    <option value="3 Years (36 Months)">3 Years (36 Months)</option>
+                    <option value="custom">Custom Duration…</option>
+                  </select>
+                  <input id="extWarrantyCustomDuration" placeholder="e.g. 18 Months" style="display:none; font-size:0.8rem; margin-top:4px;" oninput="recalc()">
+                </div>
+                <div>
+                  <label style="font-size: 0.76rem;">Rate (% of Component Cost)</label>
+                  <div style="position: relative;">
+                    <input type="number" id="extWarrantyPct" min="0" max="100" step="0.5" value="10" oninput="recalc()" style="font-size: 0.82rem; padding-right: 25px;">
+                    <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.78rem; color: var(--mid); font-weight: 600;">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style="font-size: 0.76rem;">Replacement / Repair Scope &amp; T&amp;C</label>
+                <textarea id="extWarrantyTerms" rows="2" style="font-size: 0.78rem;" oninput="recalc()">Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).</textarea>
+              </div>
+            </div>
+          </div>
+
           <label>Scope Notes</label>
           <textarea id="scopeNotes" rows="3" oninput="recalc()">Wall mounting and electrical work by the hospital. Configuration, calibration &amp; go-live training by GenXIoT.</textarea>
           <label style="margin-top:0.75rem;">Additional Details / Special Instructions</label>
@@ -685,8 +737,13 @@
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Shipping / Handling Charge (SAC: 996799)</td>
                 <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹3,500.00</td>
               </tr>
+              <tr class="tf-row" id="qExtWarrantyBillRow" style="display:none">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Comprehensive Extended Warranty (<span id="qExtWarrantyBillLabel">1 Year @ 10%</span>) (SAC: 998719)</td>
+                <td class="tf-val" id="qExtWarrantyBillVal" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); font-weight: 600;">₹0.00</td>
+              </tr>
               <tr class="tf-row">
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Total Taxable Value</td>
+
                 <td class="tf-val" id="qTaxable" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); font-weight: 700;">₹0.00</td>
               </tr>
               <tr class="tf-row">
@@ -772,6 +829,7 @@
       <!-- ── PAGE 10: T&C ─── -->
       <div class="doc-page" id="pageTerms" style="margin-top: 30px;">
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
+        <div id="qExtWarrantyOptNote" style="display:none; margin: 0px 38px 20px; font-size: 0.85rem;"></div>
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
         <div class="tc-box">
             <p><strong>Scope:</strong> These terms exclusively apply to all transactions with GenXIoT LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
@@ -780,9 +838,11 @@
             <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by GenXIoT. 200 beds can be installed in a single day.</span></p>
             <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within 24 to 48 hours.</p>
           <p><strong>Inspection:</strong> Buyer must inspect packaging and products within 5 days of delivery and report defects.</p>
-          <p><strong>Warranty:</strong> <span id="qWarranty">12 months comprehensive from date of Installation Protocol signoff. Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.</span></p>
+          <p><strong>Standard Warranty:</strong> <span id="qWarranty">12 months comprehensive from date of Installation Protocol signoff. Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.</span></p>
+          <p id="qExtWarrantyRow" style="display:none;"><strong>Extended Warranty &amp; Replacement:</strong> <span id="qExtWarranty"></span></p>
           <p><strong>Jurisdiction:</strong> Thiruvananthapuram, Kerala, India. Governed by laws of India.</p>
           </div>
+
           
         <div class="sig-section">
           <div class="sig-block">
@@ -892,6 +952,48 @@
           <!-- Populated dynamically -->
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- NEW REVISION CHOICE MODAL (Linear vs. Alternate Scenario) -->
+<div class="modal-bg" id="newRevisionModal">
+  <div class="modal-wrap" style="max-width: 520px; padding: 24px; border-radius: 12px; margin: 60px auto; min-height: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+      <div>
+        <h3 style="margin: 0 0 4px 0; color: var(--brand-navy); font-size: 1.15rem;">Create New Quote Version</h3>
+        <p style="margin: 0; font-size: 0.8rem; color: var(--mid);">Choose how this version relates to previous quotes</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeNewRevisionModal()">✕</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+      <!-- Option 1: Linear Revision -->
+      <label class="rev-choice-card active" id="choiceLinear" onclick="selectRevisionChoice('linear')">
+        <input type="radio" name="revTypeChoice" value="linear" checked style="width: auto; margin-top: 3px;">
+        <div>
+          <div style="font-weight: 700; color: var(--brand-navy); font-size: 0.88rem;">🔄 Update / Sequential Revision</div>
+          <div style="font-size: 0.76rem; color: var(--mid); margin-top: 2px;">
+            Revises and <strong>withdraws the previous version</strong> (e.g., price adjustment, scope update). The previous version will be marked as <em>Revised</em> upon save.
+          </div>
+        </div>
+      </label>
+
+      <!-- Option 2: Alternate Scenario / Option -->
+      <label class="rev-choice-card" id="choiceOption" onclick="selectRevisionChoice('option')">
+        <input type="radio" name="revTypeChoice" value="option" style="width: auto; margin-top: 3px;">
+        <div>
+          <div style="font-weight: 700; color: var(--brand-indigo); font-size: 0.88rem;">🔀 Alternative Option / Scenario</div>
+          <div style="font-size: 0.76rem; color: var(--mid); margin-top: 2px;">
+            A <strong>parallel proposal</strong> for the client to choose between (e.g., Option A vs Option B with different features). <strong>Both versions remain active</strong>.
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button class="btn btn-ghost" onclick="closeNewRevisionModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmCreateRevision()">Continue &rarr;</button>
     </div>
   </div>
 </div>
