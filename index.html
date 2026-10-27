@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=4.7">
+<link rel="stylesheet" href="style.css?v=4.8">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -387,12 +387,16 @@
           </div>
           <label>Shipping / Handling Charge (SAC: 996799) (₹)</label>
           <input type="number" id="shipping" value="3500" oninput="recalc()">
+          <div class="fin-row" id="calcAddWarrantyRow" style="display:none">
+            <span>Additional Warranty (<span id="calcAddWarrantyLabel">+6 Mo</span>)</span>
+            <span id="calcAddWarrantyVal">₹0.00</span>
+          </div>
           <div class="fin-row" id="calcExtWarrantyRow" style="display:none">
             <span>Extended Warranty (<span id="calcExtWarrantyPctLabel">10%</span>)</span>
             <span id="calcExtWarrantyVal">₹0.00</span>
           </div>
-
           <div class="fin-row"><span>Taxable Value</span><span id="calcTax">₹0.00</span></div>
+
 
           <div class="fin-row"><span>CGST 9%</span><span id="calcCGST">₹0.00</span></div>
           <div class="fin-row"><span>SGST 9%</span><span id="calcSGST">₹0.00</span></div>
@@ -424,52 +428,82 @@
             </div>
           <label>Delivery Timeline</label>
           <input id="delivery" value="25 days from order confirmation &amp; advance receipt" oninput="recalc()">
-          <label>Standard Warranty</label>
-          <input id="warranty" value="12 months comprehensive from installation date" oninput="recalc()">
-
-          <!-- Extended Warranty Configuration Box -->
-          <div class="ext-warranty-box" style="margin: 12px 0 8px; padding: 12px; background: #f8faff; border: 1px solid #c7d2fe; border-radius: 8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-              <span style="font-weight: 700; font-size: 0.82rem; color: var(--brand-navy); display: flex; align-items: center; gap: 6px;">
-                <i data-lucide="shield-check" size="15" style="color:var(--brand-indigo)"></i> Extended Warranty &amp; Replacement
-              </span>
-              <span class="badge-v-option" id="extWarrantyAmountBadge" style="font-size:0.72rem;">Optional</span>
+          <div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <label style="margin:0; font-weight:700; color:var(--brand-navy); font-size:0.82rem;">Standard Warranty</label>
+              <span class="badge-v-latest" style="font-size:0.68rem;">1 Year Baseline</span>
             </div>
-            
-            <label style="font-size: 0.78rem;">Warranty Provision Option</label>
-            <select id="extWarrantyOpt" onchange="onExtWarrantyChange()" style="font-size: 0.82rem; margin-bottom: 8px;">
-              <option value="none">Standard Warranty Only (No Extended Warranty)</option>
-              <option value="optional" selected>Optional Add-on (Presented in Proposal &amp; T&amp;C)</option>
-              <option value="included">Include in Proposal Bill (Added to Commercial Total)</option>
-            </select>
+            <input id="warranty" value="12 months comprehensive from date of Installation Protocol signoff" oninput="recalc()">
 
-            <div id="extWarrantyFields" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- ADDITIONAL WARRANTY (COMPLIMENTARY / CONCESSION) -->
+            <div style="margin-top: 10px; padding: 10px 12px; background: #fdfefe; border: 1px solid #cbd5e1; border-radius: 6px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <label style="margin:0; font-weight:600; font-size:0.78rem; color:#1e293b;">Additional Warranty (Special Concession)</label>
+                <span id="addWarrantyBadge" class="badge-v-rev" style="font-size:0.68rem;">None</span>
+              </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                 <div>
-                  <label style="font-size: 0.76rem;">Extended Time / Duration</label>
-                  <select id="extWarrantyDuration" onchange="onExtWarrantyDurationChange()" style="font-size: 0.82rem;">
-                    <option value="1 Year (12 Months)" selected>1 Year (12 Months)</option>
-                    <option value="2 Years (24 Months)">2 Years (24 Months)</option>
-                    <option value="3 Years (36 Months)">3 Years (36 Months)</option>
-                    <option value="custom">Custom Duration…</option>
+                  <label style="font-size: 0.74rem;">Additional Duration</label>
+                  <select id="addWarrantyDuration" onchange="onAddWarrantyChange()" style="font-size: 0.8rem;">
+                    <option value="none" selected>None</option>
+                    <option value="+3 Months">+3 Months</option>
+                    <option value="+6 Months">+6 Months</option>
+                    <option value="+12 Months (1 Year)">+12 Months (1 Year)</option>
+                    <option value="custom">Custom…</option>
                   </select>
-                  <input id="extWarrantyCustomDuration" placeholder="e.g. 18 Months" style="display:none; font-size:0.8rem; margin-top:4px;" oninput="recalc()">
+                  <input id="addWarrantyCustomDuration" placeholder="e.g. +6 Months" style="display:none; font-size:0.78rem; margin-top:4px;" oninput="recalc()">
                 </div>
                 <div>
-                  <label style="font-size: 0.76rem;">Rate (% of Component Cost)</label>
-                  <div style="position: relative;">
-                    <input type="number" id="extWarrantyPct" min="0" max="100" step="0.5" value="10" oninput="recalc()" style="font-size: 0.82rem; padding-right: 25px;">
-                    <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.78rem; color: var(--mid); font-weight: 600;">%</span>
-                  </div>
+                  <label style="font-size: 0.74rem;">Additional Charge (₹)</label>
+                  <input type="number" id="addWarrantyCost" value="0" min="0" step="500" placeholder="0 = Free" oninput="recalc()" style="font-size: 0.8rem;">
                 </div>
               </div>
+            </div>
 
-              <div>
-                <label style="font-size: 0.76rem;">Replacement / Repair Scope &amp; T&amp;C</label>
-                <textarea id="extWarrantyTerms" rows="2" style="font-size: 0.78rem;" oninput="recalc()">Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).</textarea>
+            <!-- EXTENDED WARRANTY CONFIGURATION (WITH PAYMENT) -->
+            <div class="ext-warranty-box" style="margin-top: 10px; padding: 12px; background: #f8faff; border: 1px solid #93c5fd; border-radius: 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span style="font-weight: 700; font-size: 0.82rem; color: var(--brand-navy); display: flex; align-items: center; gap: 6px;">
+                  <i data-lucide="shield-plus" size="15" style="color:var(--brand-indigo)"></i> Extended Warranty (With Payment)
+                </span>
+                <span class="badge-v-rev" id="extWarrantyAmountBadge" style="font-size:0.72rem;">None</span>
+              </div>
+              
+              <label style="font-size: 0.78rem;">Extended Warranty Provision</label>
+              <select id="extWarrantyOpt" onchange="onExtWarrantyChange()" style="font-size: 0.82rem; margin-bottom: 8px;">
+                <option value="none" selected>None (No Extended Warranty)</option>
+                <option value="included">Include in Commercial Details &amp; Payment Total</option>
+              </select>
+
+              <div id="extWarrantyFields" style="display: none; flex-direction: column; gap: 8px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div>
+                    <label style="font-size: 0.76rem;">Extended Duration / Time</label>
+                    <select id="extWarrantyDuration" onchange="onExtWarrantyDurationChange()" style="font-size: 0.82rem;">
+                      <option value="1 Year (12 Months)" selected>1 Year (12 Months)</option>
+                      <option value="2 Years (24 Months)">2 Years (24 Months)</option>
+                      <option value="3 Years (36 Months)">3 Years (36 Months)</option>
+                      <option value="custom">Custom Duration…</option>
+                    </select>
+                    <input id="extWarrantyCustomDuration" placeholder="e.g. 18 Months" style="display:none; font-size:0.8rem; margin-top:4px;" oninput="recalc()">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.76rem;">Rate (% of Component Cost)</label>
+                    <div style="position: relative;">
+                      <input type="number" id="extWarrantyPct" min="0" max="100" step="0.5" value="10" oninput="recalc()" style="font-size: 0.82rem; padding-right: 25px;">
+                      <span style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.78rem; color: var(--mid); font-weight: 600;">%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label style="font-size: 0.76rem;">Defective Unit / Part Replacement Scope</label>
+                  <textarea id="extWarrantyTerms" rows="2" style="font-size: 0.78rem;" oninput="recalc()">Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).</textarea>
+                </div>
               </div>
             </div>
           </div>
+
 
           <label>Scope Notes</label>
           <textarea id="scopeNotes" rows="3" oninput="recalc()">Wall mounting and electrical work by the hospital. Configuration, calibration &amp; go-live training by GenXIoT.</textarea>
@@ -633,7 +667,7 @@
         <thead>
           <tr>
             <td style="padding: 0 12mm;">
-              <div style="height: 12mm;"></div>
+              <div class="print-spacer-top" style="height: 10mm;"></div>
         <!-- Header -->
         <div class="qtn-header">
           <div class="qtn-h-left">
@@ -716,7 +750,7 @@
         </table>
         </div>
         
-        <div style="page-break-inside: avoid; margin: 20px 38px;">
+        <div class="commercial-details-block" style="page-break-inside: avoid; margin: 20px 38px;">
           <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Details</h3>
           
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -737,7 +771,12 @@
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Shipping / Handling Charge (SAC: 996799)</td>
                 <td class="tf-val" id="qShipping" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹3,500.00</td>
               </tr>
+              <tr class="tf-row" id="qAddWarrantyBillRow" style="display:none">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Additional Warranty (<span id="qAddWarrantyBillLabel">+6 Months</span>)</td>
+                <td class="tf-val" id="qAddWarrantyBillVal" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); font-weight: 600;">Included (₹0.00)</td>
+              </tr>
               <tr class="tf-row" id="qExtWarrantyBillRow" style="display:none">
+
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Comprehensive Extended Warranty (<span id="qExtWarrantyBillLabel">1 Year @ 10%</span>) (SAC: 998719)</td>
                 <td class="tf-val" id="qExtWarrantyBillVal" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); font-weight: 600;">₹0.00</td>
               </tr>
@@ -767,7 +806,7 @@
 
           <div style="display: flex; gap: 20px; align-items: stretch;">
             <!-- Left: Payment Schedule -->
-            <div style="flex: 1.2; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
+            <div class="payment-schedule-box" style="flex: 1.2; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
               <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Terms &amp; Schedule</div>
               <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border-collapse: collapse;">
                 <tbody>
@@ -798,7 +837,7 @@
             </div>
 
             <!-- Right: Bank Details -->
-            <div style="flex: 1; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
+            <div class="bank-remittance-box" style="flex: 1; border: 1px solid var(--border); padding: 12px 15px; border-radius: 4px; background: #fbfbfc;">
               <div style="font-weight: 700; font-size: 0.75rem; color: var(--brand-navy); margin-bottom: 8px; text-transform: uppercase;">Payment Remittance Details</div>
               <table style="width: 100%; font-size: 0.8rem; line-height: 1.5; border: none;">
                 <tr><td style="width: 110px; color: #666; border: none; padding: 2px 0;">Account Name:</td><td style="font-weight: 600; border: none; padding: 2px 0;" id="docBankName">GenXIoT LLP</td></tr>
@@ -827,10 +866,10 @@
       </div>
 
       <!-- ── PAGE 10: T&C ─── -->
-      <div class="doc-page" id="pageTerms" style="margin-top: 30px;">
+      <div class="doc-page" id="pageTerms" style="margin-top: 15px;">
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
-        <div id="qExtWarrantyOptNote" style="display:none; margin: 0px 38px 20px; font-size: 0.85rem;"></div>
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
+
         <div class="tc-box">
             <p><strong>Scope:</strong> These terms exclusively apply to all transactions with GenXIoT LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
             <p><strong>Payment:</strong> 50% advance, 30% on delivery, and 20% post-installation. Bank charges of Buyer's bank borne by Buyer.</p>
@@ -870,7 +909,7 @@
         <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.75rem; padding-top: 8px; border-top: 1px solid #eee;">
           <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
-              <div style="height: 12mm;"></div>
+              <div class="print-spacer-bottom" style="height: 10mm;"></div>
             </td>
           </tr>
         </tfoot>
@@ -879,7 +918,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=20"></script>
+<script src="app.js?v=21"></script>
 <script>
   lucide.createIcons();
 </script>

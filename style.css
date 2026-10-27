@@ -454,7 +454,7 @@ textarea { resize:vertical; }
 .tc-box p { margin-bottom:.4rem; }
 
 /* Signatures */
-.sig-section { display:flex;justify-content:space-between;margin:8rem 38px 1.2rem;gap:3rem; }
+.sig-section { display:flex;justify-content:space-between;margin:2rem 38px 1.2rem;gap:3rem; page-break-inside: avoid; break-inside: avoid; }
 .sig-block { flex:1; }
 .sig-line { height:1px;background:var(--border);margin-bottom:.5rem; }
 .sig-name { font-size:.8rem;font-weight:700;color:var(--ink); }
@@ -1174,6 +1174,14 @@ textarea { resize:vertical; }
   }
   #printDoc { background: #fff; }
 
+  /* ── Spacers for header and footer in print ── */
+  .print-spacer-top {
+    height: 6mm !important;
+  }
+  .print-spacer-bottom {
+    height: 4mm !important;
+  }
+
   /* ── Page containers ── */
   .print-layout-tbl {
     width: 100%;
@@ -1200,8 +1208,8 @@ textarea { resize:vertical; }
     break-inside: avoid;
   }
   .doc-page:last-child {
-    page-break-after: avoid;
-    break-after: avoid;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* Cover page: lock to one page */
@@ -1215,15 +1223,77 @@ textarea { resize:vertical; }
     break-inside: avoid;
   }
 
-  /* Terms page: flex column so footer sticks to bottom */
+  /* ── Quotation Page & Table Optimizations for Clean Fit ── */
+  .qtn-parties {
+    margin-bottom: 8px !important;
+  }
+  .qtn-fac-tag {
+    margin: 0 38px 6px !important;
+    padding: .22rem .6rem !important;
+  }
+  .qtn-boq-tbl th {
+    padding: .32rem .5rem !important;
+  }
+  .qtn-boq-tbl td {
+    padding: .30rem .5rem !important;
+    line-height: 1.35 !important;
+  }
+  .commercial-details-block {
+    margin: 12px 38px 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .commercial-details-block h3 {
+    margin-bottom: 8px !important;
+    padding-bottom: 3px !important;
+  }
+  .commercial-details-block table {
+    margin-bottom: 10px !important;
+  }
+  .payment-schedule-box, .bank-remittance-box {
+    padding: 8px 12px !important;
+  }
+
+  /* ── Terms Page: Fit strictly on one page, eliminate 2-line overflow ── */
   #pageTerms {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    min-height: auto;
+    display: block !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin-top: 0 !important;
+    padding-top: 4px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
   #pageTerms .doc-footer {
-    margin-top: auto;
+    display: none !important;
+  }
+  #qOptionalNote {
+    margin: 0 38px 8px !important;
+  }
+  .doc-h3 {
+    margin: 0.5rem 38px 0.25rem !important;
+  }
+  .tc-box {
+    margin: 0 38px !important;
+    font-size: .69rem !important;
+    line-height: 1.45 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  .tc-box p {
+    margin-bottom: .20rem !important;
+  }
+  .sig-section {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 1.5rem 38px 0.6rem !important;
+    gap: 3rem !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* ── Tables ── */
@@ -1238,9 +1308,6 @@ textarea { resize:vertical; }
     display: grid !important;
     grid-template-columns: repeat(3, 1fr) !important;
   }
-
-  /* ── Quote-only mode ── */
-  
 
   /* ── Page break utility ── */
   .page-break { page-break-before: always; break-before: page; }

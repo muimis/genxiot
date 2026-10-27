@@ -667,6 +667,9 @@ function saveQuote() {
     advPct:            document.getElementById('advPct')?.value            || '50',
     delivery:                  document.getElementById('delivery')?.value                  || '',
     warranty:                  document.getElementById('warranty')?.value                  || '',
+    addWarrantyDuration:       document.getElementById('addWarrantyDuration')?.value       || 'none',
+    addWarrantyCustomDuration: document.getElementById('addWarrantyCustomDuration')?.value || '',
+    addWarrantyCost:           document.getElementById('addWarrantyCost')?.value           || '0',
     extWarrantyOpt:            document.getElementById('extWarrantyOpt')?.value            || 'none',
     extWarrantyDuration:       document.getElementById('extWarrantyDuration')?.value       || '1 Year (12 Months)',
     extWarrantyCustomDuration: document.getElementById('extWarrantyCustomDuration')?.value || '',
@@ -876,7 +879,12 @@ function restoreQuote(data) {
   // ── Terms & Notes ──────────────────────────────────────────────
   if (data.delivery)          setVal('delivery',          data.delivery);
   if (data.warranty)          setVal('warranty',          data.warranty);
-  setVal('extWarrantyOpt',            data.extWarrantyOpt !== undefined ? data.extWarrantyOpt : 'optional');
+  setVal('addWarrantyDuration',       data.addWarrantyDuration       || 'none');
+  setVal('addWarrantyCustomDuration', data.addWarrantyCustomDuration || '');
+  setVal('addWarrantyCost',           data.addWarrantyCost !== undefined ? data.addWarrantyCost : '0');
+  onAddWarrantyChange();
+
+  setVal('extWarrantyOpt',            data.extWarrantyOpt !== undefined ? data.extWarrantyOpt : 'none');
   setVal('extWarrantyDuration',       data.extWarrantyDuration || '1 Year (12 Months)');
   setVal('extWarrantyCustomDuration', data.extWarrantyCustomDuration || '');
   setVal('extWarrantyPct',            data.extWarrantyPct !== undefined ? data.extWarrantyPct : '10');
@@ -891,33 +899,66 @@ function restoreQuote(data) {
   // Bank details are now strictly hardcoded in the HTML output and need not be loaded
 
   // ── Floors & BOM ───────────────────────────────────────────────
-  floors = (data.floors && Array.isArray(data.floors) && data.floors.length > 0)
-    ? data.floors.map(f => {
-        if (f.name) f.name = f.name.replace(/\s*\(HSN:\s*85311090\)/gi, '');
-        return f;
-      })
-    : [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+  const bedCount = parseInt(data.totalBeds || data.beds, 10) || 0;
+  if (data.floors && Array.isArray(data.floors) && data.floors.length > 0 && data.floors.some(f => (parseInt(f.beds) || 0) > 0)) {
+    floors = data.floors.map(f => {
+      if (f.name) f.name = f.name.replace(/\s*\(HSN:\s*85311090\)/gi, '');
+      return f;
+    });
+  } else if (bedCount > 0) {
+    floors = [{
+      name:  'Floor 1',
+      beds:  bedCount,
+      rooms: Math.ceil(bedCount * 0.5),
+      baths: Math.ceil(bedCount * 0.5),
+      ns:    Math.max(1, Math.ceil(bedCount / 30))
+    }];
+  } else if (data.floors && Array.isArray(data.floors) && data.floors.length > 0) {
+    floors = data.floors;
+  } else {
+    floors = [{ name:  'Floor 1', beds: 0, rooms: 0, baths: 0, ns: 0 }];
+  }
   renderFloors();
 
   // Restore BOM (already stripped of __SETTINGS__ entry above)
   if (data.bomData && Array.isArray(data.bomData) && data.bomData.length > 0) {
-    bom = data.bomData
-      .filter(b => b.code !== '__SETTINGS__')
-      .map(b => {
-        // Backwards compatibility migration
-        if (b.code === 'ALAMO-NS-BASIC') b.code = 'ALAMO-MINI';
-        return b;
-      })
-      .filter(b => CATALOGUE.some(c => c.code === b.code)) // Strip removed items from old saved quotes
-      .map(b => {
-      const catItem = CATALOGUE.find(c => c.code === b.code);
-      if (catItem) {
-        b.name = catItem.name;
-        b.desc = catItem.desc;
-      }
-      return b;
-    });
-    renderBOM();
+    const savedMap = {};
+    data.bomData
+      .filter(b => b && b.code !== '__SETTINGS__')
+      .forEach(b => {
+        const c = b.code === 'ALAMO-NS-BASIC' ? 'ALAMO-MINI' : b.code;
+        savedMap[c] = b;
+      });
+
+    const hasAnySavedQty = Object.values(savedMap).some(b => (parseInt(b.qty, 10) || 0) > 0);
+
+    if (hasAnySavedQty) {
+      bom = CATALOGUE.map(catItem => {
+        const saved = savedMap[catItem.code];
+        if (saved) {
+          const q = parseInt(saved.qty, 10) || 0;
+          return {
+            ...catItem,
+            qty: q,
+            rate: (saved.rate !== undefined && saved.rate !== null) ? parseFloat(saved.rate) : (catItem.mrp || catItem.rate),
+            baseRate: (saved.baseRate !== undefined && saved.baseRate !== null) ? parseFloat(saved.baseRate) : (catItem.mrp || catItem.rate),
+            isLocked: (saved.isLocked !== undefined) ? saved.isLocked : (q > 0)
+          };
+        }
+        return { ...catItem, qty: 0, baseRate: catItem.mrp || catItem.rate, rate: catItem.mrp || catItem.rate, isLocked: false };
+      });
+
+      // Preserve any custom line items
+      data.bomData
+        .filter(b => b && b.code === 'CUSTOM')
+        .forEach(cust => {
+          bom.push({ ...cust, isLocked: true });
+        });
+
+      renderBOM();
+    } else {
+      calcEstimator();
+    }
   } else {
     calcEstimator();
   }
@@ -1040,6 +1081,25 @@ function applyMargin() {
   renderBOM();
 }
 
+// ─── ADDITIONAL WARRANTY HELPERS ─────────────────────────────────
+function getAddWarrantyDuration() {
+  const dSelect = document.getElementById('addWarrantyDuration');
+  if (!dSelect || dSelect.value === 'none') return 'none';
+  if (dSelect.value === 'custom') {
+    return document.getElementById('addWarrantyCustomDuration')?.value.trim() || 'none';
+  }
+  return dSelect.value;
+}
+
+function onAddWarrantyChange() {
+  const dSelect = document.getElementById('addWarrantyDuration');
+  const customInput = document.getElementById('addWarrantyCustomDuration');
+  if (dSelect && customInput) {
+    customInput.style.display = (dSelect.value === 'custom') ? 'block' : 'none';
+  }
+  recalc();
+}
+
 // ─── EXTENDED WARRANTY HELPERS ──────────────────────────────────
 function getExtWarrantyDuration() {
   const dSelect = document.getElementById('extWarrantyDuration');
@@ -1072,8 +1132,8 @@ function onExtWarrantyChange() {
 // CORRECT GST LOGIC:
 //   1. Calculate subtotal (sum of all line items, ex-GST)
 //   2. Apply discount on subtotal
-//   3. Add shipping & extended warranty (if included)
-//   4. Taxable value = (subtotal - discount) + extWarrantyTaxable + shipping
+//   3. Add shipping, additional warranty & extended warranty (if selected)
+//   4. Taxable value = (subtotal - discount) + extWarrantyTaxable + addWarrantyTaxable + shipping
 //   5. CGST = taxable × 9%
 //   6. SGST = taxable × 9%
 //   7. Grand Total = taxable + CGST + SGST
@@ -1090,6 +1150,24 @@ function recalc() {
   if (discType === 'pct')  discount = subtotal * (discVal / 100);
   if (discType === 'flat') discount = Math.min(discVal, subtotal); // can't exceed subtotal
 
+  // Additional Warranty Calculation
+  const addDur = getAddWarrantyDuration();
+  const addCost = Math.max(0, parseFloat(document.getElementById('addWarrantyCost')?.value) || 0);
+  const hasAddWarranty = (addDur !== 'none');
+  const addBadgeEl = document.getElementById('addWarrantyBadge');
+  if (addBadgeEl) {
+    if (!hasAddWarranty) {
+      addBadgeEl.textContent = 'None';
+      addBadgeEl.className = 'badge-v-rev';
+    } else if (addCost > 0) {
+      addBadgeEl.textContent = `${addDur} (₹${fmt(addCost)})`;
+      addBadgeEl.className = 'badge-v-latest';
+    } else {
+      addBadgeEl.textContent = `${addDur} (Free)`;
+      addBadgeEl.className = 'badge-v-latest';
+    }
+  }
+
   // Extended Warranty Calculation
   const extOpt = document.getElementById('extWarrantyOpt')?.value || 'none';
   const extPct = Math.max(0, parseFloat(document.getElementById('extWarrantyPct')?.value) || 0);
@@ -1100,21 +1178,19 @@ function recalc() {
   // Update badge on sidebar card
   const badgeEl = document.getElementById('extWarrantyAmountBadge');
   if (badgeEl) {
-    if (extOpt === 'none') {
-      badgeEl.textContent = 'Standard Only';
+    if (!isExtBilled) {
+      badgeEl.textContent = 'None';
       badgeEl.className = 'badge-v-rev';
-    } else if (extOpt === 'included') {
-      badgeEl.textContent = `₹${fmt(extAmt)} (Billed)`;
-      badgeEl.className = 'badge-v-latest';
     } else {
-      badgeEl.textContent = `₹${fmt(extAmt)} (Optional)`;
-      badgeEl.className = 'badge-v-option';
+      badgeEl.textContent = `₹${fmt(extAmt)} (${extDuration})`;
+      badgeEl.className = 'badge-v-latest';
     }
   }
 
   const afterDiscount = subtotal - discount;
   const extWarrantyTaxable = isExtBilled ? extAmt : 0;
-  const taxableValue  = afterDiscount + extWarrantyTaxable + shipping;
+  const addWarrantyTaxable = hasAddWarranty ? addCost : 0;
+  const taxableValue  = afterDiscount + extWarrantyTaxable + addWarrantyTaxable + shipping;
   const cgst          = taxableValue * 0.09;
   const sgst          = taxableValue * 0.09;
   const exactGrandTotal = taxableValue + cgst + sgst;
@@ -1127,11 +1203,24 @@ function recalc() {
   setText('calcCGST',   '₹' + fmt(cgst));
   setText('calcSGST',   '₹' + fmt(sgst));
   
+  // Sidebar calcAddWarrantyRow
+  const calcAddWarrantyRow = document.getElementById('calcAddWarrantyRow');
+  if (calcAddWarrantyRow) {
+    if (hasAddWarranty) {
+      calcAddWarrantyRow.style.display = 'flex';
+      setText('calcAddWarrantyLabel', addDur);
+      setText('calcAddWarrantyVal', addCost > 0 ? ('₹' + fmt(addCost)) : 'Included (₹0.00)');
+    } else {
+      calcAddWarrantyRow.style.display = 'none';
+    }
+  }
+
+  // Sidebar calcExtWarrantyRow
   const calcExtWarrantyRow = document.getElementById('calcExtWarrantyRow');
   if (calcExtWarrantyRow) {
     if (isExtBilled) {
       calcExtWarrantyRow.style.display = 'flex';
-      setText('calcExtWarrantyPctLabel', `${extPct}%`);
+      setText('calcExtWarrantyPctLabel', `${extPct}% (${extDuration})`);
       setText('calcExtWarrantyVal', '₹' + fmt(extAmt));
     } else {
       calcExtWarrantyRow.style.display = 'none';
@@ -1165,7 +1254,8 @@ function recalc() {
   if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
 
   syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff, {
-    extOpt, extPct, extDuration, extAmt, isExtBilled
+    extOpt, extPct, extDuration, extAmt, isExtBilled,
+    hasAddWarranty, addDur, addCost
   });
 }
 
@@ -1354,6 +1444,18 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qSub',      '₹' + fmt(subtotal));
   setText('qShipping', '₹' + fmt(shipping));
 
+  // Commercial Details: Additional Warranty row if selected
+  const qAddWarrantyBillRow = document.getElementById('qAddWarrantyBillRow');
+  if (qAddWarrantyBillRow) {
+    if (extInfo?.hasAddWarranty) {
+      qAddWarrantyBillRow.style.display = '';
+      setText('qAddWarrantyBillLabel', extInfo.addDur);
+      setText('qAddWarrantyBillVal', extInfo.addCost > 0 ? ('₹' + fmt(extInfo.addCost)) : 'Included (₹0.00)');
+    } else {
+      qAddWarrantyBillRow.style.display = 'none';
+    }
+  }
+
   // Commercial Details: Extended warranty bill row if included
   const qExtWarrantyBillRow = document.getElementById('qExtWarrantyBillRow');
   if (qExtWarrantyBillRow) {
@@ -1366,31 +1468,11 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     }
   }
 
-  // Optional Note for Extended Warranty if optional
+  // Optional Note for Extended Warranty (legacy container kept hidden)
   const qExtOptNote = document.getElementById('qExtWarrantyOptNote');
   if (qExtOptNote) {
-    if (extInfo?.extOpt === 'optional') {
-      qExtOptNote.style.display = 'block';
-      qExtOptNote.innerHTML = `
-        <div style="padding: 10px 14px; border: 1px dashed var(--brand-indigo); border-radius: 6px; background: #f8faff; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
-          <div>
-            <div style="font-weight: 700; font-size: 0.8rem; color: var(--brand-navy); display: flex; align-items: center; gap: 6px;">
-              <span>🛡️ OPTIONAL EXTENDED WARRANTY &amp; REPLACEMENT (${extInfo.extDuration.toUpperCase()})</span>
-            </div>
-            <div style="font-size: 0.73rem; color: #555; margin-top: 2px;">
-              Available on additional payment of ${extInfo.extPct}% of component cost (covering defective unit/part repair &amp; replacement). Consumables &amp; battery excluded.
-            </div>
-          </div>
-          <div style="text-align: right; white-space: nowrap;">
-            <div style="font-weight: 700; font-size: 0.88rem; color: var(--brand-indigo);">+₹${fmt(extInfo.extAmt)}</div>
-            <div style="font-size: 0.65rem; color: #777;">+ 18% GST (Optional)</div>
-          </div>
-        </div>
-      `;
-    } else {
-      qExtOptNote.style.display = 'none';
-      qExtOptNote.innerHTML = '';
-    }
+    qExtOptNote.style.display = 'none';
+    qExtOptNote.innerHTML = '';
   }
 
   setText('qTaxable',  '₹' + fmt(taxable));
@@ -1432,7 +1514,18 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   // T&C Updates
   setText('qDelivery', delivery);
-  setText('qWarranty', warranty);
+
+  // Standard Warranty (+ Additional Warranty if selected)
+  let warrantyText = warranty.trim();
+  if (extInfo?.hasAddWarranty) {
+    const durStr = extInfo.addDur.replace(/^\+\s*/, '');
+    warrantyText += ` + ${durStr} additional warranty (special concession)`;
+  }
+  if (!/consumable/i.test(warrantyText)) {
+    if (!warrantyText.endsWith('.')) warrantyText += '.';
+    warrantyText += ' Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.';
+  }
+  setText('qWarranty', warrantyText);
   setText('qScope',    scopeNotes);
 
   // Extended Warranty Clause in Terms & Conditions
@@ -1440,12 +1533,9 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const qExtRow = document.getElementById('qExtWarrantyRow');
   const qExtSpan = document.getElementById('qExtWarranty');
   if (qExtRow && qExtSpan) {
-    if (extInfo?.extOpt === 'included') {
+    if (extInfo?.isExtBilled) {
       qExtRow.style.display = '';
-      qExtSpan.innerHTML = `Provided for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)}). Covers ${extTermsText} Following standard warranty completion.`;
-    } else if (extInfo?.extOpt === 'optional') {
-      qExtRow.style.display = '';
-      qExtSpan.innerHTML = `Available for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)} + applicable GST). Covers ${extTermsText} May be opted at order placement or prior to standard warranty expiry.`;
+      qExtSpan.innerHTML = `Provided for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)} + applicable GST). Covers ${extTermsText} Following standard warranty completion.`;
     } else {
       qExtRow.style.display = 'none';
       qExtSpan.textContent = '';
@@ -1583,8 +1673,13 @@ function resetQuote(force = false) {
   setVal('advPct',    '50');
   // Terms
   setVal('delivery',  '25 days from order confirmation & advance receipt');
-  setVal('warranty',  '12 months comprehensive from installation date');
-  setVal('extWarrantyOpt',            'optional');
+  setVal('warranty',  '12 months comprehensive from date of Installation Protocol signoff');
+  setVal('addWarrantyDuration',       'none');
+  setVal('addWarrantyCustomDuration', '');
+  setVal('addWarrantyCost',           '0');
+  onAddWarrantyChange();
+
+  setVal('extWarrantyOpt',            'none');
   setVal('extWarrantyDuration',       '1 Year (12 Months)');
   setVal('extWarrantyCustomDuration', '');
   setVal('extWarrantyPct',            '10');
@@ -1659,6 +1754,10 @@ function exportCSV() {
   if (discType === 'pct') discount = subtotal * (discVal / 100);
   if (discType === 'flat') discount = Math.min(discVal, subtotal);
 
+  const addDur = getAddWarrantyDuration();
+  const addCost = Math.max(0, parseFloat(document.getElementById('addWarrantyCost')?.value) || 0);
+  const hasAddWarranty = (addDur !== 'none');
+
   const extOpt = document.getElementById('extWarrantyOpt')?.value || 'none';
   const extPct = Math.max(0, parseFloat(document.getElementById('extWarrantyPct')?.value) || 0);
   const extDuration = getExtWarrantyDuration();
@@ -1666,7 +1765,8 @@ function exportCSV() {
   const isExtBilled = (extOpt === 'included');
 
   const extTaxable = isExtBilled ? extAmt : 0;
-  const taxable = subtotal - discount + extTaxable + shipping;
+  const addTaxable = hasAddWarranty ? addCost : 0;
+  const taxable = subtotal - discount + extTaxable + addTaxable + shipping;
   const cgst = taxable * 0.09;
   const sgst = taxable * 0.09;
   const exactGrand = taxable + cgst + sgst;
@@ -1676,6 +1776,7 @@ function exportCSV() {
   csv += '\n,,,,,';
   csv += `\nSubtotal (Components),,,,,${subtotal}`;
   if (discount > 0) csv += `\nDiscount,,,,, -${discount}`;
+  if (hasAddWarranty) csv += `\nAdditional Warranty (${addDur}),,,,, ${addCost > 0 ? addCost : 'Included (0.00)'}`;
   if (isExtBilled && extAmt > 0) csv += `\nExtended Warranty (${extDuration} @ ${extPct}%),,,,, ${extAmt}`;
   if (shipping > 0) csv += `\nShipping,,,,, ${shipping}`;
   csv += `\nTaxable Value,,,,,${taxable}`;
@@ -1683,9 +1784,6 @@ function exportCSV() {
   csv += `\nSGST (9%),,,,,${sgst}`;
   if (Math.abs(roundOff) > 0.001) csv += `\nRound Off,,,,,${roundOff}`;
   csv += `\nGrand Total,,,,,${grand}`;
-  if (extOpt === 'optional' && extAmt > 0) {
-    csv += `\nOptional Extended Warranty (${extDuration} @ ${extPct}%),,,,, ${extAmt} (+ 18% GST)`;
-  }
 
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
