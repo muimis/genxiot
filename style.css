@@ -1317,3 +1317,257 @@ textarea { resize:vertical; }
 
 /* Hide mobile nav on dashboard view */
 .view-dashboard .mobile-nav { display: none !important; }
+
+/* ════════════════════ PRODUCT SELECTOR & DRIPO ════════════════════ */
+.product-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-product-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px;
+  background: #f8f9ff;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  color: var(--ink);
+}
+
+.btn-product-toggle:hover {
+  border-color: var(--brand-cyan);
+  background: #ffffff;
+}
+
+.btn-product-toggle.active {
+  background: #f0f7ff;
+  border-color: var(--brand-indigo);
+  box-shadow: 0 0 0 2px rgba(59, 63, 168, 0.15);
+}
+
+.btn-product-toggle.active-dripo {
+  background: #f0fdfa;
+  border-color: #0d9488;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+}
+
+.btn-product-toggle i {
+  color: var(--mid);
+  flex-shrink: 0;
+}
+
+.btn-product-toggle.active i {
+  color: var(--brand-indigo);
+}
+
+.btn-product-toggle.active-dripo i {
+  color: #0d9488;
+}
+
+.btn-product-toggle strong {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.btn-product-toggle span {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Dripo Hero Preview */
+.dripo-hero-box {
+  display: flex;
+  gap: 12px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%);
+  border: 1px solid #99f6e4;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.dripo-hero-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #ccfbf1;
+  box-shadow: 0 2px 6px rgba(13, 148, 136, 0.15);
+}
+
+.dripo-hero-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f766e;
+  margin-bottom: 2px;
+}
+
+.dripo-hero-desc {
+  font-size: 0.68rem;
+  color: #334155;
+  line-height: 1.35;
+}
+
+/* Quick Qty Chips */
+.qty-chips-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.qty-chip {
+  padding: 3px 8px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #334155;
+  transition: all 0.15s;
+}
+
+.qty-chip:hover {
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.qty-chip.active {
+  background: #0d9488;
+  color: #fff;
+  border-color: #0d9488;
+}
+
+/* Tiers Grid */
+.dripo-tiers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dripo-tier-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 6px;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.dripo-tier-card.active {
+  border-color: #0d9488;
+  background: #f0fdfa;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.25);
+}
+
+.dripo-tier-card .tier-label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--mid);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.dripo-tier-card .tier-rate {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--brand-navy);
+  font-family: 'Outfit', sans-serif;
+}
+
+.dripo-tier-card.active .tier-rate {
+  color: #0f766e;
+}
+
+.dripo-tier-card .tier-sub {
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.dripo-tier-card .tier-badge {
+  display: none;
+  font-size: 0.58rem;
+  font-weight: 700;
+  background: #0d9488;
+  color: #ffffff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.dripo-tier-card.active .tier-badge {
+  display: inline-block;
+}
+
+/* Rate summary callout */
+.dripo-summary-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dripo-summary-pill strong {
+  color: #0f766e;
+  font-size: 0.82rem;
+}
+
+/* Feature bullets */
+.dripo-features-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.7rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.dripo-features-box ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.dripo-features-box li {
+  margin-bottom: 3px;
+}
+
+/* Badge for dashboard quote table */
+.badge-prod-dripo {
+  background: #ccfbf1;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+
+.badge-prod-alamo {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 3px;
+}

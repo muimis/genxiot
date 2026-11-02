@@ -131,6 +131,20 @@ const CATALOGUE = [
     img:   '',
     driverKey: 'fixed' // Can be added manually
   },
+
+  // ── SMART INFUSION SYSTEM ───────────────────────
+  {
+    code:  'DRIPO-IM',
+    name:  'Dripo – The Smart Infusion Monitor (HSN: 90189099)',
+    desc:  'The smart infusion monitor lets healthcare practitioners keep an eye on critical infusion therapy from anywhere. The device counts drops in a gravity-fed IV and calculates real-time flow rate. It sends alerts to the nursing station on the occasions of blocks, rate variations and completion of drips. You can also get alerts on your personal mobile devices. The ergonomically designed, rechargeable device is handy, wireless and has a battery backup of 20 hours.',
+    group: 'Smart Infusion System',
+    mrp:   5000,
+    landingPrice: 2800,
+    rate:  4500,
+    img:   'dripo.jpg',
+    driverKey: 'dripo'
+  },
+
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
@@ -226,8 +240,113 @@ const CATALOGUE = [
   }
 ];
 
+// ─── DRIPO TIER PRICING & CATALOGUE ACTIONS ─────────────────────
+// Dripo Pricing Slab Calculator (Excl. GST):
+// 1–10 units  : ₹4,500 / unit
+// 10–30 units : ₹4,000 / unit
+// 30–100+ units : ₹3,500 / unit
+function getDripoRate(qty) {
+  const q = parseInt(qty, 10) || 0;
+  if (q <= 10) return 4500;
+  if (q <= 30) return 4000;
+  return 3500;
+}
+
+// Quick add product from master catalogue dropdown into active BOM
+function addCatalogueItem(code) {
+  if (!code) return;
+  const existing = bom.find(b => b.code === code);
+  if (existing) {
+    if (existing.qty === 0) existing.qty = 1;
+    existing.isLocked = true;
+    showToast(`${existing.name} is in the BOM (Quantity: ${existing.qty})`, 'info');
+    renderBOM();
+    return;
+  }
+  const cat = CATALOGUE.find(c => c.code === code);
+  if (cat) {
+    const rate = (code === 'DRIPO-IM') ? getDripoRate(1) : (cat.mrp || cat.rate);
+    bom.push({
+      ...cat,
+      qty: 1,
+      rate: rate,
+      baseRate: rate,
+      isLocked: true
+    });
+    renderBOM();
+    showToast(`Added ${cat.name} to BOM`, 'success');
+  }
+}
+
+// Sidebar & Quick Actions for Dripo
+function toggleDripoSidebar(checked) {
+  const dripoItem = bom.find(b => b.code === 'DRIPO-IM');
+  if (dripoItem) {
+    const curQty = parseInt(document.getElementById('dripoSidebarQty')?.value, 10) || 0;
+    dripoItem.qty = checked ? (curQty > 0 ? curQty : 10) : 0;
+    dripoItem.isLocked = true;
+    if (dripoItem.qty > 0 && !dripoItem.isLockedRate) {
+      const rate = getDripoRate(dripoItem.qty);
+      dripoItem.rate = rate;
+      dripoItem.baseRate = rate;
+    }
+    renderBOM();
+  }
+}
+
+function onDripoSidebarQtyChange(val) {
+  const qty = Math.max(0, parseInt(val, 10) || 0);
+  const dripoItem = bom.find(b => b.code === 'DRIPO-IM');
+  if (dripoItem) {
+    dripoItem.qty = qty;
+    dripoItem.isLocked = true;
+    if (qty > 0 && !dripoItem.isLockedRate) {
+      const rate = getDripoRate(qty);
+      dripoItem.rate = rate;
+      dripoItem.baseRate = rate;
+    }
+    const chkDripo = document.getElementById('chkDripo');
+    if (chkDripo) chkDripo.checked = (qty > 0);
+    renderBOM();
+  }
+}
+
+function quickAddDripo() {
+  const dripoItem = bom.find(b => b.code === 'DRIPO-IM');
+  if (dripoItem) {
+    dripoItem.qty = (dripoItem.qty > 0 ? dripoItem.qty + 10 : 10);
+    dripoItem.isLocked = true;
+    if (!dripoItem.isLockedRate) {
+      const rate = getDripoRate(dripoItem.qty);
+      dripoItem.rate = rate;
+      dripoItem.baseRate = rate;
+    }
+    renderBOM();
+    showToast(`Dripo set to ${dripoItem.qty} units (@ ₹${fmt(dripoItem.rate)}/unit)`, 'success');
+    const row = document.getElementById('bomRowDripo');
+    if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+function createNewDripoQuote() {
+  resetQuote(true);
+  loadPreset('dripo');
+  const dView = document.getElementById('dashboardView');
+  const cView = document.getElementById('calculatorView');
+  if (dView) dView.style.display = 'none';
+  if (cView) cView.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // ─── STATE ───────────────────────────────────────────────────────
-let bom = CATALOGUE.map((item, i) => ({ ...item, qty: 0, baseRate: item.mrp || item.rate, rate: item.mrp || item.rate }));
+// Initial BOM loads all catalogue components ready for quick quantity selection
+let bom = CATALOGUE.map(item => ({
+  ...item,
+  qty: 0,
+  baseRate: (item.code === 'DRIPO-IM') ? 4500 : (item.mrp || item.rate),
+  rate: (item.code === 'DRIPO-IM') ? 4500 : (item.mrp || item.rate),
+  isLocked: false
+}));
 
 // ─── INIT ────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -254,15 +373,24 @@ function renderBOM() {
   let lastGroup = null;
 
   bom.forEach((item, idx) => {
+    const isDripoItem = (item.code === 'DRIPO-IM');
     if (item.group !== lastGroup) {
       lastGroup = item.group;
       const gtr = document.createElement('tr');
       gtr.className = 'grp-hdr';
-      gtr.innerHTML = `<td colspan="6">${item.group}</td>`;
+      if (isDripoItem) {
+        gtr.style.background = 'linear-gradient(90deg, #0d9488, #0f766e)';
+        gtr.style.color = '#ffffff';
+      }
+      gtr.innerHTML = `<td colspan="6">${isDripoItem ? '💧 ' : ''}${item.group}</td>`;
       tbody.appendChild(gtr);
     }
     const amount = item.qty * item.rate;
     const tr = document.createElement('tr');
+    if (isDripoItem) {
+      tr.style.background = 'rgba(13, 148, 136, 0.05)';
+      tr.id = 'bomRowDripo';
+    }
     tr.innerHTML = `
       <td>
         <img src="${item.img}" class="prod-thumb" alt="${item.name}"
@@ -273,8 +401,13 @@ function renderBOM() {
           <input type="text" value="${item.name}" oninput="updateName(${idx}, this.value)" placeholder="Item Name" style="width:100%; font-weight:600; font-size:.82rem; margin-bottom:2px; border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
           <input type="text" value="${item.desc}" oninput="updateDesc(${idx}, this.value)" placeholder="Description" style="width:100%; font-size:.7rem; color:var(--muted); border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
         ` : `
-          <div class="prod-name">${item.name}</div>
+          <div class="prod-name" style="${isDripoItem ? 'color:#0f766e; font-weight:700;' : ''}">${isDripoItem ? '💧 ' : ''}${item.name}</div>
           <div class="prod-sub">${item.code} &nbsp;·&nbsp; ${item.desc}</div>
+          ${isDripoItem ? `
+            <div style="font-size:0.68rem; color:#0d9488; font-weight:600; margin-top:3px; background:rgba(13,148,136,0.08); padding:2px 6px; border-radius:4px; display:inline-block;">
+              Tier Pricing: 1–10 units: ₹4,500 | 10–30 units: ₹4,000 | 30+ units: ₹3,500 (Excl. GST)
+            </div>
+          ` : ''}
         `}
       </td>
       <td>
@@ -299,13 +432,47 @@ function renderBOM() {
     tbody.appendChild(tr);
   });
 
+  // Sync Dripo sidebar state
+  const dripoItem = bom.find(b => b.code === 'DRIPO-IM');
+  const dQty = dripoItem ? dripoItem.qty : 0;
+  const chkDripoEl = document.getElementById('chkDripo');
+  const dripoSidebarQtyEl = document.getElementById('dripoSidebarQty');
+  const dripoSidebarRateEl = document.getElementById('dripoSidebarRate');
+  if (chkDripoEl) chkDripoEl.checked = (dQty > 0);
+  if (dripoSidebarQtyEl && parseInt(dripoSidebarQtyEl.value, 10) !== dQty) {
+    dripoSidebarQtyEl.value = dQty;
+  }
+  if (dripoSidebarRateEl) {
+    dripoSidebarRateEl.textContent = (dQty > 0) ? `₹${fmt(getDripoRate(dQty))} / unit` : '';
+  }
+
   if (window.lucide) lucide.createIcons();
   recalc();
 }
 
 function updateQty(idx, val) {
-  bom[idx].qty = Math.max(0, parseInt(val) || 0);
+  const newQty = Math.max(0, parseInt(val) || 0);
+  bom[idx].qty = newQty;
   bom[idx].isLocked = true; // Lock so calcEstimator doesn't override manual entry
+
+  if (bom[idx].code === 'DRIPO-IM') {
+    if (!bom[idx].isLockedRate && newQty > 0) {
+      const tierRate = getDripoRate(newQty);
+      bom[idx].rate = tierRate;
+      bom[idx].baseRate = tierRate;
+      const rateInput = document.querySelector(`input[data-idx="${idx}"][onchange*="updateRate"]`);
+      if (rateInput) rateInput.value = tierRate;
+    }
+    const chkDripoEl = document.getElementById('chkDripo');
+    const dripoSidebarQtyEl = document.getElementById('dripoSidebarQty');
+    const dripoSidebarRateEl = document.getElementById('dripoSidebarRate');
+    if (chkDripoEl) chkDripoEl.checked = (newQty > 0);
+    if (dripoSidebarQtyEl) dripoSidebarQtyEl.value = newQty;
+    if (dripoSidebarRateEl) {
+      dripoSidebarRateEl.textContent = (newQty > 0) ? `₹${fmt(getDripoRate(newQty))} / unit` : '';
+    }
+  }
+
   const el = document.getElementById('amt-' + idx);
   if (el) el.textContent = '₹' + fmt(bom[idx].qty * bom[idx].rate);
   recalc();
@@ -323,6 +490,9 @@ function updateRate(idx, val) {
   
   item.rate = newVal;
   item.baseRate = newVal;
+  if (item.code === 'DRIPO-IM') {
+    item.isLockedRate = true; // Lock user's manual price override
+  }
   
   renderBOM();
 }
@@ -350,6 +520,60 @@ function addCustomItem() {
 function loadPreset(preset) {
   document.getElementById('presetDrop')?.classList.remove('open');
 
+  if (preset === 'dripo') {
+    // Dripo Infusion System: 10 Dripo units + 1 Gateway + 1 Repeater + 1 32" Smart TV
+    // Nurse call buttons, pendants, pullcords are NOT needed!
+    floors = [{ name: 'Infusion Ward / Day Care', beds: 0, rooms: 0, baths: 0, ns: 1 }];
+    renderFloors();
+
+    bom.forEach(item => {
+      item.isLocked = true;
+      if (item.code === 'DRIPO-IM') {
+        item.qty = 10;
+        item.rate = getDripoRate(10);
+        item.baseRate = item.rate;
+      } else if (item.code === 'ALAMO-GW') {
+        item.qty = 1;
+      } else if (item.code === 'ALAMO-RPT') {
+        item.qty = 1;
+      } else if (item.code === 'ALAMO-NS-TV') {
+        item.qty = 1;
+      } else {
+        item.qty = 0; // Call buttons, pendants, pullcords are 0
+      }
+    });
+
+    ['DRIPO-IM', 'ALAMO-GW', 'ALAMO-RPT', 'ALAMO-NS-TV'].forEach(code => {
+      let bItem = bom.find(b => b.code === code);
+      if (!bItem) {
+        const cat = CATALOGUE.find(c => c.code === code);
+        if (cat) {
+          const qty = (code === 'DRIPO-IM') ? 10 : 1;
+          const rate = (code === 'DRIPO-IM') ? getDripoRate(10) : (cat.mrp || cat.rate);
+          bom.push({ ...cat, qty, rate, baseRate: rate, isLocked: true });
+        }
+      }
+    });
+
+    const clientEl = document.getElementById('clientName');
+    if (clientEl && !clientEl.value) clientEl.value = 'General Hospital – Infusion Therapy';
+    const locEl = document.getElementById('clientLocation');
+    if (locEl && !locEl.value) locEl.value = 'Kerala';
+
+    const scopeEl = document.getElementById('scopeNotes');
+    if (scopeEl) {
+      scopeEl.value = 'Dripo Smart Infusion Monitors, IoT Gateway & Repeater wireless network configuration, charging cradle setup, nursing station display setup, and staff clinical training by GenXIoT.';
+    }
+    const warrEl = document.getElementById('warranty');
+    if (warrEl) {
+      warrEl.value = '12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.';
+    }
+
+    generateQuoteRef();
+    renderBOM();
+    showToast('Loaded Dripo Infusion preset (10 Dripo + Gateway + Repeater + 32" Display)', 'success');
+    return;
+  }
 
   const presets = {
     small: {
@@ -374,36 +598,39 @@ function loadPreset(preset) {
   if (!p) return;
 
   // Unlock all items when loading a fresh preset
-  bom.forEach(item => item.isLocked = false);
+  bom.forEach(item => {
+    item.isLocked = false;
+    if (item.code === 'DRIPO-IM') item.qty = 0;
+  });
 
   // Set up floors dynamically
-    floors = [];
-    const numFloors = p.floors || 1;
-    const bedsPerFloor = Math.floor(p.beds / numFloors);
-    const roomsPerFloor = Math.floor(p.rooms / numFloors);
-    const bathsPerFloor = Math.floor(p.bathrooms / numFloors);
-    
-    const nsTot = (p.nsBasic || 0) + (p.nsTv || 0);
-    const nsPerFloor = Math.floor(nsTot / numFloors);
-    for (let i = 0; i < numFloors; i++) {
-        floors.push({
-            name:  `Floor ${i + 1}`,
-            beds:  bedsPerFloor  + (i === 0 ? p.beds      % numFloors : 0),
-            rooms: roomsPerFloor + (i === 0 ? p.rooms     % numFloors : 0),
-            baths: bathsPerFloor + (i === 0 ? p.bathrooms % numFloors : 0),
-            ns:    nsPerFloor    + (i === 0 ? nsTot       % numFloors : 0)
-        });
-    }
-    renderFloors();
+  floors = [];
+  const numFloors = p.floors || 1;
+  const bedsPerFloor = Math.floor(p.beds / numFloors);
+  const roomsPerFloor = Math.floor(p.rooms / numFloors);
+  const bathsPerFloor = Math.floor(p.bathrooms / numFloors);
+  
+  const nsTot = (p.nsBasic || 0) + (p.nsTv || 0);
+  const nsPerFloor = Math.floor(nsTot / numFloors);
+  for (let i = 0; i < numFloors; i++) {
+      floors.push({
+          name:  `Floor ${i + 1}`,
+          beds:  bedsPerFloor  + (i === 0 ? p.beds      % numFloors : 0),
+          rooms: roomsPerFloor + (i === 0 ? p.rooms     % numFloors : 0),
+          baths: bathsPerFloor + (i === 0 ? p.bathrooms % numFloors : 0),
+          ns:    nsPerFloor    + (i === 0 ? nsTot       % numFloors : 0)
+      });
+  }
+  renderFloors();
   document.getElementById('clientName').value    = p.client;
   document.getElementById('clientLocation').value = p.loc;
-  calcEstimator();
-    if(document.getElementById('chkSinglePendant')) document.getElementById('chkSinglePendant').checked = (p.pendant !== 'double');
+  if(document.getElementById('chkSinglePendant')) document.getElementById('chkSinglePendant').checked = (p.pendant !== 'double');
   if(document.getElementById('chkDoublePendant')) document.getElementById('chkDoublePendant').checked = (p.pendant === 'double');
   if(document.getElementById('chkNsBasic')) document.getElementById('chkNsBasic').checked = (p.nsBasic > 0);
   if(document.getElementById('chkNsTv')) document.getElementById('chkNsTv').checked = (p.nsTv > 0);
   if(document.getElementById('chkDataLog')) document.getElementById('chkDataLog').checked = p.dataLog || false;
   calcEstimator();
+  generateQuoteRef();
 }
 
 // ─── INIT API & QUOTE REF GENERATOR ─────────────────────────────
@@ -609,11 +836,14 @@ function generateQuoteRef() {
   let currentRef = refInput.value || '';
   
   // Safely extract existing random number if already generated, otherwise use currentRandom or generate new
-  let randMatch = currentRef.match(/^GEN-ALA-\d{6,8}-(\d{2,4})-?/);
+  let randMatch = currentRef.match(/^GEN-(?:ALA|DRP)-\d{6,8}-(\d{2,4})-?/i);
   let rand = randMatch ? randMatch[1] : (window.currentRandom || Math.floor(Math.random() * 90 + 10));
   window.currentRandom = rand;
 
-  let base = `GEN-ALA-${dateStr}-${rand}-`;
+  const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
+  const hasNurseCall = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
+  const prefixProd = (hasDripo && !hasNurseCall) ? 'GEN-DRP' : 'GEN-ALA';
+  let base = `${prefixProd}-${dateStr}-${rand}-`;
   window.currentBaseQtn = base;
 
   if (!cName) {
@@ -696,7 +926,12 @@ function saveQuote() {
     clientGst:         document.getElementById('clientGst')?.value           || '',
     piRef:             document.getElementById('piRef')?.value               || '',
     coverFinalAmt:     document.getElementById('coverFinalAmt')?.value       || '',
-    coverAdvAmt:       document.getElementById('coverAdvAmt')?.value         || ''
+    coverAdvAmt:       document.getElementById('coverAdvAmt')?.value         || '',
+    productType:       window.currentProduct || 'alamo',
+    dripoQty:          parseInt(document.getElementById('dripoQty')?.value, 10) || 10,
+    dripoGwQty:        parseInt(document.getElementById('dripoGwQty')?.value, 10) ?? 1,
+    dripoRptQty:       parseInt(document.getElementById('dripoRptQty')?.value, 10) ?? 1,
+    dripoAlloc:        document.getElementById('dripoAlloc')?.value || ''
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -713,6 +948,10 @@ function saveQuote() {
 
   const shouldWithdraw = window.selectedRevisionWithdraw !== false;
 
+  const totalUnits = (window.currentProduct === 'dripo')
+    ? (parseInt(document.getElementById('dripoQty')?.value, 10) || 10)
+    : floors.reduce((a, f) => a + (f.beds || 0), 0);
+
   const dealData = {
     action: 'saveQuote',
     quoteRef:     qtn,
@@ -720,7 +959,7 @@ function saveQuote() {
     location:     document.getElementById('clientLocation')?.value || '',
     totalAmount:  gtNum,            // plain number — parseable by dashboard
     contactPerson: document.getElementById('contactPerson')?.value || '',
-    totalBeds:    floors.reduce((a, f) => a + (f.beds || 0), 0),
+    totalBeds:    totalUnits,
     quoteVersion: quoteVer,
     status:       dealStatus,
     withdrawPrevious: shouldWithdraw,
@@ -898,7 +1137,7 @@ function restoreQuote(data) {
   // ── Bank details ───────────────────────────────────────────────
   // Bank details are now strictly hardcoded in the HTML output and need not be loaded
 
-  // ── Floors & BOM ───────────────────────────────────────────────
+  // ── Floors & BOM Restoration ──────────────────────────────────
   const bedCount = parseInt(data.totalBeds || data.beds, 10) || 0;
   if (data.floors && Array.isArray(data.floors) && data.floors.length > 0 && data.floors.some(f => (parseInt(f.beds) || 0) > 0)) {
     floors = data.floors.map(f => {
@@ -945,7 +1184,7 @@ function restoreQuote(data) {
             isLocked: (saved.isLocked !== undefined) ? saved.isLocked : (q > 0)
           };
         }
-        return { ...catItem, qty: 0, baseRate: catItem.mrp || catItem.rate, rate: catItem.mrp || catItem.rate, isLocked: false };
+        return { ...catItem, qty: 0, baseRate: (catItem.code === 'DRIPO-IM') ? 4500 : (catItem.mrp || catItem.rate), rate: (catItem.code === 'DRIPO-IM') ? 4500 : (catItem.mrp || catItem.rate), isLocked: false };
       });
 
       // Preserve any custom line items
@@ -962,6 +1201,8 @@ function restoreQuote(data) {
   } else {
     calcEstimator();
   }
+
+  recalc();
 
   recalc(); // Recompute totals with all restored financial fields
 }
@@ -1253,6 +1494,19 @@ function recalc() {
   const postPct = document.getElementById('postPct');
   if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
 
+  const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
+  const hasNurseCall = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
+  const isDripoOnly = hasDripo && !hasNurseCall;
+
+  const refInput = document.getElementById('quoteRef');
+  if (refInput && refInput.value) {
+    if (isDripoOnly && refInput.value.startsWith('GEN-ALA-')) {
+      refInput.value = refInput.value.replace(/^GEN-ALA-/, 'GEN-DRP-');
+    } else if (!isDripoOnly && refInput.value.startsWith('GEN-DRP-')) {
+      refInput.value = refInput.value.replace(/^GEN-DRP-/, 'GEN-ALA-');
+    }
+  }
+
   syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff, {
     extOpt, extPct, extDuration, extAmt, isExtBilled,
     hasAddWarranty, addDur, addCost
@@ -1299,107 +1553,128 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
   
-  const hasBilledBeds = bom.some(b => b.driverKey === 'beds' && b.qty > 0);
-  const hasBilledRooms = bom.some(b => b.driverKey === 'rooms' && b.qty > 0);
-  const hasBilledBaths = bom.some(b => (b.driverKey === 'bathrooms' || b.code === 'ALAMO-CP-B') && b.qty > 0);
-  const hasBilledNs = bom.some(b => (b.driverKey === 'ns_basic' || b.driverKey === 'ns_tv') && b.qty > 0);
-
-  const facilityParts = [];
-  if (beds > 0 && hasBilledBeds) facilityParts.push(`${beds} Bed${beds > 1 ? 's' : ''}`);
-  if (rooms > 0 && hasBilledRooms) facilityParts.push(`${rooms} Room${rooms > 1 ? 's' : ''}`);
-  if (washrooms > 0 && hasBilledBaths) facilityParts.push(`${washrooms} Washroom${washrooms > 1 ? 's' : ''}`);
-  if (wards > 0 && hasBilledNs) facilityParts.push(`${wards} Nursing Station${wards > 1 ? 's' : ''}`);
-  setText('qFacility', facilityParts.join(' · '));
-
-  // PO Reference row
-  if (poRef.trim()) {
-    setText('qPORef', poRef.trim());
-    if (document.getElementById('qPORow')) document.getElementById('qPORow').style.display = '';
-  } else {
-    if (document.getElementById('qPORow')) document.getElementById('qPORow').style.display = 'none';
-  }
-
-  // Client GST row (only shown if GST is entered)
-  const qClientGstRow = document.getElementById('qClientGstRow');
-  if (qClientGstRow) {
-    if (clientGst.trim()) {
-      setText('qClientGst', clientGst.trim().toUpperCase());
-      qClientGstRow.style.display = '';
-    } else {
-      qClientGstRow.style.display = 'none';
-    }
-  }
-
-  let floorBreakupHtml = '';
-  if (floors && floors.length > 0) {
-    floors.forEach((f, i) => {
-      let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
-      let parts = [];
-      let b = parseInt(f.beds) || 0, r = parseInt(f.rooms) || 0, w = parseInt(f.baths) || 0, n = parseInt(f.ns) || 0;
-      if (b > 0 && hasBilledBeds) parts.push(`${b} Bed${b > 1 ? 's' : ''}`);
-      if (r > 0 && hasBilledRooms) parts.push(`${r} Room${r > 1 ? 's' : ''}`);
-      if (w > 0 && hasBilledBaths) parts.push(`${w} Washroom${w > 1 ? 's' : ''}`);
-      if (n > 0 && hasBilledNs) parts.push(`${n} Nursing Station${n > 1 ? 's' : ''}`);
-      
-      if (parts.length > 0) {
-        floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
-      }
-    });
-  }
+  const hasDripoInBom = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
+  const hasNurseCallInBom = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
+  const isDripoOnlyQuote = hasDripoInBom && !hasNurseCallInBom;
   const qFloorBreakup = document.getElementById('qFloorBreakup');
-  if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
-
-  const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
-  const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
-  let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
-  
-  if (bomCodes.includes('ALAMO-MINI') && !bomCodes.includes('ALAMO-NS-TV')) {
-    let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
-    if (tvItem) {
-      tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
-      optionalItems.push(tvItem);
-    }
-  }
-
-  if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
-    let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
-    if (dataLogItem) {
-      dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
-      optionalItems.push(dataLogItem);
-    }
-  }
-  
   const qOptionalNote = document.getElementById('qOptionalNote');
-  if (qOptionalNote) {
-    if (optionalItems.length > 0) {
-        let optHtml = `
-          <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
-            <h4 style="margin: 0 0 2px 0; font-size: 0.8rem; color: #444;">OPTIONAL UPGRADES</h4>
-            <p style="margin: 0 0 4px 0; font-size: 0.72rem; color: #666;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
-            <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #555;">
-        `;
-        optionalItems.forEach(item => {
-          let itemName = item.name.split(' (HSN:')[0].replace(/^Alamo\s+/i, '');
-          
-          let itemDesc = item.desc;
-          if (item.code === 'ALAMO-NS-TV') {
-            itemDesc = '32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
-          } else if (item.code === 'ALAMO-CLOUD-SW') {
-            itemDesc = 'Cloud data logging & historical analytics.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
-          }
 
-          optHtml += `
-            <tr>
-              <td style="padding: 3px 6px 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 22%;">${itemName}</td>
-              <td style="padding: 3px 6px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${itemDesc}</td>
-              <td style="padding: 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
-            </tr>
-          `;
-        });
-        optHtml += `</table></div>`;
-      qOptionalNote.innerHTML = optHtml;
-    } else {
+  if (isDripoOnlyQuote) {
+    const dripoItem = bom.find(b => b.code === 'DRIPO-IM');
+    const gwItem = bom.find(b => b.code === 'ALAMO-GW' && b.qty > 0);
+    const rptItem = bom.find(b => b.code === 'ALAMO-RPT' && b.qty > 0);
+    const tvItem = bom.find(b => b.code === 'ALAMO-NS-TV' && b.qty > 0);
+    const miniItem = bom.find(b => b.code === 'ALAMO-MINI' && b.qty > 0);
+    const dQty = dripoItem ? dripoItem.qty : 0;
+
+    setText('qHeaderTagline', 'Intelligent Healthcare & Smart Infusion Monitoring');
+    setText('qPartnerSub', 'Authorized Dripo Partner · Smart Infusion Solutions');
+    setText('qSectionTitle', 'Bill of Quantities – Dripo Smart Infusion System');
+    setText('qFacLabel', 'Scope:');
+
+    const facParts = [`${dQty} Dripo Smart Infusion Monitor${dQty > 1 ? 's' : ''}`];
+    if (gwItem) facParts.push(`${gwItem.qty} Gateway${gwItem.qty > 1 ? 's' : ''}`);
+    if (rptItem) facParts.push(`${rptItem.qty} Repeater${rptItem.qty > 1 ? 's' : ''}`);
+    if (tvItem) facParts.push(`${tvItem.qty} 32" Smart TV Display${tvItem.qty > 1 ? 's' : ''}`);
+    if (miniItem) facParts.push(`${miniItem.qty} Mini Station Display${miniItem.qty > 1 ? 's' : ''}`);
+    setText('qFacility', facParts.join(' · '));
+
+    if (qFloorBreakup) {
+      qFloorBreakup.innerHTML = '';
+    }
+
+    if (qOptionalNote) {
       qOptionalNote.innerHTML = '';
+    }
+
+  } else {
+    // Alamo Nurse Call System (or Combined Alamo + Dripo)
+    setText('qHeaderTagline', 'Intelligent Healthcare & Smart IoT Solutions');
+    setText('qPartnerSub', hasDripoInBom ? 'Authorized Alamo & Dripo Integration Partner' : 'Authorized Alamo Integration Partner');
+    setText('qSectionTitle', 'Bill of Quantities – Facility Specific Configuration');
+    setText('qFacLabel', 'Facility:');
+
+    const hasBilledBeds = bom.some(b => b.driverKey === 'beds' && b.qty > 0);
+    const hasBilledRooms = bom.some(b => b.driverKey === 'rooms' && b.qty > 0);
+    const hasBilledBaths = bom.some(b => (b.driverKey === 'bathrooms' || b.code === 'ALAMO-CP-B') && b.qty > 0);
+    const hasBilledNs = bom.some(b => (b.driverKey === 'ns_basic' || b.driverKey === 'ns_tv') && b.qty > 0);
+
+    const facilityParts = [];
+    if (beds > 0 && hasBilledBeds) facilityParts.push(`${beds} Bed${beds > 1 ? 's' : ''}`);
+    if (rooms > 0 && hasBilledRooms) facilityParts.push(`${rooms} Room${rooms > 1 ? 's' : ''}`);
+    if (washrooms > 0 && hasBilledBaths) facilityParts.push(`${washrooms} Washroom${washrooms > 1 ? 's' : ''}`);
+    if (wards > 0 && hasBilledNs) facilityParts.push(`${wards} Nursing Station${wards > 1 ? 's' : ''}`);
+    setText('qFacility', facilityParts.join(' · '));
+
+    let floorBreakupHtml = '';
+    if (floors && floors.length > 0) {
+      floors.forEach((f, i) => {
+        let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
+        let parts = [];
+        let b = parseInt(f.beds) || 0, r = parseInt(f.rooms) || 0, w = parseInt(f.baths) || 0, n = parseInt(f.ns) || 0;
+        if (b > 0 && hasBilledBeds) parts.push(`${b} Bed${b > 1 ? 's' : ''}`);
+        if (r > 0 && hasBilledRooms) parts.push(`${r} Room${r > 1 ? 's' : ''}`);
+        if (w > 0 && hasBilledBaths) parts.push(`${w} Washroom${w > 1 ? 's' : ''}`);
+        if (n > 0 && hasBilledNs) parts.push(`${n} Nursing Station${n > 1 ? 's' : ''}`);
+        
+        if (parts.length > 0) {
+          floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
+        }
+      });
+    }
+    if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
+
+    const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
+    const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
+    let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
+    
+    if (bomCodes.includes('ALAMO-MINI') && !bomCodes.includes('ALAMO-NS-TV')) {
+      let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
+      if (tvItem) {
+        tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
+        optionalItems.push(tvItem);
+      }
+    }
+
+    if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
+      let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
+      if (dataLogItem) {
+        dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
+        optionalItems.push(dataLogItem);
+      }
+    }
+    
+    if (qOptionalNote) {
+      if (optionalItems.length > 0) {
+          let optHtml = `
+            <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
+              <h4 style="margin: 0 0 2px 0; font-size: 0.8rem; color: #444;">OPTIONAL UPGRADES</h4>
+              <p style="margin: 0 0 4px 0; font-size: 0.72rem; color: #666;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #555;">
+          `;
+          optionalItems.forEach(item => {
+            let itemName = item.name.split(' (HSN:')[0].replace(/^Alamo\s+/i, '');
+            
+            let itemDesc = item.desc;
+            if (item.code === 'ALAMO-NS-TV') {
+              itemDesc = '32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+            } else if (item.code === 'ALAMO-CLOUD-SW') {
+              itemDesc = 'Cloud data logging & historical analytics.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+            }
+
+            optHtml += `
+              <tr>
+                <td style="padding: 3px 6px 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 22%;">${itemName}</td>
+                <td style="padding: 3px 6px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${itemDesc}</td>
+                <td style="padding: 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
+              </tr>
+            `;
+          });
+          optHtml += `</table></div>`;
+        qOptionalNote.innerHTML = optHtml;
+      } else {
+        qOptionalNote.innerHTML = '';
+      }
     }
   }
   setText('qSigClient', clientName);
@@ -1521,10 +1796,6 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     const durStr = extInfo.addDur.replace(/^\+\s*/, '');
     warrantyText += ` + ${durStr} additional warranty (special concession)`;
   }
-  if (!/consumable/i.test(warrantyText)) {
-    if (!warrantyText.endsWith('.')) warrantyText += '.';
-    warrantyText += ' Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.';
-  }
   setText('qWarranty', warrantyText);
   setText('qScope',    scopeNotes);
 
@@ -1641,14 +1912,19 @@ function printDoc() {
 }
 
 
-// ─── RESET ───────────────────────────────────────────────────────
 function resetQuote(force = false) {
   if (!force && !confirm('Reset will clear all current data. Continue?')) return;
 
-  bom = CATALOGUE.map(item => ({ ...item, qty: 0, baseRate: item.rate, isLocked: false }));
-
   const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
   const setChk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = v; };
+
+  bom = CATALOGUE.map(item => ({
+    ...item,
+    qty: 0,
+    baseRate: (item.code === 'DRIPO-IM') ? 4500 : (item.mrp || item.rate),
+    rate: (item.code === 'DRIPO-IM') ? 4500 : (item.mrp || item.rate),
+    isLocked: false
+  }));
 
   // Client / deal info
   setVal('clientName',     '');
@@ -1673,7 +1949,7 @@ function resetQuote(force = false) {
   setVal('advPct',    '50');
   // Terms
   setVal('delivery',  '25 days from order confirmation & advance receipt');
-  setVal('warranty',  '12 months comprehensive from date of Installation Protocol signoff');
+  setVal('warranty',  '12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.');
   setVal('addWarrantyDuration',       'none');
   setVal('addWarrantyCustomDuration', '');
   setVal('addWarrantyCost',           '0');
@@ -1947,7 +2223,7 @@ function enrichQuotesWithVersionAndStatus(rawQuotes) {
 
     // Group key: client name normalized (e.g. "jeevamedicarehospital")
     const clientKey = (q.clientName || '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    const rootMatch = ref.match(/^(GEN-ALA-\d{6,8}-\d{2,4}-[A-Z0-9]{3})/i);
+    const rootMatch = ref.match(/^(GEN-(?:ALA|DRP)-\d{6,8}-\d{2,4}-[A-Z0-9]{3})/i);
     const rootRef = rootMatch ? rootMatch[1].toUpperCase() : '';
     const groupKey = clientKey || rootRef || ref;
 
@@ -2544,6 +2820,18 @@ function renderDashboardTable(list) {
           ? `<span class="badge-v-latest">V${q.version} (Latest)</span>`
           : `<span class="badge-v-rev">V${q.version} (Rev)</span>`);
 
+    const isDripo = (q.productType === 'dripo') ||
+                    (q.quoteRef && q.quoteRef.startsWith('GEN-DRP')) ||
+                    (q.bomData && Array.isArray(q.bomData) && q.bomData.some(b => b && b.code === 'DRIPO-IM'));
+
+    const prodBadge = isDripo
+      ? `<span class="badge-prod-dripo">💧 Dripo</span>`
+      : `<span class="badge-prod-alamo">🩺 Alamo</span>`;
+
+    const unitsLabel = isDripo
+      ? `${q.totalBeds || q.dripoQty || 0} Units`
+      : `${q.totalBeds || 0} Beds`;
+
     const revisionBtn = q.totalRevisions > 1
       ? `<button type="button" class="btn-view-revisions" onclick="showRevisionHistory('${q.groupKey}')" title="View all ${q.totalRevisions} revisions">
            <i data-lucide="layers" size="12"></i> ${q.totalRevisions} Revs
@@ -2555,6 +2843,7 @@ function renderDashboardTable(list) {
       <td style="white-space:nowrap; color:var(--mid); font-family:var(--font-mono, monospace); font-size:0.75rem;">${dateFormatted}</td>
       <td>
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          ${prodBadge}
           <span style="font-weight:600; font-family:monospace; color:var(--brand-navy); font-size:0.8rem;">${q.quoteRef}</span>
           ${versionBadge}
           ${revisionBtn}
@@ -2566,7 +2855,7 @@ function renderDashboardTable(list) {
       </td>
       <td style="font-weight:700; white-space:nowrap; color:var(--brand-indigo);">
         ₹ ${Math.round(val).toLocaleString('en-IN')}
-        <div style="font-size:0.7rem; font-weight:400; color:var(--muted);">${q.totalBeds || 0} Beds</div>
+        <div style="font-size:0.7rem; font-weight:400; color:var(--muted);">${unitsLabel}</div>
       </td>
       <td>
         <select class="status-select status-${statusClass}" onchange="changeQuoteStatus(event, '${q.quoteRef}')">

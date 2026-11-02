@@ -32,9 +32,12 @@
           <div class="hdr-sub">PIPELINE DASHBOARD</div>
         </div>
       </div>
-      <div class="hdr-actions">
+      <div class="hdr-actions" style="display:flex; gap:8px;">
         <button class="btn btn-primary" onclick="createNewQuote()">
           <i data-lucide="plus" size="18"></i> Create New Quote
+        </button>
+        <button class="btn" onclick="createNewDripoQuote()" style="background:#0d9488; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
+          <i data-lucide="droplet" size="16"></i> New Dripo Quote
         </button>
       </div>
     </div>
@@ -165,7 +168,7 @@
         <div class="hdr-title">GENXIOT LLP</div>
         <div class="hdr-sub">INTELLIGENT HEALTHCARE IoT SOLUTIONS</div>
       </div>
-      <span class="badge-live"><span class="dot"></span>Official Alamo Partner</span>
+      <span class="badge-live" id="hdrLiveBadge"><span class="dot"></span>Official Alamo &amp; Dripo Partner</span>
     </div>
     <div class="hdr-actions">
       <div class="preset-wrap">
@@ -175,6 +178,16 @@
         <button class="btn btn-ghost" onclick="loadQuotesModal()" style="color:var(--brand-cyan);">
           <i data-lucide="search" size="15"></i> Recall QTN
         </button>
+        <button class="btn btn-sm" onclick="loadPreset('dripo')" style="background: rgba(13,148,136,0.25); border: 1px solid #0d9488; color: #5eead4; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px;" title="Load Dripo Infusion Quote">
+          <i data-lucide="droplet" size="13"></i> Dripo Quote
+        </button>
+        <select onchange="if(this.value){loadPreset(this.value); this.value='';}" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.78rem; font-weight: 500; cursor: pointer;">
+          <option value="" style="color:#333;">✨ Presets...</option>
+          <option value="small" style="color:#333;">🩺 Small Clinic (30 Beds - Alamo)</option>
+          <option value="medium" style="color:#333;">🩺 Medium Hospital (134 Beds - Alamo)</option>
+          <option value="large" style="color:#333;">🩺 Large Hospital (250 Beds - Alamo)</option>
+          <option value="dripo" style="color:#0f766e; font-weight:700;">💧 Dripo Infusion (10 Units + Net + Display)</option>
+        </select>
       </div>
       <button class="btn btn-ghost" onclick="resetQuote()">
         <i data-lucide="refresh-cw" size="15"></i> Reset
@@ -198,6 +211,8 @@
       <div class="stat"><strong>10L+</strong><span>Calls Served</span></div>
       <div class="stat"><strong>4000+</strong><span>Units Active</span></div>
     </div>
+
+
 
     <!-- Hospital & Deal Info -->
     <div class="card card-accent" style="margin-bottom: 20px;">
@@ -263,7 +278,7 @@
     </div>
 
     <!-- Facility & Requirements -->
-    <div class="card card-accent">
+    <div class="card card-accent" id="estimatorCard">
       <div class="card-hd">
         <i data-lucide="calculator" size="16"></i> Estimator
         <span class="chip">Auto BOM</span>
@@ -277,6 +292,28 @@
 
         <div style="background: #f9fafb; padding: 10px; border-radius: 6px; border: 1px solid var(--border); margin-bottom:20px;">
           
+          <!-- Dripo Smart Infusion Monitor -->
+          <div class="opt-row" style="background: rgba(13,148,136,0.08); border: 1.5px solid #0d9488; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <label style="font-weight: 700; color: #0f766e; display: flex; align-items: center; gap: 6px; margin: 0; cursor: pointer;">
+                <input type="checkbox" id="chkDripo" onchange="toggleDripoSidebar(this.checked)">
+                <span>💧 Dripo Infusion Monitor</span>
+              </label>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <input type="number" id="dripoSidebarQty" min="0" value="0" placeholder="0" style="width: 55px; padding: 3px 6px; font-weight: 700; text-align: center; border: 1px solid #0d9488; border-radius: 4px; font-size: 0.82rem;" oninput="onDripoSidebarQtyChange(this.value)">
+                <span style="font-size: 0.72rem; color: #0f766e; font-weight: 600;">units</span>
+              </div>
+            </div>
+            <div style="font-size: 0.68rem; color: #0f766e; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
+              <span>1–10: ₹4,500 · 10–30: ₹4,000 · 30+: ₹3,500</span>
+              <span id="dripoSidebarRate" style="font-weight: 700; font-size: 0.75rem;"></span>
+            </div>
+            <div style="margin-top: 5px; padding-top: 4px; border-top: 1px dashed rgba(13,148,136,0.3); display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem;">
+              <a href="javascript:void(0)" onclick="loadPreset('dripo')" style="color: #0f766e; text-decoration: underline; font-weight: 600;">⚡ Dripo Only (0 call buttons)</a>
+              <span style="color: #666; font-size: 0.65rem;">+ Display &amp; Net</span>
+            </div>
+          </div>
+
           <div class="opt-row">
             <label><input type="checkbox" id="chkSinglePendant" checked onchange="calcEstimator()"> Single Pendants</label>
           </div>
@@ -316,8 +353,11 @@
           <div class="opt-row">
             <label><input type="checkbox" id="chkDataLog" onchange="calcEstimator()"> Data Logging & Analytics Software</label>
           </div>
-        </div></div>
+        </div>
+      </div>
     </div>
+
+
 
   </aside>
 
@@ -328,9 +368,30 @@
     <div class="card">
       <div class="card-hd" style="justify-content:space-between">
         <span><i data-lucide="layers" size="16"></i> Bill of Materials</span>
-        <button class="btn btn-ghost btn-sm" onclick="addCustomItem()">
-          <i data-lucide="plus" size="14"></i> Add Item
-        </button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" class="btn btn-sm" onclick="quickAddDripo()" style="background:#0d9488; color:#fff; font-size:0.75rem; padding:4px 10px; border-radius:6px; font-weight:600; display:flex; align-items:center; gap:5px; border:none; cursor:pointer;" title="Quick Add Dripo Infusion Monitor">
+            <i data-lucide="droplet" size="13"></i> + Add Dripo (10 Units)
+          </button>
+          <select id="selAddCatalogue" onchange="addCatalogueItem(this.value); this.value='';" style="font-size:0.75rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: white; color: var(--ink); cursor: pointer; font-weight: 500;">
+            <option value="">+ Add Product from Catalogue...</option>
+            <option value="DRIPO-IM">💧 Dripo – Smart Infusion Monitor (₹4,500 / ₹4,000 / ₹3,500)</option>
+            <option value="ALAMO-NS-TV">📺 32" Smart TV Live View Display (₹12,000)</option>
+            <option value="ALAMO-MINI">📟 Mini Station - Tetris Display (₹12,000)</option>
+            <option value="ALAMO-GW">📡 Gateway (Network Device) (₹12,000)</option>
+            <option value="ALAMO-RPT">🔁 Repeater (Networking Device) (₹4,000)</option>
+            <option value="ALAMO-CLOUD-SW">☁️ Cloud Software &amp; Analytics (₹15,000)</option>
+            <option value="ALAMO-CP-R">🩺 Bed Call Point (Service &amp; Nurse Call) (₹2,400)</option>
+            <option value="ALAMO-PD-S">Single Switch Pendant (₹600)</option>
+            <option value="ALAMO-PD-D">Double Button Pendant (₹950)</option>
+            <option value="ALAMO-DL">Door Indicator Call Light (₹2,600)</option>
+            <option value="ALAMO-CP-B">Washroom Call Point (₹2,400)</option>
+            <option value="ALAMO-PL">Washroom Pull Cord (₹600)</option>
+            <option value="ALAMO-CB-ACC">Code Blue Accessory (₹900)</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="addCustomItem()">
+            <i data-lucide="plus" size="14"></i> Add Custom Item
+          </button>
+        </div>
       </div>
       <div class="card-bd" style="padding:0;overflow-x:auto">
         <table class="bom-tbl">
@@ -433,7 +494,7 @@
               <label style="margin:0; font-weight:700; color:var(--brand-navy); font-size:0.82rem;">Standard Warranty</label>
               <span class="badge-v-latest" style="font-size:0.68rem;">1 Year Baseline</span>
             </div>
-            <input id="warranty" value="12 months comprehensive from date of Installation Protocol signoff" oninput="recalc()">
+            <input id="warranty" value="12 months comprehensive warranty from date of installation. Consumables and physical damage excluded." oninput="recalc()">
 
             <!-- ADDITIONAL WARRANTY (COMPLIMENTARY / CONCESSION) -->
             <div style="margin-top: 10px; padding: 10px 12px; background: #fdfefe; border: 1px solid #cbd5e1; border-radius: 6px;">
@@ -673,7 +734,7 @@
           <div class="qtn-h-left">
             <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
             <div class="qtn-company">GENXIOT LLP</div>
-            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
+            <div class="qtn-tagline" id="qHeaderTagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
             <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
             <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Nivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
             <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; State: Kerala &nbsp;|&nbsp; Code: 32</div>
@@ -714,15 +775,15 @@
           <div class="party">
             <div class="party-label">SUBMITTED BY</div>
             <div class="party-name">GENXIOT LLP</div>
-            <div class="party-sub">Authorized Alamo Integration Partner</div>
+            <div class="party-sub" id="qPartnerSub">Authorized Alamo Integration Partner</div>
             <div class="party-sub">Rep: <span id="qBdmName">GenXIoT Sales Team</span></div>
             <div class="party-sub">BDM Contact: +91 88916 70903</div>
           </div>
         </div>
 
-        <div class="qtn-section-title">Bill of Quantities – Facility Specific Configuration</div>
+        <div class="qtn-section-title" id="qSectionTitle">Bill of Quantities – Facility Specific Configuration</div>
         <div class="qtn-fac-tag">
-          <strong>Facility:</strong> <span id="qFacility">134 Beds &middot; 39 Rooms &middot; 99 Washrooms &middot; 8 Wards/Stations</span>
+          <strong id="qFacLabel">Facility:</strong> <span id="qFacility">134 Beds &middot; 39 Rooms &middot; 99 Washrooms &middot; 8 Wards/Stations</span>
         </div>
         <div id="qFloorBreakup" style="margin: 10px 38px; font-size: 0.8rem; color: #444; line-height: 1.4;"></div>
 
@@ -877,7 +938,7 @@
             <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by GenXIoT. 200 beds can be installed in a single day.</span></p>
             <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within 24 to 48 hours.</p>
           <p><strong>Inspection:</strong> Buyer must inspect packaging and products within 5 days of delivery and report defects.</p>
-          <p><strong>Standard Warranty:</strong> <span id="qWarranty">12 months comprehensive from date of Installation Protocol signoff. Consumable/wear parts excluded (pull cord, pendant, battery). Non-return of signed protocol within 6 weeks invalidates warranty.</span></p>
+          <p><strong>Standard Warranty:</strong> <span id="qWarranty">12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.</span></p>
           <p id="qExtWarrantyRow" style="display:none;"><strong>Extended Warranty &amp; Replacement:</strong> <span id="qExtWarranty"></span></p>
           <p><strong>Jurisdiction:</strong> Thiruvananthapuram, Kerala, India. Governed by laws of India.</p>
           </div>

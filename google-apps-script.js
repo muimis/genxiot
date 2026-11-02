@@ -355,6 +355,19 @@ function handleGetAllQuotes(sheet) {
     if (!status) status = 'Pending';
     if (!version) version = '1';
 
+    var prodType = 'alamo';
+    if (ref.indexOf('GEN-DRP') !== -1) {
+      prodType = 'dripo';
+    } else {
+      var rowPayload = findPayloadInRow(row, cPayload);
+      if (rowPayload) {
+        try {
+          var pCheck = JSON.parse(rowPayload);
+          if (pCheck.productType) prodType = pCheck.productType;
+        } catch (err) {}
+      }
+    }
+
     quotes.push({
       date: dateFormatted,
       quoteRef: ref,
@@ -364,6 +377,7 @@ function handleGetAllQuotes(sheet) {
       totalBeds: totalBeds,
       status: status,
       quoteVersion: version,
+      productType: prodType,
       contactPerson: (cContact !== undefined && row[cContact]) ? String(row[cContact]).trim() : ''
     });
   }
@@ -733,6 +747,7 @@ function parsePayloadResponse(payloadStr, row, colMap) {
   var fallbackBaths = fallbackBeds > 0 ? Math.ceil(fallbackBeds * 0.5) : 0;
   var fallbackNs = fallbackBeds > 0 ? Math.max(1, Math.ceil(fallbackBeds / 30)) : 0;
 
+  var isDripoRef = (ref.indexOf('GEN-DRP') !== -1);
   var fallbackObj = {
     quoteRef: ref,
     clientName: client,
@@ -748,7 +763,9 @@ function parsePayloadResponse(payloadStr, row, colMap) {
     shipping: '3500',
     advPct: '50',
     delivery: '25 days from order confirmation & advance receipt',
-    warranty: '12 months comprehensive from date of Installation Protocol signoff',
+    warranty: isDripoRef
+      ? '12 months comprehensive warranty from date of delivery. Consumables and physical damage excluded.'
+      : '12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.',
     addWarrantyDuration: 'none',
     addWarrantyCustomDuration: '',
     addWarrantyCost: '0',
@@ -757,7 +774,11 @@ function parsePayloadResponse(payloadStr, row, colMap) {
     extWarrantyCustomDuration: '',
     extWarrantyPct: '10',
     extWarrantyTerms: 'Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).',
-    scopeNotes: 'Wall mounting and electrical work by the hospital. Configuration, calibration & go-live training by GenXIoT.',
+    scopeNotes: isDripoRef
+      ? 'Device delivery, IoT Gateway & Repeater wireless network configuration, charging cradle setup, cloud/mobile alert configuration, and nurse/clinical staff training by GenXIoT.'
+      : 'Wall mounting and electrical work by the hospital. Configuration, calibration & go-live training by GenXIoT.',
+    productType: isDripoRef ? 'dripo' : 'alamo',
+    dripoQty: isDripoRef ? (fallbackBeds || 10) : 0,
     floors: fallbackBeds > 0 ? [{
       name: 'Floor 1',
       beds: fallbackBeds,
@@ -771,7 +792,31 @@ function parsePayloadResponse(payloadStr, row, colMap) {
       baths: 0,
       ns: 0
     }],
-    bomData: fallbackBeds > 0 ? [
+    bomData: isDripoRef ? [
+      {
+        code: 'DRIPO-IM',
+        name: 'Dripo – The Smart Infusion Monitor (HSN: 90189099)',
+        desc: 'The smart infusion monitor lets healthcare practitioners keep an eye on critical infusion therapy from anywhere. The device counts drops in a gravity-fed IV and calculates real-time flow rate. It sends alerts to the nursing station on the occasions of blocks, rate variations and completion of drips. You can also get alerts on your personal mobile devices. The ergonomically designed, rechargeable device is handy, wireless and has a battery backup of 20 hours.',
+        group: 'Smart Infusion System',
+        qty: fallbackBeds || 10,
+        rate: (fallbackBeds > 30 ? 3500 : (fallbackBeds > 10 ? 4000 : 4500)),
+        isLocked: true
+      },
+      {
+        code: 'ALAMO-GW',
+        name: 'Gateway (Network Device) (HSN: 85176230)',
+        qty: 1,
+        rate: 12000,
+        isLocked: true
+      },
+      {
+        code: 'ALAMO-RPT',
+        name: 'Repeater (Networking Device) (HSN: 85176290)',
+        qty: 1,
+        rate: 4000,
+        isLocked: true
+      }
+    ] : (fallbackBeds > 0 ? [
       { code: 'ALAMO-CP-R', qty: fallbackBeds, rate: 2400, isLocked: true },
       { code: 'ALAMO-PD-S', qty: fallbackBeds, rate: 600, isLocked: true },
       { code: 'ALAMO-DL', qty: fallbackRooms, rate: 2600, isLocked: true },
@@ -780,7 +825,7 @@ function parsePayloadResponse(payloadStr, row, colMap) {
       { code: 'ALAMO-MINI', qty: fallbackNs, rate: 12000, isLocked: true },
       { code: 'ALAMO-GW', qty: Math.max(1, fallbackNs), rate: 12000, isLocked: true },
       { code: 'ALAMO-RPT', qty: Math.ceil(fallbackRooms / 10) + 1, rate: 4000, isLocked: true }
-    ] : []
+    ] : [])
   };
 
   return jsonResponse({ status: 'success', data: fallbackObj });
