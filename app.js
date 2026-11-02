@@ -329,13 +329,10 @@ function quickAddDripo() {
 }
 
 function createNewDripoQuote() {
+  closeModal();
   resetQuote(true);
   loadPreset('dripo');
-  const dView = document.getElementById('dashboardView');
-  const cView = document.getElementById('calculatorView');
-  if (dView) dView.style.display = 'none';
-  if (cView) cView.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showCalculator();
 }
 
 // ─── STATE ───────────────────────────────────────────────────────
