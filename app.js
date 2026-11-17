@@ -252,6 +252,81 @@ function getDripoRate(qty) {
   return 3500;
 }
 
+// Check if active quote or proposal is configured for Dripo (infusion monitoring)
+function isDripoQuoteActive() {
+  const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
+  const hasNurseCall = bom.some(b => ['ALAMO-CP-R', 'ALAMO-PD-S', 'ALAMO-PD-D', 'ALAMO-DL', 'ALAMO-CP-B', 'ALAMO-PL', 'ALAMO-CB-ACC'].includes(b.code) && b.qty > 0);
+  const qRef = document.getElementById('quoteRef')?.value || '';
+  return (hasDripo && !hasNurseCall) || (qRef.includes('GEN-DRP') && !hasNurseCall);
+}
+
+// Dynamically return product name and description based on quote context (Alamo vs Dripo)
+function getItemDisplayInfo(item, isDripo) {
+  let name = item.name;
+  let desc = item.desc;
+  
+  if (isDripo) {
+    if (item.code === 'ALAMO-NS-TV') {
+      name = '32 inch Smart TV – Dripo Central Monitoring Station (HSN: 85287213)';
+      desc = 'Pre-configured 32" Android display running the Dripo Central Monitoring Station software. Real-time central dashboard of active IV infusions, live flow rates, time remaining, and instant audio-visual alerts for blocks, rate variations, and drip completion.';
+    } else if (item.code === 'ALAMO-MINI') {
+      name = 'Mini Station – Dripo Infusion Alert Display (HSN: 85318000)';
+      desc = 'Tetris-style compact audio-visual alert indicator configured for Dripo smart infusion monitoring. Provides immediate visual and audio alerts for IV drip completion, blockages, and rate variations.';
+    } else if (item.code === 'ALAMO-GW') {
+      name = 'Gateway (Network Device) (HSN: 85176230)';
+      desc = 'IoT Gateway for Dripo wireless network. Securely connects and aggregates real-time data from Dripo Infusion Monitors to the central nursing station display and cloud dashboard. Includes B-type charger, product stand, and screws for assembly.';
+    } else if (item.code === 'ALAMO-RPT') {
+      name = 'Repeater (Networking Device) (HSN: 85176290)';
+      desc = 'IoT Signal Repeater for Dripo wireless network. Extends wireless RF communication range between Dripo infusion monitors and the central gateway across hospital corridors and wards. Requires a 220V power outlet.';
+    }
+  } else {
+    if (item.code === 'ALAMO-NS-TV') {
+      name = '32 inch Bluetooth Smart TV (HSN: 85287213)';
+      desc = 'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.';
+    } else if (item.code === 'ALAMO-MINI') {
+      name = 'Mini Station - Tetris (Alert System) (HSN: 85318000)';
+      desc = 'Tetris style mini indicator display. Works with Android app for adding call buttons. Can work without gateway.';
+    } else if (item.code === 'ALAMO-GW') {
+      name = 'Gateway (Network Device) (HSN: 85176230)';
+      desc = 'Includes B-type charger, product stand, and screws for assembly';
+    } else if (item.code === 'ALAMO-RPT') {
+      name = 'Repeater (Networking Device) (HSN: 85176290)';
+      desc = 'Includes B-type charger, product stand, and screws for assembly. Installed between the main gateway and display/room locations. Requires a 220V power outlet.';
+    }
+  }
+  
+  return { name, desc };
+}
+
+// Client autofill helper (e.g. PB Health)
+function checkKnownClient(name) {
+  if (!name) return;
+  const n = name.trim().toLowerCase();
+  if (n === 'pb health' || n === 'pbhealth' || n === 'pb healthcare' || n.includes('pb health')) {
+    const cp = document.getElementById('contactPerson');
+    if (cp && (!cp.value || cp.value === 'Medical Director / BioMed Team')) {
+      cp.value = 'Chief Nursing Officer / BioMed Procurement';
+    }
+    const loc = document.getElementById('clientLocation');
+    if (loc && (!loc.value || loc.value === 'Kerala' || loc.value === 'Trivandrum')) {
+      loc.value = 'Sector-44, Gurugram';
+    }
+    const dist = document.getElementById('clientDistrict');
+    if (dist && (!dist.value || dist.value === 'Thiruvananthapuram')) {
+      dist.value = 'Gurugram';
+    }
+    const state = document.getElementById('clientState');
+    if (state && (!state.value || state.value === 'Kerala')) {
+      state.value = 'Haryana';
+    }
+    const po = document.getElementById('poRef');
+    if (po && !po.value) {
+      po.value = 'PBH-WO-2026-DRP';
+    }
+    recalc();
+  }
+}
+
 // Quick add product from master catalogue dropdown into active BOM
 function addCatalogueItem(code) {
   if (!code) return;
@@ -383,6 +458,8 @@ function renderBOM() {
       tbody.appendChild(gtr);
     }
     const amount = item.qty * item.rate;
+    const isDripoActive = isDripoQuoteActive();
+    const displayInfo = getItemDisplayInfo(item, isDripoActive);
     const tr = document.createElement('tr');
     if (isDripoItem) {
       tr.style.background = 'rgba(13, 148, 136, 0.05)';
@@ -390,7 +467,7 @@ function renderBOM() {
     }
     tr.innerHTML = `
       <td>
-        <img src="${item.img}" class="prod-thumb" alt="${item.name}"
+        <img src="${item.img}" class="prod-thumb" alt="${displayInfo.name}"
           onerror="this.style.display='none'">
       </td>
       <td>
@@ -398,8 +475,8 @@ function renderBOM() {
           <input type="text" value="${item.name}" oninput="updateName(${idx}, this.value)" placeholder="Item Name" style="width:100%; font-weight:600; font-size:.82rem; margin-bottom:2px; border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
           <input type="text" value="${item.desc}" oninput="updateDesc(${idx}, this.value)" placeholder="Description" style="width:100%; font-size:.7rem; color:var(--muted); border:1px solid #ccc; padding:2px 4px; border-radius:3px;">
         ` : `
-          <div class="prod-name" style="${isDripoItem ? 'color:#0f766e; font-weight:700;' : ''}">${isDripoItem ? '💧 ' : ''}${item.name}</div>
-          <div class="prod-sub">${item.code} &nbsp;·&nbsp; ${item.desc}</div>
+          <div class="prod-name" style="${isDripoItem ? 'color:#0f766e; font-weight:700;' : ''}">${isDripoItem ? '💧 ' : ''}${displayInfo.name}</div>
+          <div class="prod-sub">${item.code} &nbsp;·&nbsp; ${displayInfo.desc}</div>
           ${isDripoItem ? `
             <div style="font-size:0.68rem; color:#0d9488; font-weight:600; margin-top:3px; background:rgba(13,148,136,0.08); padding:2px 6px; border-radius:4px; display:inline-block;">
               Tier Pricing: 1–10 units: ₹4,500 | 10–30 units: ₹4,000 | 30+ units: ₹3,500 (Excl. GST)
@@ -517,7 +594,7 @@ function addCustomItem() {
 function loadPreset(preset) {
   document.getElementById('presetDrop')?.classList.remove('open');
 
-  if (preset === 'dripo') {
+  if (preset === 'dripo' || preset === 'dripo_pb') {
     // Dripo Infusion System: 10 Dripo units + 1 Gateway + 1 Repeater + 1 32" Smart TV
     // Nurse call buttons, pendants, pullcords are NOT needed!
     floors = [{ name: 'Infusion Ward / Day Care', beds: 0, rooms: 0, baths: 0, ns: 1 }];
@@ -553,9 +630,28 @@ function loadPreset(preset) {
     });
 
     const clientEl = document.getElementById('clientName');
-    if (clientEl && !clientEl.value) clientEl.value = 'General Hospital – Infusion Therapy';
     const locEl = document.getElementById('clientLocation');
-    if (locEl && !locEl.value) locEl.value = 'Kerala';
+    const distEl = document.getElementById('clientDistrict');
+    const stateEl = document.getElementById('clientState');
+    const cpEl = document.getElementById('contactPerson');
+    const poEl = document.getElementById('poRef');
+
+    if (preset === 'dripo_pb' || (clientEl && clientEl.value && clientEl.value.toLowerCase().includes('pb health'))) {
+      if (clientEl) clientEl.value = 'PB Health';
+      if (locEl) locEl.value = 'Sector-44, Gurugram';
+      if (distEl) distEl.value = 'Gurugram';
+      if (stateEl) stateEl.value = 'Haryana';
+      if (cpEl) cpEl.value = 'Chief Nursing Officer / BioMed Procurement';
+      if (poEl && !poEl.value) poEl.value = 'PBH-WO-2026-DRP';
+    } else {
+      if (clientEl && !clientEl.value) clientEl.value = 'General Hospital – Infusion Therapy';
+      if (locEl && !locEl.value) locEl.value = 'Kerala';
+      if (distEl && !distEl.value) distEl.value = 'Thiruvananthapuram';
+      if (stateEl && !stateEl.value) stateEl.value = 'Kerala';
+      if (cpEl && (!cpEl.value || cpEl.value === 'Medical Director / BioMed Team')) {
+        cpEl.value = 'Chief Nursing Officer / Infusion Care Team';
+      }
+    }
 
     const scopeEl = document.getElementById('scopeNotes');
     if (scopeEl) {
@@ -568,7 +664,7 @@ function loadPreset(preset) {
 
     generateQuoteRef();
     renderBOM();
-    showToast('Loaded Dripo Infusion preset (10 Dripo + Gateway + Repeater + 32" Display)', 'success');
+    showToast(preset === 'dripo_pb' ? 'Loaded Dripo Infusion preset for PB Health' : 'Loaded Dripo Infusion preset (10 Dripo + Gateway + Repeater + 32" Display)', 'success');
     return;
   }
 
@@ -588,6 +684,15 @@ function loadPreset(preset) {
     ref50: {
       beds:50, rooms:25, bathrooms:50, floors:1, nsBasic:0, nsTv:2, dataLog: true, pendant: 'single',
       client:'50-Bed Reference Hospital', loc:'Reference Configuration'
+    },
+    dripo_pb: {
+      type: 'dripo',
+      client: 'PB Health',
+      loc: 'Sector-44, Gurugram',
+      district: 'Gurugram',
+      state: 'Haryana',
+      contact: 'Chief Nursing Officer / BioMed Procurement',
+      poRef: 'PBH-WO-2026-DRP'
     }
   };
 
@@ -937,7 +1042,16 @@ function saveQuote() {
     code: '__SETTINGS__', name:  'Document Settings (HSN: 85311090)', desc: JSON.stringify(settings),
     group: '__META__', qty: 0, rate: 0, _isSettings: true
   };
-  const bomWithMeta = [settingsMeta, ...bom.filter(b => b.code !== '__SETTINGS__')];
+  const isDripoActive = isDripoQuoteActive();
+  const sanitizedBom = bom.filter(b => b.code !== '__SETTINGS__').map(item => {
+    const info = getItemDisplayInfo(item, isDripoActive);
+    return {
+      ...item,
+      name: info.name,
+      desc: info.desc
+    };
+  });
+  const bomWithMeta = [settingsMeta, ...sanitizedBom];
 
   // ── Grand total as a clean number (no ₹ / commas) for dashboard ─────
   const gtText = document.getElementById('calcGT')?.textContent || '0';
@@ -1082,7 +1196,14 @@ function restoreQuote(data) {
   setVal('dealStatus',     restoredStatus);
   onDealStatusChange();
   updateVersionBadge(data.quoteVersion || '1');
-  setVal('quoteDate',      data.date ? data.date.split('T')[0] : '');
+  if (data.clientName && data.clientName.toLowerCase().includes('pb health')) {
+    if (!data.contactPerson) data.contactPerson = 'Chief Nursing Officer / BioMed Procurement';
+    if (!data.location || data.location === 'Haryana') data.location = 'Sector-44, Gurugram';
+    if (!data.clientDistrict) data.clientDistrict = 'Gurugram';
+    if (!data.clientState) data.clientState = 'Haryana';
+    if (!data.poRef) data.poRef = 'PBH-WO-2026-DRP';
+  }
+
   setVal('clientName',     data.clientName);
   setVal('clientLocation', data.location);
   setVal('clientDistrict', data.clientDistrict);
@@ -1572,7 +1693,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     const facParts = [`${dQty} Dripo Smart Infusion Monitor${dQty > 1 ? 's' : ''}`];
     if (gwItem) facParts.push(`${gwItem.qty} Gateway${gwItem.qty > 1 ? 's' : ''}`);
     if (rptItem) facParts.push(`${rptItem.qty} Repeater${rptItem.qty > 1 ? 's' : ''}`);
-    if (tvItem) facParts.push(`${tvItem.qty} 32" Smart TV Display${tvItem.qty > 1 ? 's' : ''}`);
+    if (tvItem) facParts.push(`${tvItem.qty} 32" Central Station Display${tvItem.qty > 1 ? 's' : ''}`);
     if (miniItem) facParts.push(`${miniItem.qty} Mini Station Display${miniItem.qty > 1 ? 's' : ''}`);
     setText('qFacility', facParts.join(' · '));
 
@@ -1654,7 +1775,9 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
             
             let itemDesc = item.desc;
             if (item.code === 'ALAMO-NS-TV') {
-              itemDesc = '32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+              itemDesc = isDripoOnlyQuote
+                ? '32" Android Smart TV running Dripo Central Monitoring Station for real-time IV infusion monitoring & alerts.'
+                : ('32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : ''));
             } else if (item.code === 'ALAMO-CLOUD-SW') {
               itemDesc = 'Cloud data logging & historical analytics.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
             }
@@ -1695,14 +1818,15 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
       }
 
       const amt = item.qty * item.rate;
+      const displayInfo = getItemDisplayInfo(item, isDripoOnlyQuote);
       const tr  = document.createElement('tr');
 
       tr.innerHTML = `
         <td style="text-align:center;color:#999;white-space:nowrap">${sr++}</td>
         <td style="white-space:nowrap;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:.68rem;color:var(--brand-indigo);letter-spacing:0.02em">${item.code}</td>
         <td>
-          <strong style="font-size:.78rem">${item.name}</strong>
-          <div style="font-size:.68rem;color:#888;margin-top:2px">${item.desc}</div>
+          <strong style="font-size:.78rem">${displayInfo.name}</strong>
+          <div style="font-size:.68rem;color:#888;margin-top:2px">${displayInfo.desc}</div>
         </td>
         <td style="text-align:center;font-weight:600;white-space:nowrap">${item.qty}</td>
         <td style="text-align:right;white-space:nowrap">${fmt(item.rate)}</td>
@@ -1825,6 +1949,11 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   // PO Ref (shown in proforma mode; stored for use)
   setText('qPORef',  poRef || '–');
+  
+  // Sync Proposal Brochure cover badge and layout
+  if (typeof updateProposalBrochure === 'function') {
+    updateProposalBrochure();
+  }
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────
@@ -1875,24 +2004,143 @@ function fillDocDates() {
   setText('qDocValid', getValidDate());
 }
 
-// ─── MODAL & PRINT ───────────────────────────────────────────────
+// ─── PROPOSAL BROCHURE & PRINT MODAL ────────────────────────────
+let activeDocMode = 'proposal';
+
+function updateProposalBrochure() {
+  const el = id => document.getElementById(id);
+
+  // Sync Cover Badge
+  const cName = (el('clientName')?.value || 'Hospital Name').trim();
+  const cLoc = (el('clientLocation')?.value || '').trim();
+  const cDist = (el('clientDistrict')?.value || '').trim();
+  const cState = (el('clientState')?.value || '').trim();
+  const fullLoc = [cLoc, cDist, cState].filter(Boolean).join(', ') || 'Kerala, India';
+  
+  if (el('bcbClientName')) el('bcbClientName').textContent = cName || 'Hospital Name';
+  if (el('bcbClientLocation')) el('bcbClientLocation').textContent = fullLoc;
+  if (el('bcbQuoteRef')) el('bcbQuoteRef').textContent = el('quoteRef')?.value || el('qDocRef')?.textContent || '–';
+  if (el('bcbQuoteDate')) el('bcbQuoteDate').textContent = el('quoteDate')?.value ? formatDate(el('quoteDate').value) : (el('qDocDate')?.textContent || '–');
+  if (el('bcbRepName')) el('bcbRepName').textContent = el('qBdmName')?.innerText || el('bdmName')?.value || 'GenXIoT Sales Team';
+
+  // Badge visibility
+  const showBadge = el('chkBadge') ? el('chkBadge').checked : true;
+  if (el('brochureCoverBadge')) {
+    el('brochureCoverBadge').style.display = showBadge ? 'block' : 'none';
+  }
+
+  // Active mode check
+  if (activeDocMode !== 'proposal') {
+    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
+    if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
+    return;
+  }
+
+  // In Proposal mode:
+  if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'block';
+  if (el('proposalBackPages')) el('proposalBackPages').style.display = 'block';
+
+  const chkCover = el('chkCover') ? el('chkCover').checked : true;
+  const chkAlamo = el('chkAlamo') ? el('chkAlamo').checked : true;
+  const chkDripo = el('chkDripo') ? el('chkDripo').checked : false;
+  const chkClients = el('chkClients') ? el('chkClients').checked : true;
+  const chkContact = el('chkContact') ? el('chkContact').checked : true;
+
+  if (el('brochurePage1')) el('brochurePage1').style.display = chkCover ? 'block' : 'none';
+  if (el('brochurePage2')) el('brochurePage2').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage3')) el('brochurePage3').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage4')) el('brochurePage4').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage5')) el('brochurePage5').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage6')) el('brochurePage6').style.display = chkDripo ? 'block' : 'none';
+  if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
+  if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
+}
+
+function setBrochurePreset(preset) {
+  const el = id => document.getElementById(id);
+  if (preset === 'all') {
+    if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = true;
+    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
+    previewProposal();
+  } else if (preset === 'alamo') {
+    if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = true;
+    if (el('chkDripo')) el('chkDripo').checked = false;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
+    previewProposal();
+  } else if (preset === 'dripo') {
+    if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = false;
+    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
+    previewProposal();
+  } else if (preset === 'none') {
+    openModal(); // Quick BOQ mode
+  }
+  updateProposalBrochure();
+}
+
+function previewProposal() {
+  activeDocMode = 'proposal';
+  recalc();
+  const mb = document.getElementById('modalBg');
+  if (mb) {
+    mb.classList.add('open');
+    mb.scrollTop = 0;
+  }
+  if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+  if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+
+  // Auto-detect Dripo quote to enable Dripo page by default if quote has Dripo
+  const isDripo = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
+  const chkDripo = document.getElementById('chkDripo');
+  if (chkDripo && isDripo && !chkDripo.dataset.userModified) {
+    chkDripo.checked = true;
+  }
+
+  const el = id => document.getElementById(id);
+  if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
+  if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
+  if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+
+  updateProposalBrochure();
+  if (window.lucide) lucide.createIcons();
+}
+
 function openModal() {
+  activeDocMode = 'quote';
   recalc();
   const mb = document.getElementById('modalBg');
   mb.classList.add('open');
   mb.scrollTop = 0;
-  if (window.lucide) lucide.createIcons();
 
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+
+  const el = id => document.getElementById(id);
+  if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Quick Quotation / BOQ Preview';
+  if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
+  if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+
+  updateProposalBrochure();
+  if (window.lucide) lucide.createIcons();
 }
+
 function closeModal() {
   document.getElementById('modalBg').classList.remove('open');
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  updateProposalBrochure();
 }
+
 function printDoc() {
   recalc();
+  updateProposalBrochure();
   const ctrls = document.querySelectorAll('.modal-ctrl');
   ctrls.forEach(c => c.style.display = 'none');
   document.getElementById('modalBg').classList.add('open');
@@ -1900,7 +2148,9 @@ function printDoc() {
     window.print();
     ctrls.forEach(c => {
       if (c.id === 'coverPageSettings') {
-        c.style.display = (document.getElementById('pageCover')?.style.display === 'block') ? 'flex' : 'none';
+        c.style.display = (activeDocMode === 'cover') ? 'flex' : 'none';
+      } else if (c.id === 'proposalSettings') {
+        c.style.display = (activeDocMode === 'proposal' || activeDocMode === 'quote') ? 'flex' : 'none';
       } else {
         c.style.display = '';
       }
@@ -2565,6 +2815,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
   const el = (id) => document.getElementById(id);
 
   if (on) {
+    activeDocMode = 'proforma';
     // ── Proforma Mode ON ──────────────────────────────────
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'PROFORMA INVOICE';
     if (el('qDocRef'))       el('qDocRef').textContent       = piRef || '';
@@ -2576,6 +2827,9 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qPORef'))        el('qPORef').textContent        = poRef  || '—';
     if (el('qDueDate'))      el('qDueDate').textContent      = dueDate || '';
     if (el('modalTitle'))    el('modalTitle').textContent    = 'GenXIoT · Proforma Invoice Preview';
+    if (el('proposalSettings')) el('proposalSettings').style.display = 'none';
+    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
+    if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
   } else {
     // ── Restore Quotation Mode ────────────────────────────
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'QUOTATION REF';
@@ -2585,8 +2839,10 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
     if (el('qDueDateRow'))   el('qDueDateRow').style.display = 'none';
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';      // restore on exit
-    if (el('modalTitle'))    el('modalTitle').textContent    = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
+    if (el('modalTitle'))    el('modalTitle').textContent    = (activeDocMode === 'proposal') ? 'GenXIoT · Executive Techno-Commercial Proposal Preview' : 'GenXIoT · Quick Quotation / BOQ Preview';
+    if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
   }
+  updateProposalBrochure();
 }
 
 /**
@@ -2595,6 +2851,7 @@ function _applyProformaMode(on, piRef, poRef, dueDate) {
 function _applyCoverPageMode(on) {
   const el = (id) => document.getElementById(id);
   if (on) {
+    activeDocMode = 'cover';
     if (el('qDocTypeLabel')) el('qDocTypeLabel').textContent = 'FINAL SUMMARY';
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('poRef')?.value || '').trim() || '—';
     if (el('quoteTable'))    el('quoteTable').style.display  = 'none';
@@ -2607,6 +2864,9 @@ function _applyCoverPageMode(on) {
     if (el('qProformaNote')) el('qProformaNote').style.display = 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = 'none';
     if (el('coverPageSettings')) el('coverPageSettings').style.display = 'flex';
+    if (el('proposalSettings')) el('proposalSettings').style.display = 'none';
+    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
+    if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
 
     // Populate Cover Page specifics
     const finalInput = el('coverFinalAmt')?.value;
@@ -2651,9 +2911,11 @@ function _applyCoverPageMode(on) {
     if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';
     if (el('qOptionalNote')) el('qOptionalNote').style.display = '';
     if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+    if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
     
-    if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
+    if (el('modalTitle')) el('modalTitle').textContent = (activeDocMode === 'proposal') ? 'GenXIoT · Executive Techno-Commercial Proposal Preview' : 'GenXIoT · Quick Quotation / BOQ Preview';
   }
+  updateProposalBrochure();
 }
 
 /**

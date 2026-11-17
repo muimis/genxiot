@@ -1131,6 +1131,108 @@ textarea { resize:vertical; }
 .opt-row label { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem; margin:0; font-weight:500; color:var(--ink); }
 .opt-row input[type="checkbox"] { transform: scale(1.1); }
 
+/* ── PROPOSAL BROCHURE DECK (Executive Proposal) ── */
+.brochure-page {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto 24px auto;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.brochure-deck-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Executive Cover Badge Overlay */
+.brochure-cover-badge {
+  position: absolute;
+  top: 58%;
+  left: 5.5%;
+  width: 38%;
+  max-width: 360px;
+  background: linear-gradient(135deg, rgba(16, 24, 54, 0.94) 0%, rgba(26, 36, 76, 0.94) 100%);
+  color: #ffffff;
+  padding: 14px 18px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(10, 18, 48, 0.25);
+  border-left: 4px solid #00d2d3;
+  box-sizing: border-box;
+  font-family: 'Roboto', 'Inter', sans-serif;
+  z-index: 5;
+}
+
+.bcb-header {
+  font-size: 0.70rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #00d2d3;
+  margin-bottom: 5px;
+}
+
+.bcb-client {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+.bcb-location {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.bcb-meta {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.74rem;
+  color: #94a3b8;
+}
+
+.bcb-meta strong {
+  color: #f1f5f9;
+}
+
+/* Checkbox pill selector */
+.chk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--brand-navy);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.chk-pill:hover {
+  border-color: var(--brand-indigo);
+  background: #f1f5f9;
+}
+
+.chk-pill input {
+  margin: 0;
+  cursor: pointer;
+}
+
 /* ════════════════════════════════════════════════════
    PRINT STYLES — consolidated single block
    Key: @page margin:0 removes browser title/timestamp
@@ -1221,6 +1323,89 @@ textarea { resize:vertical; }
     break-after: page;
     page-break-inside: avoid;
     break-inside: avoid;
+  }
+
+  /* ── Brochure pages: lock strictly to A4 size ── */
+  .doc-page.brochure-page {
+    width: 210mm !important;
+    height: 296.8mm !important;
+    max-height: 296.8mm !important;
+    min-height: 296.8mm !important;
+    overflow: hidden !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+    background: #ffffff !important;
+  }
+  .doc-page.brochure-page .brochure-deck-img {
+    width: 210mm !important;
+    height: 296.8mm !important;
+    max-width: 210mm !important;
+    max-height: 296.8mm !important;
+    object-fit: cover !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #proposalBackPages .doc-page.brochure-page:first-child {
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+  #proposalBackPages .doc-page.brochure-page:last-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  .brochure-cover-badge {
+    position: absolute !important;
+    top: 58% !important;
+    left: 5.5% !important;
+    width: 86mm !important;
+    max-width: 86mm !important;
+    background: rgba(16, 24, 54, 0.95) !important;
+    color: #ffffff !important;
+    padding: 12px 16px !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #00d2d3 !important;
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  .bcb-header {
+    font-size: 7.5pt !important;
+    color: #00d2d3 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    margin-bottom: 2pt !important;
+  }
+  .bcb-client {
+    font-size: 13pt !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2pt !important;
+  }
+  .bcb-location {
+    font-size: 8pt !important;
+    color: #cbd5e1 !important;
+    margin-bottom: 6pt !important;
+  }
+  .bcb-meta {
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+    padding-top: 5pt !important;
+    font-size: 7.5pt !important;
+    color: #94a3b8 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2pt !important;
+  }
+  .bcb-meta strong {
+    color: #ffffff !important;
   }
 
   /* ── Quotation Page & Table Optimizations for Clean Fit ── */

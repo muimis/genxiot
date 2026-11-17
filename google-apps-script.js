@@ -748,15 +748,19 @@ function parsePayloadResponse(payloadStr, row, colMap) {
   var fallbackNs = fallbackBeds > 0 ? Math.max(1, Math.ceil(fallbackBeds / 30)) : 0;
 
   var isDripoRef = (ref.indexOf('GEN-DRP') !== -1);
+  var isPB = (client && String(client).toLowerCase().indexOf('pb health') !== -1);
   var fallbackObj = {
     quoteRef: ref,
     clientName: client,
-    location: loc,
+    location: loc || (isPB ? 'Sector-44, Gurugram' : ''),
+    clientDistrict: isPB ? 'Gurugram' : '',
+    clientState: isPB ? 'Haryana' : '',
+    poRef: isPB ? 'PBH-WO-2026-DRP' : '',
     totalAmount: amt,
     totalBeds: fallbackBeds,
     status: rowStatus || 'Pending',
     quoteVersion: rowVersion || (ref.match(/V(\d+)$/i) ? ref.match(/V(\d+)$/i)[1] : '1'),
-    contactPerson: contact,
+    contactPerson: contact || (isPB ? 'Chief Nursing Officer / BioMed Procurement' : ''),
     date: dateStr,
     discType: 'none',
     discVal: '0',
@@ -805,6 +809,7 @@ function parsePayloadResponse(payloadStr, row, colMap) {
       {
         code: 'ALAMO-GW',
         name: 'Gateway (Network Device) (HSN: 85176230)',
+        desc: 'IoT Gateway for Dripo wireless network. Securely connects and aggregates real-time data from Dripo Infusion Monitors to the central nursing station display and cloud dashboard.',
         qty: 1,
         rate: 12000,
         isLocked: true
@@ -812,8 +817,18 @@ function parsePayloadResponse(payloadStr, row, colMap) {
       {
         code: 'ALAMO-RPT',
         name: 'Repeater (Networking Device) (HSN: 85176290)',
+        desc: 'IoT Signal Repeater for Dripo wireless network. Extends wireless RF communication range between Dripo infusion monitors and the central gateway across hospital corridors and wards. Requires a 220V power outlet.',
         qty: 1,
         rate: 4000,
+        isLocked: true
+      },
+      {
+        code: 'ALAMO-NS-TV',
+        name: '32 inch Smart TV – Dripo Central Monitoring Station (HSN: 85287213)',
+        desc: 'Pre-configured 32" Android display running the Dripo Central Monitoring Station software. Real-time central dashboard of active IV infusions, live flow rates, time remaining, and instant audio-visual alerts for blocks, rate variations, and drip completion.',
+        group: 'Nursing Station',
+        qty: 1,
+        rate: 12000,
         isLocked: true
       }
     ] : (fallbackBeds > 0 ? [

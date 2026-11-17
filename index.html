@@ -185,8 +185,8 @@
           <option value="" style="color:#333;">✨ Presets...</option>
           <option value="small" style="color:#333;">🩺 Small Clinic (30 Beds - Alamo)</option>
           <option value="medium" style="color:#333;">🩺 Medium Hospital (134 Beds - Alamo)</option>
-          <option value="large" style="color:#333;">🩺 Large Hospital (250 Beds - Alamo)</option>
           <option value="dripo" style="color:#0f766e; font-weight:700;">💧 Dripo Infusion (10 Units + Net + Display)</option>
+          <option value="dripo_pb" style="color:#0f766e; font-weight:700;">💧 Dripo PB Health (10 Units + Net + Display)</option>
         </select>
       </div>
       <button class="btn btn-ghost" onclick="resetQuote()">
@@ -219,7 +219,15 @@
       <div class="card-hd"><i data-lucide="building-2" size="16"></i> Deal Information</div>
       <div class="card-bd">
         <label>Hospital Name</label>
-        <input id="clientName" placeholder="Enter hospital name" value="" oninput="generateQuoteRef()">
+        <input id="clientName" list="clientSuggestions" placeholder="Enter hospital name" value="" oninput="generateQuoteRef(); checkKnownClient(this.value);" onchange="checkKnownClient(this.value);">
+        <datalist id="clientSuggestions">
+          <option value="PB Health">PB Health – Sector-44, Gurugram, Haryana</option>
+          <option value="Nims hospital tvm">Nims hospital tvm – Trivandrum, Kerala</option>
+          <option value="Credence Hospital">Credence Hospital – Ulloor, Trivandrum</option>
+          <option value="Loka Medicity">Loka Medicity – Karakulam, Trivandrum</option>
+          <option value="Jeeva Medicare Hospital">Jeeva Medicare Hospital – Kumarapuram, Trivandrum</option>
+          <option value="Triveni Nursing Home">Triveni Nursing Home – Vanchiyoor, Trivandrum</option>
+        </datalist>
         <label>City / Location</label>
         <input id="clientLocation" placeholder="Trivandrum" value="" oninput="recalc()">
         <div class="row2">
@@ -595,10 +603,13 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="exportCSV()">
         <i data-lucide="download" size="16"></i> <span>Export</span>
       </button>
-      <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()">
-        <i data-lucide="eye" size="16"></i> <span>Preview</span>
+      <button class="btn btn-primary btn-lg action-text-btn" onclick="previewProposal()" title="Preview Executive Proposal with Brochure">
+        <i data-lucide="book-open" size="16"></i> <span>Proposal</span>
       </button>
-      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewProforma()" title="Preview Proforma Invoice">
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="openModal()" title="Preview Quick BOQ Quote">
+        <i data-lucide="file-text" size="16"></i> <span>Quick BOQ</span>
+      </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewProforma()" id="actionProformaBtn" title="Preview Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openPdfMerger()" title="Merge Cover with Invoice">
@@ -625,8 +636,11 @@
     <div class="modal-ctrl no-print">
       <span class="mctrl-title" id="modalTitle">GenXIoT · Executive Techno-Commercial Proposal Preview</span>
       <div class="mctrl-btns">
-        <button class="btn btn-ghost" onclick="openModal()" title="Preview Quotation">
-          <i data-lucide="file" size="15"></i> Quotation
+        <button class="btn btn-ghost" onclick="previewProposal()" id="modalProposalBtn" title="Preview Proposal with Brochure">
+          <i data-lucide="book-open" size="15"></i> Proposal
+        </button>
+        <button class="btn btn-ghost" onclick="openModal()" id="modalQuoteBtn" title="Preview Quick BOQ">
+          <i data-lucide="file-text" size="15"></i> Quick BOQ
         </button>
         <button class="btn btn-ghost" onclick="previewProforma()" id="modalProformaBtn" title="Preview Proforma Invoice">
           <i data-lucide="file-check" size="15"></i> Proforma
@@ -640,6 +654,28 @@
         <button class="btn btn-ghost" onclick="closeModal()">
           <i data-lucide="x" size="15"></i>
         </button>
+      </div>
+    </div>
+
+    <!-- Proposal Deck Settings Bar (Visible when Proposal or Quotation mode is active) -->
+    <div class="modal-ctrl no-print" id="proposalSettings" style="background: #f8f9ff; border-top: 1px solid #e2e8f0; justify-content: flex-start; padding: 8px 20px; gap: 12px; flex-wrap: wrap; font-size: 0.8rem;">
+      <span style="font-size:0.75rem; font-weight:700; color:var(--brand-indigo); text-transform:uppercase; display:flex; align-items:center; gap:5px;">
+        <i data-lucide="layers" size="14"></i> Brochure Deck:
+      </span>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">All (10p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('alamo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Alamo (9p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('dripo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Dripo (6p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">BOQ Only (2p)</button>
+      </div>
+      <span style="color:#cbd5e1;">|</span>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <label class="chk-pill"><input type="checkbox" id="chkCover" checked onchange="updateProposalBrochure()"> Cover</label>
+        <label class="chk-pill"><input type="checkbox" id="chkAlamo" checked onchange="updateProposalBrochure()"> Alamo Products</label>
+        <label class="chk-pill"><input type="checkbox" id="chkDripo" onchange="this.dataset.userModified='true'; updateProposalBrochure()"> Dripo IV</label>
+        <label class="chk-pill"><input type="checkbox" id="chkClients" checked onchange="updateProposalBrochure()"> Customers</label>
+        <label class="chk-pill"><input type="checkbox" id="chkContact" checked onchange="updateProposalBrochure()"> Contact</label>
+        <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
       </div>
     </div>
 
@@ -721,6 +757,49 @@
           <p>If you have any questions regarding this balance, please contact us at info@genxiot.com or +91 9496557777.</p>
           <p style="margin-top: 30px;">Sincerely,</p>
           <p style="margin-top: 20px; font-weight: 600;">GenXIoT LLP</p>
+        </div>
+      </div>
+
+      <!-- ── FRONT BROCHURE PAGES (Executive Techno-Commercial Proposal Deck) ── -->
+      <div id="proposalFrontPages">
+        <!-- Page 1: Executive Cover Page -->
+        <div class="doc-page brochure-page" id="brochurePage1">
+          <img src="brochure/page_1.jpg" alt="GenXIoT Healthcare Solutions" class="brochure-deck-img">
+          <div class="brochure-cover-badge" id="brochureCoverBadge">
+            <div class="bcb-header">Techno-Commercial Proposal</div>
+            <div class="bcb-client" id="bcbClientName">Hospital Name</div>
+            <div class="bcb-location" id="bcbClientLocation">Trivandrum, Kerala</div>
+            <div class="bcb-meta">
+              <div><strong>Ref:</strong> <span id="bcbQuoteRef">SAL-QTN-2026-00518</span></div>
+              <div><strong>Date:</strong> <span id="bcbQuoteDate">17 Nov 2026</span></div>
+              <div><strong>Rep:</strong> <span id="bcbRepName">GenXIoT Sales Team</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 2: Call Point Solutions -->
+        <div class="doc-page brochure-page" id="brochurePage2">
+          <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 3: Bed & Bathroom Side Accessories -->
+        <div class="doc-page brochure-page" id="brochurePage3">
+          <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 4: Indicators and Display Solutions -->
+        <div class="doc-page brochure-page" id="brochurePage4">
+          <img src="brochure/page_4.jpg" alt="Indicators and Display Solutions" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 5: Insights and Reports -->
+        <div class="doc-page brochure-page" id="brochurePage5">
+          <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 6: Dripo Smart Infusion Monitor -->
+        <div class="doc-page brochure-page" id="brochurePage6">
+          <img src="brochure/page_6.jpg" alt="Dripo Intelligent Bystander for IV Drips" class="brochure-deck-img">
         </div>
       </div>
 
@@ -975,11 +1054,25 @@
           </tr>
         </tfoot>
       </table>
+
+      <!-- ── BACK BROCHURE PAGES (Customers & Contact) ── -->
+      <div id="proposalBackPages">
+        <!-- Page 7: Our Customers -->
+        <div class="doc-page brochure-page" id="brochurePage7">
+          <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 8: Contact Us -->
+        <div class="doc-page brochure-page" id="brochurePage8">
+          <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
+        </div>
+      </div>
+
     </div><!-- /printDoc -->
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=23"></script>
+<script src="app.js?v=25"></script>
 <script>
   lucide.createIcons();
 </script>
