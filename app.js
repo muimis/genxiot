@@ -1949,6 +1949,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   // PO Ref (shown in proforma mode; stored for use)
   setText('qPORef',  poRef || '–');
+  setText('qSigClientInline', clientName || 'Client / Hospital');
   
   // Sync Proposal Brochure cover badge and layout
   if (typeof updateProposalBrochure === 'function') {
@@ -2029,10 +2030,22 @@ function updateProposalBrochure() {
     el('brochureCoverBadge').style.display = showBadge ? 'block' : 'none';
   }
 
+  // Terms & Conditions visibility (2nd page of quotation - disabled by default)
+  const showTerms = el('chkTerms') ? el('chkTerms').checked : false;
+  if (el('pageTerms')) el('pageTerms').style.display = showTerms ? 'block' : 'none';
+  document.body.classList.toggle('show-terms', showTerms);
+
+  // Sync client name to compact signature on 1-page quotation
+  if (el('qSigClientInline')) {
+    el('qSigClientInline').textContent = cName || 'Client / Hospital';
+  }
+
   // Active mode check
   if (activeDocMode !== 'proposal') {
     if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
     if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
+    document.body.classList.remove('has-back-brochure');
+    document.body.classList.add('no-back-brochure');
     return;
   }
 
@@ -2054,10 +2067,15 @@ function updateProposalBrochure() {
   if (el('brochurePage6')) el('brochurePage6').style.display = chkDripo ? 'block' : 'none';
   if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
   if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
+
+  const hasBack = chkClients || chkContact;
+  document.body.classList.toggle('has-back-brochure', hasBack);
+  document.body.classList.toggle('no-back-brochure', !hasBack);
 }
 
 function setBrochurePreset(preset) {
   const el = id => document.getElementById(id);
+  if (el('chkTerms')) el('chkTerms').checked = false; // Always keep 2nd page T&C disabled
   if (preset === 'all') {
     if (el('chkCover')) el('chkCover').checked = true;
     if (el('chkAlamo')) el('chkAlamo').checked = true;
@@ -2080,7 +2098,7 @@ function setBrochurePreset(preset) {
     if (el('chkContact')) el('chkContact').checked = true;
     previewProposal();
   } else if (preset === 'none') {
-    openModal(); // Quick BOQ mode
+    openModal(); // Quick BOQ mode (1 single page)
   }
   updateProposalBrochure();
 }
@@ -2905,7 +2923,7 @@ function _applyCoverPageMode(on) {
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
     if (el('quoteTable'))    el('quoteTable').style.display  = 'table';
     if (el('pageQuote'))     el('pageQuote').style.display   = 'block';
-    if (el('pageTerms'))     el('pageTerms').style.display   = 'block';
+    if (el('pageTerms'))     el('pageTerms').style.display   = 'none';
     if (el('pageCover'))     el('pageCover').style.display   = 'none';
     if (el('qValidRow'))     el('qValidRow').style.display   = '';
     if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';

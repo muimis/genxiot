@@ -1325,13 +1325,15 @@ textarea { resize:vertical; }
     break-inside: avoid;
   }
 
-  /* ── Brochure pages: lock strictly to A4 size ── */
+  /* ── Brochure pages: strictly lock to viewport, zero overflow ── */
   .doc-page.brochure-page {
-    width: 210mm !important;
-    height: 296.8mm !important;
-    max-height: 296.8mm !important;
-    min-height: 296.8mm !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    min-height: 0 !important;
     overflow: hidden !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
     page-break-after: always !important;
     break-after: page !important;
     page-break-inside: avoid !important;
@@ -1343,18 +1345,18 @@ textarea { resize:vertical; }
     background: #ffffff !important;
   }
   .doc-page.brochure-page .brochure-deck-img {
-    width: 210mm !important;
-    height: 296.8mm !important;
-    max-width: 210mm !important;
-    max-height: 296.8mm !important;
-    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
     display: block !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 0 !important;
   }
   #proposalBackPages .doc-page.brochure-page:first-child {
-    page-break-before: always !important;
-    break-before: page !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
   }
   #proposalBackPages .doc-page.brochure-page:last-child {
     page-break-after: avoid !important;
@@ -1362,13 +1364,13 @@ textarea { resize:vertical; }
   }
   .brochure-cover-badge {
     position: absolute !important;
-    top: 58% !important;
+    top: 57% !important;
     left: 5.5% !important;
-    width: 86mm !important;
-    max-width: 86mm !important;
+    width: 38% !important;
+    max-width: 360px !important;
     background: rgba(16, 24, 54, 0.95) !important;
     color: #ffffff !important;
-    padding: 12px 16px !important;
+    padding: 10px 14px !important;
     border-radius: 8px !important;
     border-left: 4px solid #00d2d3 !important;
     box-shadow: none !important;
@@ -1439,17 +1441,38 @@ textarea { resize:vertical; }
     padding: 8px 12px !important;
   }
 
-  /* ── Terms Page: Fit strictly on one page, eliminate 2-line overflow ── */
+  /* ── Terms Page: Hidden by default — 2nd page of quotation is not needed ── */
   #pageTerms {
-    display: block !important;
-    height: auto !important;
-    min-height: auto !important;
-    margin-top: 0 !important;
-    padding-top: 4px !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    display: none !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+  body.show-terms #pageTerms {
+    display: block !important;
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+
+  /* ── Quote Table & Page 1: Strict 1-Page Quotation ── */
+  #quoteTable {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  body.has-back-brochure #quoteTable {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  body.no-back-brochure #quoteTable {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  #pageQuote {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
   #pageTerms .doc-footer {
     display: none !important;

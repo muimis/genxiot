@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<link rel="stylesheet" href="style.css?v=4.8">
+<link rel="stylesheet" href="style.css?v=4.9">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -663,10 +663,10 @@
         <i data-lucide="layers" size="14"></i> Brochure Deck:
       </span>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">All (10p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('alamo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Alamo (9p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('dripo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Dripo (6p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">BOQ Only (2p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">All (9p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('alamo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Alamo (8p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('dripo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Dripo (5p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">BOQ Only (1p)</button>
       </div>
       <span style="color:#cbd5e1;">|</span>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -676,6 +676,7 @@
         <label class="chk-pill"><input type="checkbox" id="chkClients" checked onchange="updateProposalBrochure()"> Customers</label>
         <label class="chk-pill"><input type="checkbox" id="chkContact" checked onchange="updateProposalBrochure()"> Contact</label>
         <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
+        <label class="chk-pill" title="Include General Terms & Conditions (Page 2)"><input type="checkbox" id="chkTerms" onchange="updateProposalBrochure()"> T&amp;C (Page 2)</label>
       </div>
     </div>
 
@@ -1003,10 +1004,22 @@
             <strong>Note:</strong> This is a Proforma Invoice only and not a Tax Invoice. Goods/services will be supplied upon receipt of payment as per the payment schedule above.
           </div>
         </div>
+
+        <!-- Compact Signatures for 1-Page Quotation -->
+        <div class="qtn-compact-sig" style="display: flex; justify-content: space-between; margin: 14px 38px 0; gap: 40px; page-break-inside: avoid;">
+          <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem;">
+            <strong style="color: var(--brand-navy);">Authorized Signatory</strong><br>
+            <span style="color: #64748b; font-size: 0.70rem;">GENXIOT LLP</span>
+          </div>
+          <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem; text-align: right;">
+            <strong style="color: var(--brand-navy);">Accepted By</strong><br>
+            <span style="color: #64748b; font-size: 0.70rem;" id="qSigClientInline">Hospital Name</span>
+          </div>
+        </div>
       </div>
 
-      <!-- ── PAGE 10: T&C ─── -->
-      <div class="doc-page" id="pageTerms" style="margin-top: 15px;">
+      <!-- ── PAGE 10: T&C (Omitted by default) ─── -->
+      <div class="doc-page" id="pageTerms" style="display:none; margin-top: 15px;">
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
         <h3 class="doc-h3">General Terms &amp; Conditions</h3>
 
@@ -1072,7 +1085,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=25"></script>
+<script src="app.js?v=26"></script>
 <script>
   lucide.createIcons();
 </script>
