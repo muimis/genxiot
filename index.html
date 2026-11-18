@@ -277,6 +277,8 @@
             </div>
           </div>
         </div>
+        <label>Project Name <span style="font-weight:400;color:#aaa">(optional)</span></label>
+        <input id="projectName" placeholder="e.g. Alamo Nurse Call System" oninput="recalc()">
         <label>PO / Work Order Reference</label>
         <input id="poRef" placeholder="Client PO / WO number (optional)" oninput="recalc()">
         <label>Client GSTIN <span style="font-weight:400;color:#aaa">(optional)</span></label>
@@ -383,18 +385,18 @@
           <select id="selAddCatalogue" onchange="addCatalogueItem(this.value); this.value='';" style="font-size:0.75rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: white; color: var(--ink); cursor: pointer; font-weight: 500;">
             <option value="">+ Add Product from Catalogue...</option>
             <option value="DRIPO-IM">💧 Dripo – Smart Infusion Monitor (₹4,500 / ₹4,000 / ₹3,500)</option>
-            <option value="ALAMO-NS-TV">📺 32" Smart TV Live View Display (₹12,000)</option>
-            <option value="ALAMO-MINI">📟 Mini Station - Tetris Display (₹12,000)</option>
-            <option value="ALAMO-GW">📡 Gateway (Network Device) (₹12,000)</option>
-            <option value="ALAMO-RPT">🔁 Repeater (Networking Device) (₹4,000)</option>
-            <option value="ALAMO-CLOUD-SW">☁️ Cloud Software &amp; Analytics (₹15,000)</option>
-            <option value="ALAMO-CP-R">🩺 Bed Call Point (Service &amp; Nurse Call) (₹2,400)</option>
-            <option value="ALAMO-PD-S">Single Switch Pendant (₹600)</option>
-            <option value="ALAMO-PD-D">Double Button Pendant (₹950)</option>
-            <option value="ALAMO-DL">Door Indicator Call Light (₹2,600)</option>
-            <option value="ALAMO-CP-B">Washroom Call Point (₹2,400)</option>
-            <option value="ALAMO-PL">Washroom Pull Cord (₹600)</option>
-            <option value="ALAMO-CB-ACC">Code Blue Accessory (₹900)</option>
+            <option value="ALAMO-NS-TV">📺 32" Smart Display (HSN: 85287390) (₹12,000)</option>
+            <option value="ALAMO-MINI">📟 Mini Station - Tetris Display (HSN: 85318000) (₹12,000)</option>
+            <option value="ALAMO-GW">📡 Gateway (one for local, one for cloud) (HSN: 85176230) (₹12,000)</option>
+            <option value="ALAMO-RPT">🔁 Repeater (HSN: 85176290) (₹4,000)</option>
+            <option value="ALAMO-CLOUD-SW">☁️ Cloud Software (SAC: 9983) (₹15,000)</option>
+            <option value="ALAMO-CP-R">🩺 Bed Call Point (HSN: 85365090) (₹2,400)</option>
+            <option value="ALAMO-PD-S">Single Switch Pendant (HSN: 85365090) (₹600)</option>
+            <option value="ALAMO-PD-D">Double Button Pendant (HSN: 85365090) (₹950)</option>
+            <option value="ALAMO-DL">Call Light V2 (Door Indicator) (HSN: 85318000) (₹2,600)</option>
+            <option value="ALAMO-CP-B">Washroom Call Point (HSN: 85365090) (₹2,400)</option>
+            <option value="ALAMO-PL">Pull Cord (HSN: 85365090) (₹600)</option>
+            <option value="ALAMO-CB-ACC">Code Blue Accessory Pendant (HSN: 85365090) (₹900)</option>
           </select>
           <button class="btn btn-ghost btn-sm" onclick="addCustomItem()">
             <i data-lucide="plus" size="14"></i> Add Custom Item
@@ -823,6 +825,7 @@
           <div class="qtn-h-right">
             <div class="qmeta-label" id="qDocTypeLabel">QUOTATION REF</div>
             <div class="qmeta-ref" id="qDocRef">–</div>
+            <div class="qmeta-row"><strong>Revision:</strong> <span id="qDocRev">Rev: V1</span></div>
             <div class="qmeta-row"><strong>Date:</strong> <span id="qDocDate">–</span></div>
             <div class="qmeta-row" id="qValidRow"><strong>Valid Till:</strong> <span id="qDocValid">–</span></div>
             <div class="qmeta-row" id="qPORow" style="display:none;"><strong>PO Ref:</strong> <span id="qPORef">–</span></div>
@@ -849,7 +852,9 @@
             <div class="party-sub" id="qClientLoc">Trivandrum, Kerala</div>
             <div class="party-sub" id="qClientDistrict"></div>
             <div class="party-sub" id="qClientState"></div>
-            <div class="party-sub" id="qClientGstRow" style="display:none;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:0.72rem;letter-spacing:0.03em;">GSTIN: <span id="qClientGst"></span></div>
+            <div class="party-sub" id="qPlaceOfSupplyRow"><strong>Place of Supply:</strong> <span id="qPlaceOfSupply">Kerala (State Code: 32)</span></div>
+            <div class="party-sub" id="qProjectNameRow" style="display:none;"><strong>Project:</strong> <span id="qProjectName"></span></div>
+            <div class="party-sub" id="qClientGstRow" style="display:none;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:0.72rem;letter-spacing:0.03em;"><strong>GSTIN:</strong> <span id="qClientGst"></span></div>
             <div class="party-sub">Attn: <span id="qContactPerson">Medical Director</span></div>
           </div>
           <div class="party">
@@ -1005,15 +1010,19 @@
           </div>
         </div>
 
-        <!-- Compact Signatures for 1-Page Quotation -->
+        <!-- Acceptance Block for Quotation -->
         <div class="qtn-compact-sig" style="display: flex; justify-content: space-between; margin: 14px 38px 0; gap: 40px; page-break-inside: avoid;">
           <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem;">
             <strong style="color: var(--brand-navy);">Authorized Signatory</strong><br>
-            <span style="color: #64748b; font-size: 0.70rem;">GENXIOT LLP</span>
+            <span style="color: #64748b; font-size: 0.70rem;">GENXIOT LLP</span><br>
+            <span style="color: #64748b; font-size: 0.70rem;">Date: <span id="qSigDateGenx">–</span></span>
           </div>
           <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem; text-align: right;">
             <strong style="color: var(--brand-navy);">Accepted By</strong><br>
-            <span style="color: #64748b; font-size: 0.70rem;" id="qSigClientInline">Hospital Name</span>
+            <span style="color: #334155; font-size: 0.74rem; font-weight:600;" id="qSigClientInline">Hospital Name</span><br>
+            <span style="color: #64748b; font-size: 0.70rem;">Designation: ____________________</span><br>
+            <span style="color: #64748b; font-size: 0.70rem;">Signature &amp; Stamp: ____________________</span><br>
+            <span style="color: #64748b; font-size: 0.70rem;">Date: ____________________</span>
           </div>
         </div>
       </div>
@@ -1021,31 +1030,40 @@
       <!-- ── PAGE 10: T&C (Omitted by default) ─── -->
       <div class="doc-page" id="pageTerms" style="display:none; margin-top: 15px;">
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
-        <h3 class="doc-h3">General Terms &amp; Conditions</h3>
+        <h3 class="doc-h3">Standard Terms &amp; Conditions</h3>
 
-        <div class="tc-box">
-            <p><strong>Scope:</strong> These terms exclusively apply to all transactions with GenXIoT LLP. Office: 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581. GSTIN/UIN: 32ABDFG7210J1ZP.</p>
-            <p><strong>Payment:</strong> 50% advance, 30% on delivery, and 20% post-installation. Bank charges of Buyer's bank borne by Buyer.</p>
-            <p><strong>Delivery:</strong> <span id="qDelivery">25 working days from order confirmation, after technical details, permits, and advance received.</span></p>
-            <p><strong>Installation Scope:</strong> <span id="qScope">Screw holes &amp; electrical provisions by Hospital. Call point mounting, LoRa configuration, and training by GenXIoT. 200 beds can be installed in a single day.</span></p>
-            <p><strong>Maintenance:</strong> Comprehensive on-site maintenance. Minor faults: telephonic support immediately. Major faults: site visit within 24 to 48 hours.</p>
-          <p><strong>Inspection:</strong> Buyer must inspect packaging and products within 5 days of delivery and report defects.</p>
-          <p><strong>Standard Warranty:</strong> <span id="qWarranty">12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.</span></p>
-          <p id="qExtWarrantyRow" style="display:none;"><strong>Extended Warranty &amp; Replacement:</strong> <span id="qExtWarranty"></span></p>
-          <p><strong>Jurisdiction:</strong> Thiruvananthapuram, Kerala, India. Governed by laws of India.</p>
-          </div>
+        <div class="tc-box" style="font-size:0.75rem; line-height:1.55; color:#333;">
+          <p><strong>1. Validity &amp; Acceptance:</strong> This quotation is valid until the validity date stated on it. Acceptance is by a signed copy or purchase order, together with the advance. Prices are in INR, exclusive of GST, which is charged at the rate in force on the invoice date. Quantities are based on the facility details provided; changes are priced separately in writing.</p>
+          <p><strong>2. Radio Coverage:</strong> Gateway and repeater quantities are based on the layout provided: one gateway for local operation, one for cloud, and repeaters for local coverage as the floor plan requires. Wireless coverage depends on building construction. If on-site testing shows additional gateways or repeaters are needed, they will be supplied at the rates in this quotation through a written variation.</p>
+          <p><strong>3. Intended Use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</p>
+          <p><strong>4. Payment Terms:</strong> Payment follows the schedule on the quotation: 50% advance on order confirmation, 30% on delivery, and 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</p>
+          <p><strong>5. Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</p>
+          <p><strong>6. Installation &amp; Customer Scope:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</p>
+          <p><strong>7. Training &amp; Handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</p>
+          <p><strong>8. Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement. Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.</span></p>
+          <p id="qExtWarrantyRow" style="display:none;"><strong>Extended Warranty:</strong> <span id="qExtWarranty"></span></p>
+          <p><strong>9. Support &amp; Maintenance:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation matrix: Level 1 – GenXIoT support (+91 9496557777, info@genxiot.com); Level 2 – BDM (+91 88916 70903). AMC after warranty: 10% plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</p>
+          <p><strong>10. Cloud Software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</p>
+          <p><strong>11. Limitation of Liability:</strong> GenXIoT is not liable for indirect or consequential loss.</p>
+          <p><strong>12. Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured.</p>
+          <p><strong>13. Force Majeure:</strong> Neither party is liable for delay caused by events beyond reasonable control.</p>
+          <p><strong>14. Jurisdiction:</strong> Indian law applies. Courts at Thiruvananthapuram have exclusive jurisdiction.</p>
+        </div>
 
-          
-        <div class="sig-section">
+        <div class="sig-section" style="margin-top:20px;">
           <div class="sig-block">
             <div class="sig-line"></div>
             <p class="sig-name">Authorized Signatory</p>
             <p class="sig-org">GENXIOT LLP</p>
+            <p style="font-size:0.7rem; color:#666; margin-top:2px;">Date: <span id="qSigDateGenxTerms">–</span></p>
           </div>
           <div class="sig-block">
             <div class="sig-line"></div>
             <p class="sig-name">Accepted By</p>
-            <p class="sig-org" id="qSigClient">Nims hospital tvm</p>
+            <p class="sig-org" id="qSigClient">Hospital Name</p>
+            <p style="font-size:0.7rem; color:#666; margin-top:2px;">Designation: ____________________</p>
+            <p style="font-size:0.7rem; color:#666; margin-top:2px;">Signature &amp; Stamp: ____________________</p>
+            <p style="font-size:0.7rem; color:#666; margin-top:2px;">Date: ____________________</p>
           </div>
         </div>
 

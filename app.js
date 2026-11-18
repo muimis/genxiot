@@ -89,8 +89,8 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Bed Call Point (Service & Nurse Call) (HSN: 85356090)',
-    desc:  'Call Point with LoRa transmitter for bedside nurse call applications. Includes functions for Nurse Call, Housekeeping, Presence, and Cancel Calls. Wall Mountable with two 1/2 inch screws',
+    name:  'Bed Call Point (HSN: 85365090)',
+    desc:  'Wall-mounted bedside call unit with LoRa wireless transmitter. Functions: Nurse Call, Housekeeping, Presence and Cancel, with a pre-configured Code Blue call. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.',
     group: 'Bed Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -100,8 +100,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-S',
-    name:  'Pendant Single Switch (Accessory) (HSN: 85356090)',
-    desc:  'Single Switch Pendant Button',
+    name:  'Pendant Single Switch (Accessory) (HSN: 85365090)',
+    desc:  'Single switch patient pendant connecting to the bed call point.',
     group: 'Bed Components',
     mrp:   600,
     landingPrice: 400,
@@ -111,8 +111,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PD-D',
-    name:  'Alamo Double Button Pendant (HSN: 85311090)',
-    desc:  'Patient side double-switch call accessories that can be connected to the main call point.',
+    name:  'Double Button Pendant (HSN: 85365090)',
+    desc:  'Patient-side pendant connecting to the bed call point. Button 1: Nurse Call. Button 2: Housekeeping.',
     group: 'Bed Components',
     mrp:   950,
     landingPrice: 650, // estimated based on single pendant
@@ -122,8 +122,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-CB-ACC',
-    name:  'Code Blue Accessory (HSN: 85311090)',
-    desc:  'Accessory for generating Code Blue calls',
+    name:  'Code Blue Accessory Pendant (HSN: 85365090)',
+    desc:  'Patient-side accessory pendant for generating Code Blue calls. (Note: Code Blue is already pre-configured on the Bed Call Point; this pendant is an optional add-on).',
     group: 'Bed Components',
     mrp:   900,
     landingPrice: 600,
@@ -148,8 +148,8 @@ const CATALOGUE = [
   // ── ROOM-DRIVEN ────────────────────────────────
   {
     code:  'ALAMO-DL',
-    name:  'Alamo Call light V2 (Door Indicator) (HSN: 85311090)',
-    desc:  'Door Indicator. Does not include Legrand back box. Requires Legrand two-module box and 220V supply',
+    name:  'Call Light V2 (Door Indicator) (HSN: 85318000)',
+    desc:  'Room-door indicator showing active call status. Colour is preset automatically for each configured function and can be changed by the hospital. Mounts on a Legrand two-module box with 220V supply, both supplied by the hospital.',
     group: 'Room Components',
     mrp:   2600,
     landingPrice: 2200,
@@ -161,8 +161,8 @@ const CATALOGUE = [
   // ── BATHROOM-DRIVEN ───────────────────────
   {
     code:  'ALAMO-CP-B',
-    name:  'Alamo Washroom Call Point (HSN: 85311090)',
-    desc:  'Dedicated washroom call point. Independent LoRa unit.',
+    name:  'Washroom Call Point (HSN: 85365090)',
+    desc:  'Dedicated washroom unit with independent LoRa transmitter. Pull cord (item 5) connects via RJ11 cord. Battery: 3 × AAA.',
     group: 'Washroom Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -172,8 +172,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-PL',
-    name:  'Alamo Pullcord (Washroom Accessory) (HSN: 85311090)',
-    desc:  'Pull Cord accessory for connecting to call point in washroom',
+    name:  'Pull Cord (HSN: 85365090)',
+    desc:  'Modular washroom pull cord connecting to the washroom call point. Wear part, excluded from warranty.',
     group: 'Washroom Components',
     mrp:   600,
     landingPrice: 400,
@@ -195,8 +195,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  '32 inch Bluetooth Smart TV (HSN: 85287213)',
-    desc:  'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.',
+    name:  '32" Smart Display (HSN: 85287390)',
+    desc:  'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.',
     group: 'Nursing Station',
     mrp:   12000,
     landingPrice: 12000, // Kept same as rate for legacy items
@@ -206,8 +206,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Gateway (Network Device) (HSN: 85176230)',
-    desc:  'Includes B-type charger, product stand, and screws for assembly',
+    name:  'Gateway (one for local, one for cloud) (HSN: 85176230)',
+    desc:  'The local gateway links call points to the display. The cloud gateway links the system to the cloud software and needs internet or Wi-Fi. Local operation needs no internet. Includes B-type charger, product stand and screws for assembly.',
     group: 'Infrastructure & Network',
     mrp:   12000,
     landingPrice: 8000,
@@ -217,8 +217,8 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater (Networking Device) (HSN: 85176290)',
-    desc:  'Includes B-type charger, product stand, and screws for assembly. Installed between the main gateway and display/room locations. Requires a 220V power outlet.',
+    name:  'Repeater (HSN: 85176290)',
+    desc:  'Extends local LoRa coverage between gateway and rooms. Includes B-type charger, stand and screws. Requires a 220V outlet. Quantity depends on the floor plan.',
     group: 'Infrastructure & Network',
     mrp:   4000,
     landingPrice: 2500,
@@ -229,8 +229,8 @@ const CATALOGUE = [
   // ── SOFTWARE / FIXED ─────────────────────────────────────
   {
     code:  'ALAMO-CLOUD-SW',
-    name:  'Cloud Software & Historical Analytics (SAC: 9983)',
-    desc:  'Cloud software for Escalation, Reporting and Code Blue Alerts (₹15000 per nursing station for 3 years)',
+    name:  'Cloud Software (SAC: 9983)',
+    desc:  'Escalation, reporting, historical analytics and Code Blue alerts. Code Blue works from the pre-configured call point; the pendant accessory is an optional add-on. Per nursing station, 3 years from go-live. Renewal after 3 years: ₹3,500 per nursing station per year. Needs internet or Wi-Fi.',
     group: 'Software & Services',
     mrp:   15000,
     landingPrice: 9000,
@@ -281,17 +281,20 @@ function getItemDisplayInfo(item, isDripo) {
     }
   } else {
     if (item.code === 'ALAMO-NS-TV') {
-      name = '32 inch Bluetooth Smart TV (HSN: 85287213)';
-      desc = 'Pre-configured 32" Android display running the Alamo Monitor software. Real-time live view of all call points in the ward. Audio-visual alerts.';
+      name = '32" Smart Display (HSN: 85287390)';
+      desc = 'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.';
     } else if (item.code === 'ALAMO-MINI') {
       name = 'Mini Station - Tetris (Alert System) (HSN: 85318000)';
       desc = 'Tetris style mini indicator display. Works with Android app for adding call buttons. Can work without gateway.';
     } else if (item.code === 'ALAMO-GW') {
-      name = 'Gateway (Network Device) (HSN: 85176230)';
-      desc = 'Includes B-type charger, product stand, and screws for assembly';
+      name = 'Gateway (one for local, one for cloud) (HSN: 85176230)';
+      desc = 'The local gateway links call points to the display. The cloud gateway links the system to the cloud software and needs internet or Wi-Fi. Local operation needs no internet. Includes B-type charger, product stand and screws for assembly.';
     } else if (item.code === 'ALAMO-RPT') {
-      name = 'Repeater (Networking Device) (HSN: 85176290)';
-      desc = 'Includes B-type charger, product stand, and screws for assembly. Installed between the main gateway and display/room locations. Requires a 220V power outlet.';
+      name = 'Repeater (HSN: 85176290)';
+      desc = 'Extends local LoRa coverage between gateway and rooms. Includes B-type charger, stand and screws. Requires a 220V outlet. Quantity depends on the floor plan.';
+    } else if (item.code === 'ALAMO-CLOUD-SW') {
+      name = 'Cloud Software (SAC: 9983)';
+      desc = 'Escalation, reporting, historical analytics and Code Blue alerts. Code Blue works from the pre-configured call point; the pendant accessory is an optional add-on. Per nursing station, 3 years from go-live. Renewal after 3 years: ₹3,500 per nursing station per year. Needs internet or Wi-Fi.';
     }
   }
   
@@ -1635,6 +1638,40 @@ function recalc() {
 
 
 
+// Helper to compute Place of Supply with GST state code
+function getPlaceOfSupply(stateName, gstNumber) {
+  if (gstNumber && gstNumber.trim().length >= 2) {
+    const prefix = gstNumber.trim().slice(0, 2);
+    if (!isNaN(prefix)) {
+      return `${stateName || 'State'} (State Code: ${prefix})`;
+    }
+  }
+  const stateCodes = {
+    'kerala': '32',
+    'tamil nadu': '33',
+    'tamilnadu': '33',
+    'karnataka': '29',
+    'andhra pradesh': '37',
+    'telangana': '36',
+    'maharashtra': '27',
+    'haryana': '06',
+    'delhi': '07',
+    'gujarat': '24',
+    'uttar pradesh': '09',
+    'west bengal': '19',
+    'rajasthan': '08',
+    'madhya pradesh': '23',
+    'punjab': '03',
+    'bihar': '10',
+    'odisha': '21',
+    'assam': '18',
+    'goa': '30'
+  };
+  const key = (stateName || '').toLowerCase().trim();
+  const code = stateCodes[key] || '32';
+  return `${stateName || 'Kerala'} (State Code: ${code})`;
+}
+
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
 function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff, extInfo) {
 
@@ -1645,6 +1682,8 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   const contactPerson = (document.getElementById('contactPerson')?.value)  || '';
   const quoteRef      = (document.getElementById('quoteRef')?.value)      || '';
   const bdmName       = (document.getElementById('qBdmName')?.innerText)       || 'GenXIoT Sales Team';
+  const projectName   = (document.getElementById('projectName')?.value)   || '';
+  const quoteVersion  = (document.getElementById('quoteVersion')?.value)  || '1';
   const beds          = floors.reduce((acc, f) => acc + parseInt(f.beds || 0), 0);
   const rooms         = floors.reduce((acc, f) => acc + parseInt(f.rooms || 0), 0);
   const washrooms     = floors.reduce((acc, f) => acc + parseInt(f.baths || 0), 0);
@@ -1660,16 +1699,44 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   // Cover page
   // Quotation page header
   const quoteDate = document.getElementById('quoteDate')?.value;
+  const formattedQuoteDate = formatDate(quoteDate);
   setText('qDocRef',        quoteRef);
   setText('qDocRef2',       quoteRef);
-  setText('qDocDate',       formatDate(quoteDate));
+  setText('qDocDate',       formattedQuoteDate);
   setText('qDocValid',      getValidDate());
+  setText('qDocRev',        `Rev: V${quoteVersion}`);
   setText('qClientName',    clientName);
   setText('qClientLoc',     clientLoc);
   setText('qClientDistrict',clientDist);
   setText('qClientState',   clientState);
+  setText('qPlaceOfSupply', getPlaceOfSupply(clientState, clientGst));
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
+  
+  const qProjRow = document.getElementById('qProjectNameRow');
+  if (qProjRow) {
+    if (projectName.trim()) {
+      qProjRow.style.display = '';
+      setText('qProjectName', projectName.trim());
+    } else {
+      qProjRow.style.display = 'none';
+    }
+  }
+
+  const qGstRow = document.getElementById('qClientGstRow');
+  if (qGstRow) {
+    if (clientGst.trim()) {
+      qGstRow.style.display = '';
+      setText('qClientGst', clientGst.trim());
+    } else {
+      qGstRow.style.display = 'none';
+    }
+  }
+
+  setText('qSigDateGenx',      formattedQuoteDate);
+  setText('qSigDateGenxTerms', formattedQuoteDate);
+  setText('qSigClientInline',  clientName || 'Hospital Name');
+  setText('qSigClient',        clientName || 'Hospital Name');
   
   const hasDripoInBom = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
   const hasNurseCallInBom = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
@@ -1725,6 +1792,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     setText('qFacility', facilityParts.join(' · '));
 
     let floorBreakupHtml = '';
+    let floorsWithoutNs = [];
     if (floors && floors.length > 0) {
       floors.forEach((f, i) => {
         let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
@@ -1735,11 +1803,22 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
         if (w > 0 && hasBilledBaths) parts.push(`${w} Washroom${w > 1 ? 's' : ''}`);
         if (n > 0 && hasBilledNs) parts.push(`${n} Nursing Station${n > 1 ? 's' : ''}`);
         
+        if ((b > 0 || r > 0) && n === 0) {
+          floorsWithoutNs.push(flName);
+        }
+
         if (parts.length > 0) {
           floorBreakupHtml += `<strong>${flName}:</strong> ${parts.join(', ')}<br>`;
         }
       });
     }
+
+    if (floorsWithoutNs.length > 0) {
+      floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569; font-style: italic;"><strong>Coverage Note:</strong> ${floorsWithoutNs.join(', ')} has no dedicated nursing station. It is covered via cloud software where cloud is included, otherwise via repeaters.</div>`;
+    }
+
+    floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569;"><strong>Architecture Basis:</strong> One gateway for local operation, one for cloud, repeaters for local coverage as the floor plan requires.</div>`;
+
     if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
 
     const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
@@ -1749,7 +1828,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     if (bomCodes.includes('ALAMO-MINI') && !bomCodes.includes('ALAMO-NS-TV')) {
       let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
       if (tvItem) {
-        tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
+        tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹12,000/pc)' };
         optionalItems.push(tvItem);
       }
     }
@@ -1757,7 +1836,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
       let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
       if (dataLogItem) {
-        dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹10,000/pc)' };
+        dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹12,000/pc)' };
         optionalItems.push(dataLogItem);
       }
     }
@@ -1765,32 +1844,41 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     if (qOptionalNote) {
       if (optionalItems.length > 0) {
           let optHtml = `
-            <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #aaa; border-radius: 6px; background: #fafafa; ">
-              <h4 style="margin: 0 0 2px 0; font-size: 0.8rem; color: #444;">OPTIONAL UPGRADES</h4>
-              <p style="margin: 0 0 4px 0; font-size: 0.72rem; color: #666;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #555;">
+            <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+                <h4 style="margin: 0; font-size: 0.78rem; color: #1e293b; text-transform: uppercase; letter-spacing: 0.05em;">OPTIONAL UPGRADES</h4>
+                <span style="font-size: 0.70rem; color: #64748b; font-weight: 600;">(Exclusive of GST at 18%)</span>
+              </div>
+              <p style="margin: 0 0 6px 0; font-size: 0.72rem; color: #64748b;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
+              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #334155;">
           `;
           optionalItems.forEach(item => {
-            let itemName = item.name.split(' (HSN:')[0].replace(/^Alamo\s+/i, '');
+            let itemName = item.name.split(' (HSN:')[0].split(' (SAC:')[0].replace(/^Alamo\s+/i, '');
             
             let itemDesc = item.desc;
             if (item.code === 'ALAMO-NS-TV') {
               itemDesc = isDripoOnlyQuote
                 ? '32" Android Smart TV running Dripo Central Monitoring Station for real-time IV infusion monitoring & alerts.'
-                : ('32" Android Smart TV for live visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : ''));
+                : ('32" Smart Display pre-loaded with Alamo Monitor software for live audio-visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹12,000/pc)' : ''));
             } else if (item.code === 'ALAMO-CLOUD-SW') {
-              itemDesc = 'Cloud data logging & historical analytics.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹10k/pc)' : '');
+              itemDesc = 'Escalation, reporting, historical analytics and Code Blue alerts (₹3,500/yr renewal after 3 yrs).' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹12,000/pc)' : '');
             }
 
             optHtml += `
               <tr>
-                <td style="padding: 3px 6px 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; width: 22%;">${itemName}</td>
-                <td style="padding: 3px 6px; border-bottom: 1px solid #eaeaea; vertical-align: top;">${itemDesc}</td>
-                <td style="padding: 3px 0; border-bottom: 1px solid #eaeaea; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
+                <td style="padding: 4px 6px 4px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600; vertical-align: top; width: 25%;">${itemName}</td>
+                <td style="padding: 4px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${itemDesc}</td>
+                <td style="padding: 4px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
               </tr>
             `;
           });
-          optHtml += `</table></div>`;
+          optHtml += `
+              </table>
+              <div style="margin-top: 6px; font-size: 0.68rem; color: #64748b; font-style: italic;">
+                Rates are per piece, exclusive of GST at 18%, valid for the quotation validity period.
+              </div>
+            </div>
+          `;
         qOptionalNote.innerHTML = optHtml;
       } else {
         qOptionalNote.innerHTML = '';
