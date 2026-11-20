@@ -90,7 +90,7 @@ const CATALOGUE = [
   {
     code:  'ALAMO-CP-R',
     name:  'Bed Call Point (HSN: 85365090)',
-    desc:  'Wall-mounted bedside call unit with LoRa wireless transmitter. Functions: Nurse Call, Housekeeping, Presence and Cancel, with a pre-configured Code Blue call. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.',
+    desc:  'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.',
     group: 'Bed Components',
     mrp:   2400,
     landingPrice: 1600,
@@ -280,7 +280,16 @@ function getItemDisplayInfo(item, isDripo) {
       desc = 'IoT Signal Repeater for Dripo wireless network. Extends wireless RF communication range between Dripo infusion monitors and the central gateway across hospital corridors and wards. Requires a 220V power outlet.';
     }
   } else {
-    if (item.code === 'ALAMO-NS-TV') {
+    if (item.code === 'ALAMO-CP-R') {
+      const model = document.getElementById('bedCallPointModel')?.value || 'wall';
+      if (model === 'panel') {
+        name = 'Panel-Mount Call Terminal (HSN: 85365090)';
+        desc = 'Panel-mount call terminal with LoRa wireless transmitter for new construction. Buttons: Call Nurse, Presence, Close, Call Assist. (Power source & mounting plate as per site specifications).';
+      } else {
+        name = 'Bed Call Point (HSN: 85365090)';
+        desc = 'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.';
+      }
+    } else if (item.code === 'ALAMO-NS-TV') {
       name = '32" Smart Display (HSN: 85287390)';
       desc = 'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.';
     } else if (item.code === 'ALAMO-MINI') {
@@ -299,6 +308,33 @@ function getItemDisplayInfo(item, isDripo) {
   }
   
   return { name, desc };
+}
+
+function onBedCallPointModelChange() {
+  const model = document.getElementById('bedCallPointModel')?.value || 'wall';
+  const cpItem = CATALOGUE.find(c => c.code === 'ALAMO-CP-R');
+  if (cpItem) {
+    if (model === 'panel') {
+      cpItem.name = 'Panel-Mount Call Terminal (HSN: 85365090)';
+      cpItem.desc = 'Panel-mount call terminal with LoRa wireless transmitter for new construction. Buttons: Call Nurse, Presence, Close, Call Assist. (Power source & mounting plate as per site specifications).';
+    } else {
+      cpItem.name = 'Bed Call Point (HSN: 85365090)';
+      cpItem.desc = 'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.';
+    }
+  }
+  const badge = document.getElementById('callPointBadgeModel');
+  if (badge) {
+    badge.textContent = (model === 'panel') 
+      ? 'Active Configuration: Model B – Panel-mount (New Construction)'
+      : 'Active Configuration: Model A – Wall-mount (Battery-operated)';
+  }
+  const bomCp = bom.find(b => b.code === 'ALAMO-CP-R');
+  if (bomCp && cpItem) {
+    bomCp.name = cpItem.name;
+    bomCp.desc = cpItem.desc;
+  }
+  renderBOM();
+  recalc();
 }
 
 // Client autofill helper (e.g. PB Health)
@@ -1036,7 +1072,15 @@ function saveQuote() {
     dripoQty:          parseInt(document.getElementById('dripoQty')?.value, 10) || 10,
     dripoGwQty:        parseInt(document.getElementById('dripoGwQty')?.value, 10) ?? 1,
     dripoRptQty:       parseInt(document.getElementById('dripoRptQty')?.value, 10) ?? 1,
-    dripoAlloc:        document.getElementById('dripoAlloc')?.value || ''
+    dripoAlloc:        document.getElementById('dripoAlloc')?.value || '',
+    bedCallPointModel:   document.getElementById('bedCallPointModel')?.value   || 'wall',
+    genxSignatoryName:   document.getElementById('genxSignatoryName')?.value   || 'Authorized Signatory',
+    genxSignatoryDesig:  document.getElementById('genxSignatoryDesig')?.value  || 'GENXIOT LLP',
+    customersPageTitle:  document.getElementById('customersPageTitleInput')?.value || 'Alamo installations across India',
+    companySupportPhone: document.getElementById('companySupportPhone')?.value || '+91 9496557777',
+    companyBdmPhone:     document.getElementById('companyBdmPhone')?.value     || '+91 88916 70903',
+    coverageNote:        document.getElementById('coverageNoteInput')?.value   || '',
+    archBasis:           document.getElementById('archBasisInput')?.value      || ''
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -1253,6 +1297,25 @@ function restoreQuote(data) {
   onExtWarrantyChange();
   if (data.scopeNotes)        setVal('scopeNotes',        data.scopeNotes);
   if (data.additionalDetails) setVal('additionalDetails', data.additionalDetails);
+  if (data.bedCallPointModel) {
+    setVal('bedCallPointModel', data.bedCallPointModel);
+    onBedCallPointModelChange();
+  }
+  if (data.genxSignatoryName)   setVal('genxSignatoryName',   data.genxSignatoryName);
+  if (data.genxSignatoryDesig)  setVal('genxSignatoryDesig',  data.genxSignatoryDesig);
+  if (data.customersPageTitle)  setVal('customersPageTitleInput', data.customersPageTitle);
+  if (data.companySupportPhone) setVal('companySupportPhone', data.companySupportPhone);
+  if (data.companyBdmPhone)     setVal('companyBdmPhone',     data.companyBdmPhone);
+  if (data.coverageNote) {
+    setVal('coverageNoteInput', data.coverageNote);
+    const cn = document.getElementById('coverageNoteInput');
+    if (cn) cn.dataset.userEdited = 'true';
+  }
+  if (data.archBasis) {
+    setVal('archBasisInput', data.archBasis);
+    const ab = document.getElementById('archBasisInput');
+    if (ab) ab.dataset.userEdited = 'true';
+  }
 
 
   // ── Bank details ───────────────────────────────────────────────
@@ -1704,7 +1767,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qDocRef2',       quoteRef);
   setText('qDocDate',       formattedQuoteDate);
   setText('qDocValid',      getValidDate());
-  setText('qDocRev',        `Rev: V${quoteVersion}`);
+  setText('qDocRev',        `V${quoteVersion}`);
   setText('qClientName',    clientName);
   setText('qClientLoc',     clientLoc);
   setText('qClientDistrict',clientDist);
@@ -1712,6 +1775,28 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   setText('qPlaceOfSupply', getPlaceOfSupply(clientState, clientGst));
   setText('qContactPerson', contactPerson);
   setText('qBdmName',       bdmName);
+
+  const signatoryName = document.getElementById('genxSignatoryName')?.value || 'Authorized Signatory';
+  const signatoryDesig = document.getElementById('genxSignatoryDesig')?.value || 'GENXIOT LLP';
+  setText('qSigGenxName', signatoryName);
+  setText('qSigGenxDesig', signatoryDesig);
+
+  const supportPhone = document.getElementById('companySupportPhone')?.value || '+91 9496557777';
+  const bdmPhone = document.getElementById('companyBdmPhone')?.value || '+91 88916 70903';
+  document.querySelectorAll('.dyn-support-phone').forEach(el => el.textContent = supportPhone);
+  document.querySelectorAll('.dyn-bdm-phone').forEach(el => el.textContent = bdmPhone);
+  setText('cpDynPhone', supportPhone);
+
+  const custTitle = document.getElementById('customersPageTitleInput')?.value || 'Alamo installations across India';
+  setText('custPageTitleOverlay', custTitle);
+
+  const cpModel = document.getElementById('bedCallPointModel')?.value || 'wall';
+  const cpBadge = document.getElementById('callPointBadgeModel');
+  if (cpBadge) {
+    cpBadge.textContent = (cpModel === 'panel')
+      ? 'Active Configuration: Model B – Panel-mount (New Construction)'
+      : 'Active Configuration: Model A – Wall-mount (Battery-operated)';
+  }
   
   const qProjRow = document.getElementById('qProjectNameRow');
   if (qProjRow) {
@@ -1793,6 +1878,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
     let floorBreakupHtml = '';
     let floorsWithoutNs = [];
+    let floorsWithNs = [];
     if (floors && floors.length > 0) {
       floors.forEach((f, i) => {
         let flName = f.name && f.name.trim() !== '' ? f.name : `Floor ${i+1}`;
@@ -1803,7 +1889,9 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
         if (w > 0 && hasBilledBaths) parts.push(`${w} Washroom${w > 1 ? 's' : ''}`);
         if (n > 0 && hasBilledNs) parts.push(`${n} Nursing Station${n > 1 ? 's' : ''}`);
         
-        if ((b > 0 || r > 0) && n === 0) {
+        if (n > 0) {
+          floorsWithNs.push(flName);
+        } else if (b > 0 || r > 0) {
           floorsWithoutNs.push(flName);
         }
 
@@ -1813,11 +1901,32 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
       });
     }
 
-    if (floorsWithoutNs.length > 0) {
-      floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569; font-style: italic;"><strong>Coverage Note:</strong> ${floorsWithoutNs.join(', ')} has no dedicated nursing station. It is covered via cloud software where cloud is included, otherwise via repeaters.</div>`;
+    // Flaw 6: Coverage Note (Required whenever a floor has no nursing station)
+    const coverageInput = document.getElementById('coverageNoteInput');
+    const targetNsFloor = floorsWithNs.length > 0 ? floorsWithNs[0] : 'Floor 1';
+    let defaultCoverageDraft = (floorsWithoutNs.length > 0)
+      ? `${floorsWithoutNs.join(', ')} has no nursing station. Its calls are routed to the ${targetNsFloor} display via repeaters.`
+      : '';
+    if (coverageInput && !coverageInput.dataset.userEdited && defaultCoverageDraft) {
+      coverageInput.value = defaultCoverageDraft;
+    }
+    const finalCoverageNote = coverageInput?.value || defaultCoverageDraft;
+    if (floorsWithoutNs.length > 0 && finalCoverageNote) {
+      floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569; font-style: italic;"><strong>Coverage Note:</strong> ${finalCoverageNote}</div>`;
     }
 
-    floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569;"><strong>Architecture Basis:</strong> One gateway for local operation, one for cloud, repeaters for local coverage as the floor plan requires.</div>`;
+    // Flaw 7: Architecture Basis Line (Editable per quote, with gateway and repeater count)
+    const gwItem = bom.find(b => b.code === 'ALAMO-GW' && b.qty > 0);
+    const rptItem = bom.find(b => b.code === 'ALAMO-RPT' && b.qty > 0);
+    const gwCount = gwItem ? gwItem.qty : 2;
+    const rptCount = rptItem ? rptItem.qty : 0;
+    const archInput = document.getElementById('archBasisInput');
+    const defaultArchDraft = `${gwCount} gateways (one for local operation, one for cloud), ${rptCount > 0 ? `${rptCount} repeaters for local floor-to-floor LoRa coverage as per facility layout` : 'repeaters as required for local coverage'}.`;
+    if (archInput && !archInput.dataset.userEdited) {
+      archInput.value = defaultArchDraft;
+    }
+    const finalArchBasis = archInput?.value || defaultArchDraft;
+    floorBreakupHtml += `<div style="margin-top: 4px; font-size: 0.74rem; color: #475569;"><strong>Architecture Basis:</strong> ${finalArchBasis}</div>`;
 
     if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
 
@@ -1881,6 +1990,7 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     tbody.innerHTML = '';
     let sr = 1;
     let lastGroup = null;
+    let isFirstInGroup = false;
 
     bom.forEach(item => {
       if (item.qty === 0) return;
@@ -1889,13 +1999,21 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
         lastGroup = item.group;
         const gtr = document.createElement('tr');
         gtr.className = 'grp-row';
+        gtr.style.pageBreakAfter = 'avoid';
+        gtr.style.breakAfter = 'avoid';
         gtr.innerHTML = `<td colspan="6">${item.group}</td>`;
         tbody.appendChild(gtr);
+        isFirstInGroup = true;
       }
 
       const amt = item.qty * item.rate;
       const displayInfo = getItemDisplayInfo(item, isDripoOnlyQuote);
       const tr  = document.createElement('tr');
+      if (isFirstInGroup) {
+        tr.style.pageBreakBefore = 'avoid';
+        tr.style.breakBefore = 'avoid';
+        isFirstInGroup = false;
+      }
 
       tr.innerHTML = `
         <td style="text-align:center;color:#999;white-space:nowrap">${sr++}</td>
@@ -1998,15 +2116,12 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
   // Extended Warranty Clause in Terms & Conditions
   const extTermsText = (document.getElementById('extWarrantyTerms')?.value) || 'Comprehensive replacement or repair of defective units or parts for the specified duration (consumables/wear parts like pull cords and batteries excluded).';
-  const qExtRow = document.getElementById('qExtWarrantyRow');
-  const qExtSpan = document.getElementById('qExtWarranty');
-  if (qExtRow && qExtSpan) {
+  const qExtInline = document.getElementById('qExtWarrantyInline');
+  if (qExtInline) {
     if (extInfo?.isExtBilled) {
-      qExtRow.style.display = '';
-      qExtSpan.innerHTML = `Provided for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)} + applicable GST). Covers ${extTermsText} Following standard warranty completion.`;
+      qExtInline.innerHTML = ` <strong>Extended Warranty:</strong> Provided for <strong>${extInfo.extDuration}</strong> on additional payment of <strong>${extInfo.extPct}% of component cost</strong> (₹${fmt(extInfo.extAmt)} + applicable GST). Covers ${extTermsText} Following standard warranty completion.`;
     } else {
-      qExtRow.style.display = 'none';
-      qExtSpan.textContent = '';
+      qExtInline.innerHTML = '';
     }
   }
 
@@ -2135,12 +2250,18 @@ function updateProposalBrochure() {
   const chkClients = el('chkClients') ? el('chkClients').checked : true;
   const chkContact = el('chkContact') ? el('chkContact').checked : true;
 
+  const hasBedCallPoint = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B') && b.qty > 0);
+  const hasAccessories = bom.some(b => (b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-PD-D' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PC') && b.qty > 0);
+  const hasDisplaysOrIndicators = bom.some(b => (b.code === 'ALAMO-DL' || b.code === 'ALAMO-MINI' || b.code === 'ALAMO-NS-TV') && b.qty > 0);
+  const hasCloudSoftware = bom.some(b => b.code === 'ALAMO-CLOUD-SW' && b.qty > 0);
+  const hasDripoUnits = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
+
   if (el('brochurePage1')) el('brochurePage1').style.display = chkCover ? 'block' : 'none';
-  if (el('brochurePage2')) el('brochurePage2').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage3')) el('brochurePage3').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage4')) el('brochurePage4').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage5')) el('brochurePage5').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage6')) el('brochurePage6').style.display = chkDripo ? 'block' : 'none';
+  if (el('brochurePage2')) el('brochurePage2').style.display = (chkAlamo && hasBedCallPoint) ? 'block' : 'none';
+  if (el('brochurePage3')) el('brochurePage3').style.display = (chkAlamo && hasAccessories) ? 'block' : 'none';
+  if (el('brochurePage4')) el('brochurePage4').style.display = (chkAlamo && hasDisplaysOrIndicators) ? 'block' : 'none';
+  if (el('brochurePage5')) el('brochurePage5').style.display = (chkAlamo && hasCloudSoftware) ? 'block' : 'none';
+  if (el('brochurePage6')) el('brochurePage6').style.display = (chkDripo && hasDripoUnits) ? 'block' : 'none';
   if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
   if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
 

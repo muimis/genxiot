@@ -1206,6 +1206,104 @@ textarea { resize:vertical; }
   color: #f1f5f9;
 }
 
+/* ── Brochure Overlays ── */
+.callpoint-badge-model {
+  position: absolute;
+  top: 17.2%;
+  left: 6%;
+  background: rgba(16, 24, 54, 0.88);
+  color: #00d2d3;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pendant-caption-badge {
+  position: absolute;
+  top: 48.5%;
+  right: 6%;
+  background: rgba(16, 24, 54, 0.90);
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-left: 3px solid #00d2d3;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.hide-battery-level-overlay {
+  position: absolute;
+  top: 76.5%;
+  left: 6%;
+  width: 44%;
+  height: 5.5%;
+  background: #ffffff;
+  z-index: 10;
+}
+
+.customer-page-header {
+  position: absolute;
+  top: 13.0%;
+  left: 6.5%;
+  width: 75%;
+  height: 4.8%;
+  background: #ffffff;
+  font-family: 'Outfit', 'Roboto', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.contact-page-dyn-overlay {
+  position: absolute;
+  top: 43.5%;
+  left: 20.5%;
+  width: 55%;
+  height: 3.5%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #1e293b;
+  z-index: 10;
+}
+
+ol.tc-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+ol.tc-list li {
+  margin-bottom: 0.28rem;
+  font-size: 0.69rem;
+  line-height: 1.40;
+  color: #333;
+}
+ol.tc-list li strong {
+  color: #1e293b;
+}
+
+.grp-row, tr.grp-row {
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+tr.grp-row + tr {
+  page-break-before: avoid !important;
+  break-before: avoid !important;
+}
+
 /* Checkbox pill selector */
 .chk-pill {
   display: inline-flex;
@@ -1259,7 +1357,10 @@ textarea { resize:vertical; }
   #dashboardView,
   #calculatorView > header,
   #calculatorView > main,
-  #pdfMergeModal { display: none !important; }
+  #pdfMergeModal,
+  #toastContainer,
+  .toast,
+  .toast-container { display: none !important; visibility: hidden !important; }
 
   #calculatorView { display: block !important; }
 
@@ -1415,33 +1516,46 @@ textarea { resize:vertical; }
 
   /* ── Quotation Page & Table Optimizations for Clean Fit ── */
   .qtn-parties {
-    margin-bottom: 8px !important;
+    margin-bottom: 6px !important;
   }
   .qtn-fac-tag {
-    margin: 0 38px 6px !important;
-    padding: .22rem .6rem !important;
+    margin: 0 38px 4px !important;
+    padding: .18rem .5rem !important;
   }
   .qtn-boq-tbl th {
-    padding: .32rem .5rem !important;
+    padding: .24rem .4rem !important;
+    font-size: .68rem !important;
   }
   .qtn-boq-tbl td {
-    padding: .30rem .5rem !important;
-    line-height: 1.35 !important;
+    padding: .20rem .4rem !important;
+    line-height: 1.25 !important;
   }
   .commercial-details-block {
-    margin: 12px 38px 8px !important;
+    margin: 6px 38px 4px !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
   .commercial-details-block h3 {
-    margin-bottom: 8px !important;
-    padding-bottom: 3px !important;
+    margin: 4px 0 6px !important;
+    padding-bottom: 2px !important;
+    font-size: 0.85rem !important;
   }
   .commercial-details-block table {
-    margin-bottom: 10px !important;
+    margin-bottom: 6px !important;
+  }
+  .commercial-details-block td {
+    padding: 3px 8px !important;
+    font-size: 0.74rem !important;
   }
   .payment-schedule-box, .bank-remittance-box {
-    padding: 8px 12px !important;
+    padding: 6px 10px !important;
+  }
+  .payment-schedule-box table, .bank-remittance-box table {
+    font-size: 0.72rem !important;
+    line-height: 1.3 !important;
+  }
+  .payment-schedule-box td, .bank-remittance-box td {
+    padding: 1px 0 !important;
   }
 
   /* ── Quote Table & Page 1: Strict 1-Page Quotation ── */
@@ -1527,6 +1641,88 @@ textarea { resize:vertical; }
     break-inside: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+
+  .callpoint-badge-model {
+    position: absolute !important;
+    top: 17.2% !important;
+    left: 6% !important;
+    background: rgba(16, 24, 54, 0.92) !important;
+    color: #00d2d3 !important;
+    padding: 3pt 8pt !important;
+    font-size: 7pt !important;
+    border-radius: 3pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  .pendant-caption-badge {
+    position: absolute !important;
+    top: 48.5% !important;
+    right: 6% !important;
+    background: rgba(16, 24, 54, 0.92) !important;
+    color: #ffffff !important;
+    padding: 4pt 10pt !important;
+    font-size: 7.5pt !important;
+    border-left: 3pt solid #00d2d3 !important;
+    border-radius: 4pt !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  .hide-battery-level-overlay {
+    position: absolute !important;
+    top: 76.5% !important;
+    left: 6% !important;
+    width: 44% !important;
+    height: 5.5% !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  .customer-page-header {
+    position: absolute !important;
+    top: 13.0% !important;
+    left: 6.5% !important;
+    width: 75% !important;
+    height: 4.8% !important;
+    background: #ffffff !important;
+    font-family: 'Outfit', 'Roboto', sans-serif !important;
+    font-size: 23pt !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    display: flex !important;
+    align-items: center !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  .contact-page-dyn-overlay {
+    position: absolute !important;
+    top: 43.5% !important;
+    left: 20.5% !important;
+    width: 55% !important;
+    height: 3.5% !important;
+    background: #ffffff !important;
+    display: flex !important;
+    align-items: center !important;
+    font-size: 13pt !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    z-index: 10 !important;
+  }
+  ol.tc-list {
+    margin: 0 !important;
+    padding-left: 1.15rem !important;
+    line-height: 1.36 !important;
+  }
+  ol.tc-list li {
+    margin-bottom: 0.14rem !important;
+    font-size: 0.64rem !important;
+    line-height: 1.36 !important;
   }
 
   /* ── Tables ── */

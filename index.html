@@ -284,6 +284,43 @@
         <label>Client GSTIN <span style="font-weight:400;color:#aaa">(optional)</span></label>
         <input id="clientGst" placeholder="e.g. 32ABCDE1234F1Z5" oninput="recalc()" style="font-family:Consolas, 'Courier New', monospace;font-weight:400;letter-spacing:0.04em;">
 
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--brand-navy); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Quote Customization &amp; Signatory</div>
+          <div class="row2">
+            <div>
+              <label>Bed Call Point Model</label>
+              <select id="bedCallPointModel" onchange="onBedCallPointModelChange()">
+                <option value="wall" selected>Model A: Wall-mount (Battery)</option>
+                <option value="panel">Model B: Panel-mount (New Const.)</option>
+              </select>
+            </div>
+            <div>
+              <label>Signatory Name</label>
+              <input id="genxSignatoryName" value="Authorized Signatory" placeholder="e.g. Sales Director" oninput="recalc()">
+            </div>
+          </div>
+          <div class="row2" style="margin-top: 6px;">
+            <div>
+              <label>Signatory Designation</label>
+              <input id="genxSignatoryDesig" value="GENXIOT LLP" placeholder="GENXIOT LLP" oninput="recalc()">
+            </div>
+            <div>
+              <label>Our Customers Title</label>
+              <input id="customersPageTitleInput" value="Alamo installations across India" oninput="recalc()">
+            </div>
+          </div>
+          <div class="row2" style="margin-top: 6px;">
+            <div>
+              <label>Support Phone</label>
+              <input id="companySupportPhone" value="+91 9496557777" oninput="recalc()">
+            </div>
+            <div>
+              <label>BDM Contact</label>
+              <input id="companyBdmPhone" value="+91 88916 70903" oninput="recalc()">
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -296,7 +333,13 @@
       <div class="card-bd">
         <h3 class="doc-h2 accent" style="font-size: 1rem; margin-top:0; border:none; padding:0;">1. Facility Size</h3>
         <div id="floorsContainer"></div>
-        <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 20px;">+ Add Floor / Area</button>
+        <button class="btn btn-outline" onclick="addFloor()" style="width: 100%; margin-top: 10px; margin-bottom: 12px;">+ Add Floor / Area</button>
+        <div style="margin-bottom: 15px; padding: 10px; background: #fdfefe; border: 1px solid var(--border); border-radius: 6px;">
+          <label style="font-size: 0.76rem; font-weight: 600;">Coverage Note (when a floor has no Nursing Station)</label>
+          <input id="coverageNoteInput" placeholder="Auto-drafted if empty" oninput="this.dataset.userEdited='true'; recalc();" style="font-size: 0.8rem; margin-bottom: 8px;">
+          <label style="font-size: 0.76rem; font-weight: 600;">Architecture Basis Line</label>
+          <input id="archBasisInput" placeholder="Auto-drafted if empty" oninput="this.dataset.userEdited='true'; recalc();" style="font-size: 0.8rem;">
+        </div>
         <h3 class="doc-h2 accent mt" style="font-size: 1rem; border:none; padding:0; margin-top:20px;">2. System Configuration</h3>
         <p style="font-size:0.75rem; color:var(--muted); margin-bottom:10px;">Select optional components. Quantities are auto-calculated in the BOM Table.</p>
 
@@ -783,11 +826,13 @@
         <!-- Page 2: Call Point Solutions -->
         <div class="doc-page brochure-page" id="brochurePage2">
           <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
+          <div class="callpoint-badge-model" id="callPointBadgeModel">Active Configuration: Model A – Wall-mount (Battery-operated)</div>
         </div>
 
         <!-- Page 3: Bed & Bathroom Side Accessories -->
         <div class="doc-page brochure-page" id="brochurePage3">
           <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
+          <div class="pendant-caption-badge">Dual Button Pendant: Button 1: Nurse Call &nbsp;·&nbsp; Button 2: Housekeeping</div>
         </div>
 
         <!-- Page 4: Indicators and Display Solutions -->
@@ -798,6 +843,7 @@
         <!-- Page 5: Insights and Reports -->
         <div class="doc-page brochure-page" id="brochurePage5">
           <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
+          <div class="hide-battery-level-overlay"></div>
         </div>
 
         <!-- Page 6: Dripo Smart Infusion Monitor -->
@@ -820,12 +866,12 @@
             <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
             <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Nivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
             <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; State: Kerala &nbsp;|&nbsp; Code: 32</div>
-            <div class="qtn-contact">+91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
+            <div class="qtn-contact"><span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
           </div>
           <div class="qtn-h-right">
             <div class="qmeta-label" id="qDocTypeLabel">QUOTATION REF</div>
             <div class="qmeta-ref" id="qDocRef">–</div>
-            <div class="qmeta-row"><strong>Revision:</strong> <span id="qDocRev">Rev: V1</span></div>
+            <div class="qmeta-row"><strong>Revision:</strong> <span id="qDocRev">V1</span></div>
             <div class="qmeta-row"><strong>Date:</strong> <span id="qDocDate">–</span></div>
             <div class="qmeta-row" id="qValidRow"><strong>Valid Till:</strong> <span id="qDocValid">–</span></div>
             <div class="qmeta-row" id="qPORow" style="display:none;"><strong>PO Ref:</strong> <span id="qPORef">–</span></div>
@@ -862,7 +908,7 @@
             <div class="party-name">GENXIOT LLP</div>
             <div class="party-sub" id="qPartnerSub">Authorized Alamo Integration Partner</div>
             <div class="party-sub">Rep: <span id="qBdmName">GenXIoT Sales Team</span></div>
-            <div class="party-sub">BDM Contact: +91 88916 70903</div>
+            <div class="party-sub">BDM Contact: <span class="dyn-bdm-phone">+91 88916 70903</span></div>
           </div>
         </div>
 
@@ -895,6 +941,7 @@
           <tbody id="qBomBody"></tbody>
         </table>
         </div>
+        <div style="margin: 6px 38px 10px; font-size: 0.72rem; color: #64748b; font-style: italic;">Products shown on information pages but not listed in the Bill of Quantities are not included.</div>
         
         <div class="commercial-details-block" style="page-break-inside: avoid; margin: 20px 38px;">
           <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Details</h3>
@@ -1010,21 +1057,6 @@
           </div>
         </div>
 
-        <!-- Acceptance Block for Quotation -->
-        <div class="qtn-compact-sig" style="display: flex; justify-content: space-between; margin: 14px 38px 0; gap: 40px; page-break-inside: avoid;">
-          <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem;">
-            <strong style="color: var(--brand-navy);">Authorized Signatory</strong><br>
-            <span style="color: #64748b; font-size: 0.70rem;">GENXIOT LLP</span><br>
-            <span style="color: #64748b; font-size: 0.70rem;">Date: <span id="qSigDateGenx">–</span></span>
-          </div>
-          <div style="flex: 1; border-top: 1px solid #94a3b8; padding-top: 4px; font-size: 0.74rem; text-align: right;">
-            <strong style="color: var(--brand-navy);">Accepted By</strong><br>
-            <span style="color: #334155; font-size: 0.74rem; font-weight:600;" id="qSigClientInline">Hospital Name</span><br>
-            <span style="color: #64748b; font-size: 0.70rem;">Designation: ____________________</span><br>
-            <span style="color: #64748b; font-size: 0.70rem;">Signature &amp; Stamp: ____________________</span><br>
-            <span style="color: #64748b; font-size: 0.70rem;">Date: ____________________</span>
-          </div>
-        </div>
       </div>
             </td>
           </tr>
@@ -1033,7 +1065,7 @@
           <tr>
             <td style="padding: 0 12mm;">
         <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.75rem; padding-top: 8px; border-top: 1px solid #eee;">
-          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
+          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
               <div class="print-spacer-bottom" style="height: 10mm;"></div>
             </td>
@@ -1044,31 +1076,33 @@
       <!-- ── PAGE 2: STANDARD TERMS & CONDITIONS ── -->
       <div class="doc-page" id="pageTerms" style="display:none;">
         <div id="qOptionalNote" style="margin: 0 0 10px; font-size: 0.8rem; color: #333; font-weight: 500;"></div>
-        <h3 class="doc-h3" style="margin: 0 0 10px; font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Standard Terms &amp; Conditions</h3>
+        <h3 class="doc-h3" style="margin: 0 0 8px; font-size: 0.92rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 3px; text-transform: uppercase; letter-spacing: 0.05em;">Standard Terms &amp; Conditions</h3>
 
-        <div class="tc-box" style="font-size:0.71rem; line-height:1.46; color:#333;">
-          <p style="margin: 0 0 6px 0;"><strong>1. Validity &amp; Acceptance:</strong> This quotation is valid until the validity date stated on it. Acceptance is by a signed copy or purchase order, together with the advance. Prices are in INR, exclusive of GST, which is charged at the rate in force on the invoice date. Quantities are based on the facility details provided; changes are priced separately in writing.</p>
-          <p style="margin: 0 0 6px 0;"><strong>2. Radio Coverage:</strong> Gateway and repeater quantities are based on the layout provided: one gateway for local operation, one for cloud, and repeaters for local coverage as the floor plan requires. Wireless coverage depends on building construction. If on-site testing shows additional gateways or repeaters are needed, they will be supplied at the rates in this quotation through a written variation.</p>
-          <p style="margin: 0 0 6px 0;"><strong>3. Intended Use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</p>
-          <p style="margin: 0 0 6px 0;"><strong>4. Payment Terms:</strong> Payment follows the schedule on the quotation: 50% advance on order confirmation, 30% on delivery, and 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</p>
-          <p style="margin: 0 0 6px 0;"><strong>5. Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</p>
-          <p style="margin: 0 0 6px 0;"><strong>6. Installation &amp; Customer Scope:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</p>
-          <p style="margin: 0 0 6px 0;"><strong>7. Training &amp; Handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</p>
-          <p style="margin: 0 0 6px 0;"><strong>8. Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement. Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.</span></p>
-          <p id="qExtWarrantyRow" style="display:none; margin: 0 0 6px 0;"><strong>Extended Warranty:</strong> <span id="qExtWarranty"></span></p>
-          <p style="margin: 0 0 6px 0;"><strong>9. Support &amp; Maintenance:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation matrix: Level 1 – GenXIoT support (+91 9496557777, info@genxiot.com); Level 2 – BDM (+91 88916 70903). AMC after warranty: 10% plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</p>
-          <p style="margin: 0 0 6px 0;"><strong>10. Cloud Software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</p>
-          <p style="margin: 0 0 6px 0;"><strong>11. Limitation of Liability:</strong> GenXIoT is not liable for indirect or consequential loss.</p>
-          <p style="margin: 0 0 6px 0;"><strong>12. Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured.</p>
-          <p style="margin: 0 0 6px 0;"><strong>13. Force Majeure:</strong> Neither party is liable for delay caused by events beyond reasonable control.</p>
-          <p style="margin: 0 0 6px 0;"><strong>14. Jurisdiction:</strong> Indian law applies. Courts at Thiruvananthapuram have exclusive jurisdiction.</p>
+        <div class="tc-box">
+          <ol class="tc-list" style="margin: 0; padding-left: 1.25rem; font-size: 0.69rem; line-height: 1.40; color: #333;">
+            <li><strong>Validity and acceptance:</strong> This quotation is valid until the validity date stated on it. Acceptance is by a signed copy or purchase order, together with the advance. Prices are in INR, exclusive of GST, which is charged at the rate in force on the invoice date. Quantities are based on the facility details provided; changes are priced separately in writing.</li>
+            <li><strong>Radio coverage:</strong> Gateway and repeater quantities are based on the layout provided: one gateway for local operation, one for cloud, and repeaters for local coverage as the floor plan requires. Wireless coverage depends on building construction. If on-site testing shows additional gateways or repeaters are needed, they will be supplied at the rates in this quotation through a written variation.</li>
+            <li><strong>Intended use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</li>
+            <li><strong>Payment:</strong> Payment follows the schedule on the quotation; the standard schedule is 50% advance on order confirmation, 30% on delivery, 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</li>
+            <li><strong>Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</li>
+            <li><strong>Installation and site readiness:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</li>
+            <li><strong>Inspection:</strong> The buyer may inspect goods within 3 days of delivery and report transit damage or short delivery in writing. If no notice is given within 3 days, goods are deemed accepted as delivered.</li>
+            <li><strong>Training and handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</li>
+            <li><strong>Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement.</span> Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.<span id="qExtWarrantyInline"></span></li>
+            <li><strong>Support and escalation:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation: Level 1 – GenXIoT support (<span class="dyn-support-phone">+91 9496557777</span>, info@genxiot.com); Level 2 – BDM (<span class="dyn-bdm-phone">+91 88916 70903</span>). AMC after warranty: 10% of component value plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</li>
+            <li><strong>Cloud software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</li>
+            <li><strong>Limitation of liability:</strong> GenXIoT is not liable for indirect or consequential loss, nor for injury or loss arising from unresponded calls, power loss, network downtime or unauthorised modification. Total liability under this quotation is capped at the total amount received by GenXIoT under it.</li>
+            <li><strong>Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured and work carried out.</li>
+            <li><strong>Force majeure:</strong> Neither party is liable for delay or failure caused by events beyond reasonable control, including natural disasters, labour disputes, war and import restrictions.</li>
+            <li><strong>Governing law and dispute resolution:</strong> Indian law applies. Courts at Thiruvananthapuram have exclusive jurisdiction. Disputes not resolved amicably within 30 days are referred to arbitration under the Arbitration and Conciliation Act, 1996, seated in Thiruvananthapuram.</li>
+          </ol>
         </div>
 
         <div class="sig-section" style="margin-top:16px;">
           <div class="sig-block">
             <div class="sig-line"></div>
-            <p class="sig-name">Authorized Signatory</p>
-            <p class="sig-org">GENXIOT LLP</p>
+            <p class="sig-name" id="qSigGenxName">Authorized Signatory</p>
+            <p class="sig-org" id="qSigGenxDesig">GENXIOT LLP</p>
             <p style="font-size:0.7rem; color:#666; margin-top:2px;">Date: <span id="qSigDateGenxTerms">–</span></p>
           </div>
           <div class="sig-block">
@@ -1082,7 +1116,7 @@
         </div>
 
         <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.72rem; padding-top: 8px; border-top: 1px solid #eee; margin-top: 18px;">
-          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
+          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
       </div>
 
@@ -1091,11 +1125,15 @@
         <!-- Page 7: Our Customers -->
         <div class="doc-page brochure-page" id="brochurePage7">
           <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
+          <div class="customer-page-header" id="custPageTitleOverlay">Alamo installations across India</div>
         </div>
 
         <!-- Page 8: Contact Us -->
         <div class="doc-page brochure-page" id="brochurePage8">
           <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
+          <div class="contact-page-dyn-overlay" id="cpDynOverlay">
+            <div class="cp-phone" id="cpDynPhone">+91 9496557777</div>
+          </div>
         </div>
       </div>
 
@@ -1222,6 +1260,6 @@
   </div>
 </div>
 
-<div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
+<div id="toastContainer" class="no-print" style="position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:10px;"></div>
 </body>
 </html>
