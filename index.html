@@ -406,6 +406,20 @@
           <div class="opt-row">
             <label><input type="checkbox" id="chkDataLog" onchange="calcEstimator()"> Data Logging & Analytics Software</label>
           </div>
+
+          <!-- Optional Add-ons Section -->
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);" id="optAddonsSection">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <label style="font-weight:700; font-size:0.80rem; color:var(--brand-navy); display:flex; align-items:center; gap:6px; margin:0; cursor:pointer;">
+                <input type="checkbox" id="chkShowOptionalAddons" checked onchange="toggleOptionalAddons(this.checked)">
+                Show Optional Add-ons on Quotation
+              </label>
+              <span style="font-size:0.70rem; color:#64748b;">(Selectable Add-ons)</span>
+            </div>
+            <div id="optionalAddonsList" style="display:grid; grid-template-columns: 1fr 1fr; gap: 6px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px 10px; font-size:0.75rem;">
+              <!-- Dynamically populated by renderOptionalAddonsPicker() -->
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -723,6 +737,15 @@
         <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
         <label class="chk-pill" title="Include General Terms & Conditions (Page 2)"><input type="checkbox" id="chkTerms" checked onchange="updateProposalBrochure()"> T&amp;C (Page 2)</label>
       </div>
+      <span style="color:#cbd5e1;">|</span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--brand-indigo); text-transform:uppercase;">Layout:</span>
+        <select id="brochureLayoutMode" onchange="onBrochureLayoutModeChange()" style="font-size:0.75rem; padding: 2px 6px; border:1px solid #cbd5e1; border-radius:4px; background:#fff; color:var(--brand-navy); font-weight:600; cursor:pointer;">
+          <option value="2up-spread" selected>2 Pages / Sheet (Spread)</option>
+          <option value="2up-portrait">2 Pages / Sheet (Portrait)</option>
+          <option value="single">1 Page / Sheet (Full Deck)</option>
+        </select>
+      </div>
     </div>
 
     <!-- Cover Page Settings (Visible only when Cover Page mode is active) -->
@@ -823,27 +846,33 @@
           </div>
         </div>
 
-        <!-- Page 2: Call Point Solutions -->
-        <div class="doc-page brochure-page" id="brochurePage2">
-          <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
-          <div class="callpoint-badge-model" id="callPointBadgeModel">Active Configuration: Model A – Wall-mount (Battery-operated)</div>
+        <!-- Front Spread 1: Page 2 (Call Point) + Page 3 (Accessories) -->
+        <div class="spread-container" id="spreadFront1">
+          <!-- Page 2: Call Point Solutions -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage2">
+            <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
+            <div class="callpoint-badge-model" id="callPointBadgeModel">Active Configuration: Model A – Wall-mount (Battery-operated)</div>
+          </div>
+
+          <!-- Page 3: Bed & Bathroom Side Accessories -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage3">
+            <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
+            <div class="pendant-caption-badge">Dual Button Pendant: Button 1: Nurse Call &nbsp;·&nbsp; Button 2: Housekeeping</div>
+          </div>
         </div>
 
-        <!-- Page 3: Bed & Bathroom Side Accessories -->
-        <div class="doc-page brochure-page" id="brochurePage3">
-          <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
-          <div class="pendant-caption-badge">Dual Button Pendant: Button 1: Nurse Call &nbsp;·&nbsp; Button 2: Housekeeping</div>
-        </div>
+        <!-- Front Spread 2: Page 4 (Displays) + Page 5 (Insights) -->
+        <div class="spread-container" id="spreadFront2">
+          <!-- Page 4: Indicators and Display Solutions -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage4">
+            <img src="brochure/page_4.jpg" alt="Indicators and Display Solutions" class="brochure-deck-img">
+          </div>
 
-        <!-- Page 4: Indicators and Display Solutions -->
-        <div class="doc-page brochure-page" id="brochurePage4">
-          <img src="brochure/page_4.jpg" alt="Indicators and Display Solutions" class="brochure-deck-img">
-        </div>
-
-        <!-- Page 5: Insights and Reports -->
-        <div class="doc-page brochure-page" id="brochurePage5">
-          <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
-          <div class="hide-battery-level-overlay"></div>
+          <!-- Page 5: Insights and Reports -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage5">
+            <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
+            <div class="hide-battery-level-overlay"></div>
+          </div>
         </div>
 
         <!-- Page 6: Dripo Smart Infusion Monitor -->
@@ -941,7 +970,6 @@
           <tbody id="qBomBody"></tbody>
         </table>
         </div>
-        <div style="margin: 6px 38px 10px; font-size: 0.72rem; color: #64748b; font-style: italic;">Products shown on information pages but not listed in the Bill of Quantities are not included.</div>
         
         <div class="commercial-details-block" style="page-break-inside: avoid; margin: 20px 38px;">
           <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.05em;">Commercial Details</h3>
@@ -1122,17 +1150,20 @@
 
       <!-- ── BACK BROCHURE PAGES (Customers & Contact) ── -->
       <div id="proposalBackPages">
-        <!-- Page 7: Our Customers -->
-        <div class="doc-page brochure-page" id="brochurePage7">
-          <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
-          <div class="customer-page-header" id="custPageTitleOverlay">Alamo installations across India</div>
-        </div>
+        <!-- Back Spread: Page 7 (Customers) + Page 8 (Contact) -->
+        <div class="spread-container" id="spreadBack">
+          <!-- Page 7: Our Customers -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage7">
+            <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
+            <div class="customer-page-header" id="custPageTitleOverlay">Alamo installations across India</div>
+          </div>
 
-        <!-- Page 8: Contact Us -->
-        <div class="doc-page brochure-page" id="brochurePage8">
-          <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
-          <div class="contact-page-dyn-overlay" id="cpDynOverlay">
-            <div class="cp-phone" id="cpDynPhone">+91 9496557777</div>
+          <!-- Page 8: Contact Us -->
+          <div class="doc-page brochure-page brochure-subpage" id="brochurePage8">
+            <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
+            <div class="contact-page-dyn-overlay" id="cpDynOverlay">
+              <div class="cp-phone" id="cpDynPhone">+91 9496557777</div>
+            </div>
           </div>
         </div>
       </div>

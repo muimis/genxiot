@@ -1150,6 +1150,47 @@ textarea { resize:vertical; }
   display: block;
 }
 
+/* ── Brochure Spread Container (Screen / Preview Mode) ── */
+.spread-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
+  box-sizing: border-box;
+}
+
+.spread-container .brochure-subpage {
+  flex: 1 1 50%;
+  max-width: 580px;
+  margin: 0;
+  position: relative;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.spread-container .brochure-subpage .brochure-deck-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+body.brochure-single .spread-container {
+  display: block;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+body.brochure-single .spread-container .brochure-subpage {
+  max-width: 860px;
+  margin: 0 auto 24px auto;
+}
+
 /* Executive Cover Badge Overlay */
 .brochure-cover-badge {
   position: absolute;
@@ -1342,6 +1383,11 @@ tr.grp-row + tr {
   size: A4 portrait;
 }
 
+@page spread {
+  margin: 0;
+  size: A4 landscape;
+}
+
 @media print {
   /* ── Reset ── */
   *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -1458,11 +1504,132 @@ tr.grp-row + tr {
     margin: 0 auto !important;
     padding: 0 !important;
   }
+
+  /* ── 2up-spread Mode (Default: Two pages side-by-side on A4 landscape sheet) ── */
+  body.brochure-2up-spread .spread-container {
+    page: spread !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    max-width: 297mm !important;
+    max-height: 210mm !important;
+    min-height: 210mm !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: center !important;
+    align-items: center !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.brochure-2up-spread .spread-container .brochure-subpage {
+    width: 148.5mm !important;
+    height: 210mm !important;
+    max-width: 148.5mm !important;
+    max-height: 210mm !important;
+    min-height: 210mm !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.brochure-2up-spread .spread-container .brochure-subpage .brochure-deck-img {
+    width: 148.5mm !important;
+    height: 210mm !important;
+    max-width: 148.5mm !important;
+    max-height: 210mm !important;
+    object-fit: fill !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body.brochure-2up-spread .customer-page-header {
+    font-size: 1.15rem !important;
+  }
+  body.brochure-2up-spread .contact-page-dyn-overlay {
+    font-size: 0.82rem !important;
+  }
+  body.brochure-2up-spread .callpoint-badge-model {
+    font-size: 0.55rem !important;
+    padding: 2px 6px !important;
+  }
+  body.brochure-2up-spread .pendant-caption-badge {
+    font-size: 0.55rem !important;
+    padding: 3px 8px !important;
+  }
+
+  /* ── 2up-portrait Mode (Two pages on A4 portrait) ── */
+  body.brochure-2up-portrait .spread-container {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    min-height: 297mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 6mm 0 !important;
+  }
+  body.brochure-2up-portrait .spread-container .brochure-subpage {
+    width: 198mm !important;
+    height: 140mm !important;
+    max-width: 198mm !important;
+    max-height: 140mm !important;
+    position: relative !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+  }
+  body.brochure-2up-portrait .spread-container .brochure-subpage .brochure-deck-img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+
+  /* ── Single / Full Deck Mode ── */
+  body.brochure-single .spread-container {
+    display: contents !important;
+  }
+  body.brochure-single .spread-container .brochure-subpage {
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    min-height: 297mm !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
   #proposalBackPages .doc-page.brochure-page:first-child {
     page-break-before: auto !important;
     break-before: auto !important;
   }
-  #proposalBackPages .doc-page.brochure-page:last-child {
+  #proposalBackPages .doc-page.brochure-page:last-child,
+  #proposalBackPages .spread-container:last-child {
     page-break-after: avoid !important;
     break-after: avoid !important;
   }
@@ -1601,9 +1768,12 @@ tr.grp-row + tr {
     break-inside: avoid !important;
     width: 100% !important;
     max-width: 210mm !important;
+    max-height: 297mm !important;
+    height: auto !important;
     margin: 0 auto !important;
     padding: 8mm 14mm 6mm 14mm !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
   }
   body.show-terms.has-back-brochure #pageTerms {
     page-break-after: always !important;
@@ -1625,9 +1795,14 @@ tr.grp-row + tr {
   .tc-box {
     margin: 0 !important;
     font-size: .67rem !important;
-    line-height: 1.40 !important;
+    line-height: 1.38 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+  .tc-box ol.tc-list li {
+    margin-bottom: .18rem !important;
+    font-size: .67rem !important;
+    line-height: 1.38 !important;
   }
   .tc-box p {
     margin-bottom: .15rem !important;

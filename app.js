@@ -1080,7 +1080,10 @@ function saveQuote() {
     companySupportPhone: document.getElementById('companySupportPhone')?.value || '+91 9496557777',
     companyBdmPhone:     document.getElementById('companyBdmPhone')?.value     || '+91 88916 70903',
     coverageNote:        document.getElementById('coverageNoteInput')?.value   || '',
-    archBasis:           document.getElementById('archBasisInput')?.value      || ''
+    archBasis:           document.getElementById('archBasisInput')?.value      || '',
+    brochureLayoutMode:  currentBrochureLayoutMode,
+    showOptionalAddons:  document.getElementById('chkShowOptionalAddons')?.checked ?? true,
+    selectedAddonCodes:  Array.from(selectedAddonCodes)
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -1316,6 +1319,20 @@ function restoreQuote(data) {
     const ab = document.getElementById('archBasisInput');
     if (ab) ab.dataset.userEdited = 'true';
   }
+
+  if (data.brochureLayoutMode) {
+    currentBrochureLayoutMode = data.brochureLayoutMode;
+    setVal('brochureLayoutMode', data.brochureLayoutMode);
+    applyBrochureLayoutClass();
+  }
+  if (data.showOptionalAddons !== undefined) {
+    setChk('chkShowOptionalAddons', data.showOptionalAddons);
+  }
+  if (data.selectedAddonCodes && Array.isArray(data.selectedAddonCodes)) {
+    selectedAddonCodes = new Set(data.selectedAddonCodes);
+    userCustomizedAddons = true;
+  }
+  renderOptionalAddonsPicker();
 
 
   // ── Bank details ───────────────────────────────────────────────
@@ -1930,55 +1947,50 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
 
     if (qFloorBreakup) qFloorBreakup.innerHTML = floorBreakupHtml;
 
-    const optionalCats = ['Bed Components', 'Room Components', 'Washroom Components'];
-    const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
-    let optionalItems = CATALOGUE.filter(c => optionalCats.includes(c.group) && !bomCodes.includes(c.code));
-    
-    if (bomCodes.includes('ALAMO-MINI') && !bomCodes.includes('ALAMO-NS-TV')) {
-      let tvItem = CATALOGUE.find(c => c.code === 'ALAMO-NS-TV');
-      if (tvItem) {
-        tvItem = { ...tvItem, desc: tvItem.desc + ' (Requires Gateway @ ₹12,000/pc)' };
-        optionalItems.push(tvItem);
-      }
-    }
+    // ── Optional Add-ons (Selectable on Quotation) ──
+    const qOptionalNote = document.getElementById('qOptionalNote');
+    const chkShowAddons = document.getElementById('chkShowOptionalAddons')?.checked ?? true;
 
-    if (!bomCodes.includes('ALAMO-CLOUD-SW')) {
-      let dataLogItem = CATALOGUE.find(c => c.code === 'ALAMO-CLOUD-SW');
-      if (dataLogItem) {
-        dataLogItem = { ...dataLogItem, desc: dataLogItem.desc + ' (Requires Gateway @ ₹12,000/pc)' };
-        optionalItems.push(dataLogItem);
-      }
-    }
-    
+    // Refresh optional add-ons UI picker
+    renderOptionalAddonsPicker();
+
     if (qOptionalNote) {
-      if (optionalItems.length > 0) {
-        let optHtml = `
-          <div style="margin-bottom: 8px; padding: 6px 10px; border: 1px dashed #cbd5e1; border-radius: 4px; background: #f8fafc; font-size: 0.68rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 3px;">
-              <strong style="color: #1e293b; text-transform: uppercase; letter-spacing: 0.04em;">Optional Upgrades (Exclusive of GST at 18%)</strong>
-              <span style="color: #64748b; font-size: 0.63rem;">Rates valid for quotation validity period</span>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 14px; line-height: 1.35; color: #334155;">
-        `;
-        optionalItems.forEach(item => {
-          let itemName = item.name.split(' (HSN:')[0].split(' (SAC:')[0].replace(/^Alamo\s+/i, '');
-          let extra = '';
-          if (item.code === 'ALAMO-CLOUD-SW') extra = ' (₹3,500/yr renewal)';
-          else if (item.code === 'ALAMO-NS-TV') extra = ' (Display Monitor)';
+      if (chkShowAddons && !isDripoOnlyQuote && selectedAddonCodes.size > 0) {
+        const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
+        let optItemsToPrint = ADDON_CATALOGUE.filter(c => selectedAddonCodes.has(c.code) && !bomCodes.includes(c.code));
+
+        if (optItemsToPrint.length > 0) {
+          let optHtml = `
+            <div style="margin-bottom: 8px; padding: 6px 10px; border: 1px dashed #cbd5e1; border-radius: 4px; background: #f8fafc; font-size: 0.68rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 3px;">
+                <strong style="color: #1e293b; text-transform: uppercase; letter-spacing: 0.04em;">Optional Add-ons (Exclusive of GST at 18%)</strong>
+                <span style="color: #64748b; font-size: 0.63rem;">Rates valid for quotation validity period</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 14px; line-height: 1.35; color: #334155;">
+          `;
+          optItemsToPrint.forEach(item => {
+            let itemName = item.name.replace(/^Alamo\s+/i, '');
+            let extra = item.renewal ? ` (${item.renewal})` : (item.code === 'ALAMO-NS-TV' ? ' (Display Monitor)' : '');
+            optHtml += `
+              <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #e2e8f0; padding: 1px 0;">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 68%;">${itemName}${extra}</span>
+                <strong style="color: var(--brand-navy); white-space: nowrap;">₹${fmt(item.rate)} / ${item.unit || 'pc'}</strong>
+              </div>
+            `;
+          });
           optHtml += `
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #e2e8f0; padding: 1px 0;">
-              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 68%;">${itemName}${extra}</span>
-              <strong style="color: var(--brand-navy); white-space: nowrap;">₹${fmt(item.rate)} / pc</strong>
+              </div>
             </div>
           `;
-        });
-        optHtml += `
-            </div>
-          </div>
-        `;
-        qOptionalNote.innerHTML = optHtml;
+          qOptionalNote.innerHTML = optHtml;
+          qOptionalNote.style.display = 'block';
+        } else {
+          qOptionalNote.innerHTML = '';
+          qOptionalNote.style.display = 'none';
+        }
       } else {
         qOptionalNote.innerHTML = '';
+        qOptionalNote.style.display = 'none';
       }
     }
   }
@@ -2196,6 +2208,122 @@ function fillDocDates() {
   setText('qDocValid', getValidDate());
 }
 
+// ─── BROCHURE LAYOUT MODE (Spread vs Portrait vs Single) ─────────
+let currentBrochureLayoutMode = '2up-spread';
+
+function onBrochureLayoutModeChange() {
+  const sel = document.getElementById('brochureLayoutMode');
+  if (sel) currentBrochureLayoutMode = sel.value;
+  applyBrochureLayoutClass();
+}
+
+function applyBrochureLayoutClass() {
+  document.body.classList.remove('brochure-2up-spread', 'brochure-2up-portrait', 'brochure-single');
+  document.body.classList.add('brochure-' + currentBrochureLayoutMode);
+  const sel = document.getElementById('brochureLayoutMode');
+  if (sel && sel.value !== currentBrochureLayoutMode) sel.value = currentBrochureLayoutMode;
+}
+
+// ─── OPTIONAL ADD-ONS CATALOGUE & SELECTABLE PICKER ──────────────
+const ADDON_CATALOGUE = [
+  { code: 'ALAMO-PD-D', name: 'Double Button Pendant', rate: 950, unit: 'pc', group: 'Bed' },
+  { code: 'ALAMO-PD-S', name: 'Single Button Pendant', rate: 600, unit: 'pc', group: 'Bed' },
+  { code: 'ALAMO-CB-ACC', name: 'Code Blue Pendant Accessory', rate: 900, unit: 'pc', group: 'Safety' },
+  { code: 'ALAMO-DL', name: 'Call Light V2 (Door Indicator)', rate: 2600, unit: 'pc', group: 'Room' },
+  { code: 'ALAMO-CP-B', name: 'Washroom Call Point', rate: 2400, unit: 'pc', group: 'Washroom' },
+  { code: 'ALAMO-PL', name: 'Pull Cord for Washroom', rate: 600, unit: 'pc', group: 'Washroom' },
+  { code: 'ALAMO-NS-TV', name: '32" Smart Display', rate: 12000, unit: 'pc', group: 'Display' },
+  { code: 'ALAMO-RPT', name: 'LoRa Range Repeater', rate: 3500, unit: 'pc', group: 'Network' },
+  { code: 'ALAMO-GW', name: 'Central Gateway (Cloud / Local)', rate: 12000, unit: 'pc', group: 'Server' },
+  { code: 'ALAMO-CLOUD-SW', name: 'Cloud Software & Analytics (3 Yrs)', rate: 10500, unit: 'stn', renewal: '₹3,500/yr renewal', group: 'Software' },
+  { code: 'DRIPO-IM', name: 'Dripo Smart Infusion Monitor', rate: 4500, unit: 'unit', group: 'Infusion' }
+];
+
+let selectedAddonCodes = new Set();
+let userCustomizedAddons = false;
+
+function renderOptionalAddonsPicker() {
+  const container = document.getElementById('optionalAddonsList');
+  if (!container) return;
+
+  const bomCodes = bom.filter(b => b.qty > 0).map(b => b.code);
+  const hasDoublePendant = bomCodes.includes('ALAMO-PD-D') || document.getElementById('chkDoublePendant')?.checked;
+
+  if (!userCustomizedAddons) {
+    selectedAddonCodes.clear();
+    ADDON_CATALOGUE.forEach(item => {
+      // 1. Exclude items already in BoQ
+      if (bomCodes.includes(item.code)) return;
+
+      // 2. If Double Pendant is chosen, Single Pendant is a DOWNGRADE - do NOT select by default!
+      if (item.code === 'ALAMO-PD-S' && hasDoublePendant) return;
+
+      // 3. Smart TV if Mini Station is chosen
+      if (item.code === 'ALAMO-NS-TV' && bomCodes.includes('ALAMO-MINI')) {
+        selectedAddonCodes.add(item.code);
+        return;
+      }
+
+      // 4. Cloud Software if not in BOM
+      if (item.code === 'ALAMO-CLOUD-SW' && !bomCodes.includes('ALAMO-CLOUD-SW')) {
+        selectedAddonCodes.add(item.code);
+        return;
+      }
+
+      // 5. Code Blue Accessory Pendant
+      if (item.code === 'ALAMO-CB-ACC' && !bomCodes.includes('ALAMO-CB-ACC')) {
+        selectedAddonCodes.add(item.code);
+        return;
+      }
+
+      // 6. Double Button Pendant if single button is in BOM
+      if (item.code === 'ALAMO-PD-D' && !hasDoublePendant && bomCodes.includes('ALAMO-PD-S')) {
+        selectedAddonCodes.add(item.code);
+        return;
+      }
+    });
+  }
+
+  container.innerHTML = '';
+  ADDON_CATALOGUE.forEach(item => {
+    const inBom = bomCodes.includes(item.code);
+    const isChecked = selectedAddonCodes.has(item.code);
+    const label = document.createElement('label');
+    label.style.cssText = `display:flex; align-items:center; gap:5px; font-size:0.72rem; margin:0; cursor:${inBom ? 'not-allowed' : 'pointer'}; ${inBom ? 'opacity:0.45;' : ''} white-space:nowrap; overflow:hidden; text-overflow:ellipsis;`;
+    label.title = `${item.name} - ₹${fmt(item.rate)}/${item.unit || 'pc'}${inBom ? ' (Already in BoQ)' : ''}`;
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.value = item.code;
+    input.checked = isChecked && !inBom;
+    input.disabled = inBom;
+    input.onchange = (e) => onAddonCheckboxChange(item.code, e.target.checked);
+
+    const span = document.createElement('span');
+    span.textContent = item.name.replace(/^Alamo\s+/i, '') + (inBom ? ' (In BoQ)' : '');
+
+    label.appendChild(input);
+    label.appendChild(span);
+    container.appendChild(label);
+  });
+}
+
+function onAddonCheckboxChange(code, checked) {
+  userCustomizedAddons = true;
+  if (checked) {
+    selectedAddonCodes.add(code);
+  } else {
+    selectedAddonCodes.delete(code);
+  }
+  recalc();
+}
+
+function toggleOptionalAddons(show) {
+  const container = document.getElementById('optionalAddonsList');
+  if (container) container.style.display = show ? 'grid' : 'none';
+  recalc();
+}
+
 // ─── PROPOSAL BROCHURE & PRINT MODAL ────────────────────────────
 let activeDocMode = 'proposal';
 
@@ -2256,18 +2384,34 @@ function updateProposalBrochure() {
   const hasCloudSoftware = bom.some(b => b.code === 'ALAMO-CLOUD-SW' && b.qty > 0);
   const hasDripoUnits = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
 
-  if (el('brochurePage1')) el('brochurePage1').style.display = chkCover ? 'block' : 'none';
-  if (el('brochurePage2')) el('brochurePage2').style.display = (chkAlamo && hasBedCallPoint) ? 'block' : 'none';
-  if (el('brochurePage3')) el('brochurePage3').style.display = (chkAlamo && hasAccessories) ? 'block' : 'none';
-  if (el('brochurePage4')) el('brochurePage4').style.display = (chkAlamo && hasDisplaysOrIndicators) ? 'block' : 'none';
-  if (el('brochurePage5')) el('brochurePage5').style.display = (chkAlamo && hasCloudSoftware) ? 'block' : 'none';
-  if (el('brochurePage6')) el('brochurePage6').style.display = (chkDripo && hasDripoUnits) ? 'block' : 'none';
-  if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
-  if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
+  const showCover = chkCover;
+  const showP2 = chkAlamo && hasBedCallPoint;
+  const showP3 = chkAlamo && hasAccessories;
+  const showP4 = chkAlamo && hasDisplaysOrIndicators;
+  const showP5 = chkAlamo && hasCloudSoftware;
+  const showP6 = chkDripo && hasDripoUnits;
+  const showP7 = chkClients;
+  const showP8 = chkContact;
 
-  const hasBack = chkClients || chkContact;
+  if (el('brochurePage1')) el('brochurePage1').style.display = showCover ? 'block' : 'none';
+  if (el('brochurePage2')) el('brochurePage2').style.display = showP2 ? 'block' : 'none';
+  if (el('brochurePage3')) el('brochurePage3').style.display = showP3 ? 'block' : 'none';
+  if (el('spreadFront1')) el('spreadFront1').style.display = (showP2 || showP3) ? '' : 'none';
+
+  if (el('brochurePage4')) el('brochurePage4').style.display = showP4 ? 'block' : 'none';
+  if (el('brochurePage5')) el('brochurePage5').style.display = showP5 ? 'block' : 'none';
+  if (el('spreadFront2')) el('spreadFront2').style.display = (showP4 || showP5) ? '' : 'none';
+
+  if (el('brochurePage6')) el('brochurePage6').style.display = showP6 ? 'block' : 'none';
+
+  if (el('brochurePage7')) el('brochurePage7').style.display = showP7 ? 'block' : 'none';
+  if (el('brochurePage8')) el('brochurePage8').style.display = showP8 ? 'block' : 'none';
+  if (el('spreadBack')) el('spreadBack').style.display = (showP7 || showP8) ? '' : 'none';
+
+  const hasBack = showP7 || showP8;
   document.body.classList.toggle('has-back-brochure', hasBack);
   document.body.classList.toggle('no-back-brochure', !hasBack);
+  applyBrochureLayoutClass();
 }
 
 function setBrochurePreset(preset) {
@@ -2456,6 +2600,9 @@ function resetQuote(force = false) {
 
 // ─── EVENT LISTENERS ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  applyBrochureLayoutClass();
+  renderOptionalAddonsPicker();
+
   // Close modal on backdrop click
   document.getElementById('modalBg').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
