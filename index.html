@@ -662,23 +662,22 @@
     <!-- Proposal Deck Settings Bar (Visible when Proposal or Quotation mode is active) -->
     <div class="modal-ctrl no-print" id="proposalSettings" style="background: #f8f9ff; border-top: 1px solid #e2e8f0; justify-content: flex-start; padding: 8px 20px; gap: 12px; flex-wrap: wrap; font-size: 0.8rem;">
       <span style="font-size:0.75rem; font-weight:700; color:var(--brand-indigo); text-transform:uppercase; display:flex; align-items:center; gap:5px;">
-        <i data-lucide="layers" size="14"></i> Brochure Deck:
+        <i data-lucide="layers" size="14"></i> View &amp; Print Presets:
       </span>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">All (9p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('alamo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Alamo (8p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('dripo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Dripo (5p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">BOQ Only (1p)</button>
+        <button type="button" class="btn btn-sm" onclick="setBrochurePreset('compact')" style="background: #0284c7; color:#fff; padding: 3px 10px; font-size: 0.72rem; height: auto; font-weight:700; border:none; border-radius:4px; cursor:pointer;" title="Cover + Quotation + Terms + 2-Page Compact Technical Annexure">★ Compact Proposal (4p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('quote_terms')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Quotation BOQ + Standard Terms & Conditions (2 Pages)">Quote + T&amp;C (2p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Full Multi-Page Brochure Deck">Full Deck (8p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Single-Page BOQ Only">BOQ Only (1p)</button>
       </div>
       <span style="color:#cbd5e1;">|</span>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <label class="chk-pill"><input type="checkbox" id="chkCover" checked onchange="updateProposalBrochure()"> Cover</label>
-        <label class="chk-pill"><input type="checkbox" id="chkAlamo" checked onchange="updateProposalBrochure()"> Alamo Products</label>
-        <label class="chk-pill"><input type="checkbox" id="chkDripo" onchange="this.dataset.userModified='true'; updateProposalBrochure()"> Dripo IV</label>
-        <label class="chk-pill"><input type="checkbox" id="chkClients" checked onchange="updateProposalBrochure()"> Customers</label>
-        <label class="chk-pill"><input type="checkbox" id="chkContact" checked onchange="updateProposalBrochure()"> Contact</label>
-        <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
-        <label class="chk-pill" title="Include General Terms & Conditions (Page 2)"><input type="checkbox" id="chkTerms" onchange="updateProposalBrochure()"> T&amp;C (Page 2)</label>
+        <label class="chk-pill" title="Toggle Executive Cover Page (Page 1)"><input type="checkbox" id="chkCover" checked onchange="updateProposalBrochure()"> Cover</label>
+        <label class="chk-pill" title="Include Standard Terms & Conditions (Page 2)" style="font-weight:700; color:#0369a1;"><input type="checkbox" id="chkTerms" checked onchange="updateProposalBrochure()"> Terms &amp; Conditions</label>
+        <label class="chk-pill" title="Include Technical Specifications Annexure"><input type="checkbox" id="chkAnnexure" checked onchange="updateProposalBrochure()"> Technical Annexure</label>
+        <label class="chk-pill" title="Use Compact 2-Page Annexure Layout"><input type="checkbox" id="chkCompact" checked onchange="updateProposalBrochure()"> Compact Layout</label>
+        <label class="chk-pill" title="Include Dripo IV Infusion in Annexure"><input type="checkbox" id="chkDripo" onchange="updateProposalBrochure()"> Dripo IV</label>
+        <label class="chk-pill" title="Toggle Dynamic Hospital Badge on Cover"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
       </div>
     </div>
 
@@ -763,9 +762,8 @@
         </div>
       </div>
 
-      <!-- ── FRONT BROCHURE PAGES (Executive Techno-Commercial Proposal Deck) ── -->
-      <div id="proposalFrontPages">
-        <!-- Page 1: Executive Cover Page -->
+      <!-- ── EXECUTIVE COVER PAGE (Page 1 when Cover is enabled) ── -->
+      <div id="brochureCoverWrapper">
         <div class="doc-page brochure-page" id="brochurePage1">
           <img src="brochure/page_1.jpg" alt="GenXIoT Healthcare Solutions" class="brochure-deck-img">
           <div class="brochure-cover-badge" id="brochureCoverBadge">
@@ -778,31 +776,6 @@
               <div><strong>Rep:</strong> <span id="bcbRepName">GenXIoT Sales Team</span></div>
             </div>
           </div>
-        </div>
-
-        <!-- Page 2: Call Point Solutions -->
-        <div class="doc-page brochure-page" id="brochurePage2">
-          <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
-        </div>
-
-        <!-- Page 3: Bed & Bathroom Side Accessories -->
-        <div class="doc-page brochure-page" id="brochurePage3">
-          <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
-        </div>
-
-        <!-- Page 4: Indicators and Display Solutions -->
-        <div class="doc-page brochure-page" id="brochurePage4">
-          <img src="brochure/page_4.jpg" alt="Indicators and Display Solutions" class="brochure-deck-img">
-        </div>
-
-        <!-- Page 5: Insights and Reports -->
-        <div class="doc-page brochure-page" id="brochurePage5">
-          <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
-        </div>
-
-        <!-- Page 6: Dripo Smart Infusion Monitor -->
-        <div class="doc-page brochure-page" id="brochurePage6">
-          <img src="brochure/page_6.jpg" alt="Dripo Intelligent Bystander for IV Drips" class="brochure-deck-img">
         </div>
       </div>
 
@@ -839,7 +812,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr id="rowQuote">
             <td style="padding: 0 12mm;">
 
       <!-- ── PAGE 1: BILL OF QUANTITIES ── -->
@@ -1026,9 +999,13 @@
           </div>
         </div>
       </div>
+            </td>
+          </tr>
 
-      <!-- ── PAGE 10: T&C (Omitted by default) ─── -->
-      <div class="doc-page" id="pageTerms" style="display:none; margin-top: 15px;">
+          <!-- ── PAGE 2: STANDARD TERMS & CONDITIONS ── -->
+          <tr id="rowTerms">
+            <td style="padding: 0 12mm;">
+      <div class="doc-page" id="pageTerms" style="margin-top: 10px;">
         <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
         <h3 class="doc-h3">Standard Terms &amp; Conditions</h3>
 
@@ -1069,8 +1046,6 @@
 
         <!-- Footer moved to global tfoot -->
       </div>
-
-
             </td>
           </tr>
         </tbody>
@@ -1086,16 +1061,70 @@
         </tfoot>
       </table>
 
-      <!-- ── BACK BROCHURE PAGES (Customers & Contact) ── -->
-      <div id="proposalBackPages">
-        <!-- Page 7: Our Customers -->
-        <div class="doc-page brochure-page" id="brochurePage7">
-          <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
+      <!-- ── SUPPORTING TECHNICAL ANNEXURE (Placed AFTER Quotation & Terms) ── -->
+      <div id="proposalAnnexure">
+        <!-- Compact 2-Page Annexure Layout (Default) -->
+        <div id="annexureCompact">
+          <!-- Annexure Sheet 1: System Architecture & Hardware -->
+          <div class="doc-page brochure-page annexure-sheet" id="annexureSheet1">
+            <div class="annexure-header">
+              <div class="annexure-title">TECHNICAL ANNEXURE · SYSTEM ARCHITECTURE &amp; HARDWARE</div>
+              <div class="annexure-sub">Alamo Wireless Nurse Call System · Plug &amp; Play Wireless Infrastructure</div>
+            </div>
+            <div class="annexure-content-grid">
+              <div class="annexure-card">
+                <div class="annexure-card-title">1. System Architecture &amp; LoRa Mesh Connectivity</div>
+                <img src="brochure/page_2.jpg" alt="Alamo Wireless Architecture" class="annexure-card-img">
+              </div>
+              <div class="annexure-card">
+                <div class="annexure-card-title">2. Bedside &amp; Washroom Call Point Hardware</div>
+                <img src="brochure/page_3.jpg" alt="Alamo Call Points" class="annexure-card-img">
+              </div>
+            </div>
+          </div>
+
+          <!-- Annexure Sheet 2: Cloud Software, Analytics & Client References -->
+          <div class="doc-page brochure-page annexure-sheet" id="annexureSheet2">
+            <div class="annexure-header">
+              <div class="annexure-title">TECHNICAL ANNEXURE · CLOUD SOFTWARE &amp; DEPLOYMENT</div>
+              <div class="annexure-sub">Escalation Management, Analytics &amp; Verified Hospital Installations</div>
+            </div>
+            <div class="annexure-content-grid">
+              <div class="annexure-card">
+                <div class="annexure-card-title">3. Alamo Smart Cloud &amp; Mobile Notifications</div>
+                <img src="brochure/page_5.jpg" alt="Alamo Cloud Software" class="annexure-card-img">
+              </div>
+              <div class="annexure-card">
+                <div class="annexure-card-title">4. Reference Hospital Installations &amp; Performance</div>
+                <img src="brochure/page_7.jpg" alt="Hospital References" class="annexure-card-img">
+              </div>
+            </div>
+          </div>
+
+          <!-- Annexure Sheet 3: Dripo Smart Infusion (Conditional) -->
+          <div class="doc-page brochure-page annexure-sheet" id="annexureSheetDripo" style="display:none;">
+            <div class="annexure-header">
+              <div class="annexure-title">TECHNICAL ANNEXURE · DRIPO SMART INFUSION MONITOR</div>
+              <div class="annexure-sub">Intelligent Infusion Monitoring, Real-Time Flow Alerts &amp; Central Station</div>
+            </div>
+            <div class="annexure-content-grid">
+              <div class="annexure-card" style="flex:1;">
+                <div class="annexure-card-title">Dripo Intelligent Bystander for IV Drips</div>
+                <img src="brochure/page_6.jpg" alt="Dripo Smart Infusion Monitor" class="annexure-card-img">
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Page 8: Contact Us -->
-        <div class="doc-page brochure-page" id="brochurePage8">
-          <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
+        <!-- Full Multi-Page Deck Mode (Optional) -->
+        <div id="annexureFull" style="display:none;">
+          <div class="doc-page brochure-page" id="brochurePage2"><img src="brochure/page_2.jpg" alt="Architecture" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage3"><img src="brochure/page_3.jpg" alt="Call Points" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage4"><img src="brochure/page_4.jpg" alt="Displays" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage5"><img src="brochure/page_5.jpg" alt="Cloud Software" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage6"><img src="brochure/page_6.jpg" alt="Dripo" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage7"><img src="brochure/page_7.jpg" alt="Customers" class="brochure-deck-img"></div>
+          <div class="doc-page brochure-page" id="brochurePage8"><img src="brochure/page_8.jpg" alt="Contact" class="brochure-deck-img"></div>
         </div>
       </div>
 

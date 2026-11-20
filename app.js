@@ -2118,75 +2118,73 @@ function updateProposalBrochure() {
     el('brochureCoverBadge').style.display = showBadge ? 'block' : 'none';
   }
 
-  // Terms & Conditions visibility (2nd page of quotation - disabled by default)
-  const showTerms = el('chkTerms') ? el('chkTerms').checked : false;
+  // Cover Page visibility (Page 1 before quotation)
+  const showCover = el('chkCover') ? el('chkCover').checked : (activeDocMode === 'proposal');
+  if (el('brochurePage1')) el('brochurePage1').style.display = showCover ? 'block' : 'none';
+  if (el('brochureCoverWrapper')) el('brochureCoverWrapper').style.display = showCover ? 'block' : 'none';
+  document.body.classList.toggle('has-cover', showCover);
+
+  // Terms & Conditions visibility (Page 2 - ALWAYS enabled by default!)
+  const showTerms = el('chkTerms') ? el('chkTerms').checked : true;
+  if (el('rowTerms')) el('rowTerms').style.display = showTerms ? 'table-row' : 'none';
   if (el('pageTerms')) el('pageTerms').style.display = showTerms ? 'block' : 'none';
   document.body.classList.toggle('show-terms', showTerms);
 
-  // Sync client name to compact signature on 1-page quotation
-  if (el('qSigClientInline')) {
-    el('qSigClientInline').textContent = cName || 'Client / Hospital';
+  // Sync client name to signature blocks
+  if (el('qSigClientInline')) el('qSigClientInline').textContent = cName || 'Client / Hospital';
+  if (el('qSigClient')) el('qSigClient').textContent = cName || 'Client / Hospital';
+
+  // Supporting Technical Annexure visibility (Placed AFTER quotation & terms)
+  const showAnnexure = el('chkAnnexure') ? el('chkAnnexure').checked : (activeDocMode === 'proposal');
+  const isCompact = el('chkCompact') ? el('chkCompact').checked : true;
+  const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0) || (el('chkDripo') ? el('chkDripo').checked : false);
+
+  if (el('proposalAnnexure')) {
+    el('proposalAnnexure').style.display = showAnnexure ? 'block' : 'none';
   }
 
-  // Active mode check
-  if (activeDocMode !== 'proposal') {
-    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
-    if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
-    document.body.classList.remove('has-back-brochure');
-    document.body.classList.add('no-back-brochure');
-    return;
+  if (el('annexureCompact')) {
+    el('annexureCompact').style.display = (showAnnexure && isCompact) ? 'block' : 'none';
+  }
+  if (el('annexureSheetDripo')) {
+    el('annexureSheetDripo').style.display = (showAnnexure && isCompact && hasDripo) ? 'flex' : 'none';
   }
 
-  // In Proposal mode:
-  if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'block';
-  if (el('proposalBackPages')) el('proposalBackPages').style.display = 'block';
+  if (el('annexureFull')) {
+    el('annexureFull').style.display = (showAnnexure && !isCompact) ? 'block' : 'none';
+  }
 
-  const chkCover = el('chkCover') ? el('chkCover').checked : true;
-  const chkAlamo = el('chkAlamo') ? el('chkAlamo').checked : true;
-  const chkDripo = el('chkDripo') ? el('chkDripo').checked : false;
-  const chkClients = el('chkClients') ? el('chkClients').checked : true;
-  const chkContact = el('chkContact') ? el('chkContact').checked : true;
-
-  if (el('brochurePage1')) el('brochurePage1').style.display = chkCover ? 'block' : 'none';
-  if (el('brochurePage2')) el('brochurePage2').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage3')) el('brochurePage3').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage4')) el('brochurePage4').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage5')) el('brochurePage5').style.display = chkAlamo ? 'block' : 'none';
-  if (el('brochurePage6')) el('brochurePage6').style.display = chkDripo ? 'block' : 'none';
-  if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
-  if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
-
-  const hasBack = chkClients || chkContact;
-  document.body.classList.toggle('has-back-brochure', hasBack);
-  document.body.classList.toggle('no-back-brochure', !hasBack);
+  document.body.classList.toggle('has-annexure', showAnnexure);
 }
 
 function setBrochurePreset(preset) {
   const el = id => document.getElementById(id);
-  if (el('chkTerms')) el('chkTerms').checked = false; // Always keep 2nd page T&C disabled
-  if (preset === 'all') {
+  if (preset === 'compact') {
+    // 4-Page Compact Proposal: Cover + Quote + T&C + 2p Compact Technical Annexure
     if (el('chkCover')) el('chkCover').checked = true;
-    if (el('chkAlamo')) el('chkAlamo').checked = true;
-    if (el('chkDripo')) el('chkDripo').checked = true;
-    if (el('chkClients')) el('chkClients').checked = true;
-    if (el('chkContact')) el('chkContact').checked = true;
+    if (el('chkTerms')) el('chkTerms').checked = true;
+    if (el('chkAnnexure')) el('chkAnnexure').checked = true;
+    if (el('chkCompact')) el('chkCompact').checked = true;
     previewProposal();
-  } else if (preset === 'alamo') {
+  } else if (preset === 'quote_terms') {
+    // 2-Page Commercial Quotation: BOQ + Standard Terms & Conditions
+    if (el('chkCover')) el('chkCover').checked = false;
+    if (el('chkTerms')) el('chkTerms').checked = true;
+    if (el('chkAnnexure')) el('chkAnnexure').checked = false;
+    openModal();
+  } else if (preset === 'all') {
+    // Full Extended Deck
     if (el('chkCover')) el('chkCover').checked = true;
-    if (el('chkAlamo')) el('chkAlamo').checked = true;
-    if (el('chkDripo')) el('chkDripo').checked = false;
-    if (el('chkClients')) el('chkClients').checked = true;
-    if (el('chkContact')) el('chkContact').checked = true;
-    previewProposal();
-  } else if (preset === 'dripo') {
-    if (el('chkCover')) el('chkCover').checked = true;
-    if (el('chkAlamo')) el('chkAlamo').checked = false;
-    if (el('chkDripo')) el('chkDripo').checked = true;
-    if (el('chkClients')) el('chkClients').checked = true;
-    if (el('chkContact')) el('chkContact').checked = true;
+    if (el('chkTerms')) el('chkTerms').checked = true;
+    if (el('chkAnnexure')) el('chkAnnexure').checked = true;
+    if (el('chkCompact')) el('chkCompact').checked = false;
     previewProposal();
   } else if (preset === 'none') {
-    openModal(); // Quick BOQ mode (1 single page)
+    // 1-Page BOQ Only
+    if (el('chkCover')) el('chkCover').checked = false;
+    if (el('chkTerms')) el('chkTerms').checked = false;
+    if (el('chkAnnexure')) el('chkAnnexure').checked = false;
+    openModal();
   }
   updateProposalBrochure();
 }

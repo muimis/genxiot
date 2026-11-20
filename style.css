@@ -1233,6 +1233,64 @@ textarea { resize:vertical; }
   cursor: pointer;
 }
 
+/* ── COMPACT TECHNICAL ANNEXURE (Screen & Web Preview) ── */
+.annexure-sheet {
+  padding: 20px 28px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 1050px;
+}
+.annexure-header {
+  border-bottom: 2px solid var(--brand-navy, #101836);
+  padding-bottom: 5px;
+  margin-bottom: 12px;
+}
+.annexure-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--brand-navy, #101836);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.annexure-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+  margin-top: 1px;
+}
+.annexure-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.annexure-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.annexure-card-title {
+  background: #f8fafc;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #334155;
+  padding: 5px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  letter-spacing: 0.02em;
+}
+.annexure-card-img {
+  width: 100%;
+  flex: 1;
+  max-height: 460px;
+  object-fit: contain;
+  display: block;
+  background: #ffffff;
+}
+
 /* ════════════════════════════════════════════════════
    PRINT STYLES — consolidated single block
    Key: @page margin:0 removes browser title/timestamp
@@ -1441,38 +1499,54 @@ textarea { resize:vertical; }
     padding: 8px 12px !important;
   }
 
-  /* ── Terms Page: Hidden by default — 2nd page of quotation is not needed ── */
-  #pageTerms {
-    display: none !important;
-    page-break-before: avoid !important;
-    break-before: avoid !important;
-    page-break-after: avoid !important;
-    break-after: avoid !important;
-  }
-  body.show-terms #pageTerms {
-    display: block !important;
-    page-break-before: always !important;
-    break-before: page !important;
-  }
-
-  /* ── Quote Table & Page 1: Strict 1-Page Quotation ── */
+  /* ── Terms Page & Quote Table Multi-Page Flow ── */
   #quoteTable {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+  #rowQuote {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
-  }
-  body.has-back-brochure #quoteTable {
     page-break-after: always !important;
     break-after: page !important;
   }
-  body.no-back-brochure #quoteTable {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
+  #rowTerms {
+    display: table-row !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
   }
+  body.has-annexure #rowTerms {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  body:not(.show-terms) #rowTerms {
+    display: none !important;
+  }
+  body:not(.show-terms) #rowQuote {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+  body:not(.show-terms).has-annexure #rowQuote {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
   #pageQuote {
     page-break-after: avoid !important;
     break-after: avoid !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+  #pageTerms {
+    display: block !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
   #pageTerms .doc-footer {
     display: none !important;
@@ -1502,6 +1576,33 @@ textarea { resize:vertical; }
     break-inside: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+
+  /* ── Compact Technical Annexure Print Styles ── */
+  .doc-page.brochure-page.annexure-sheet {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    padding: 8mm 12mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+  }
+  .doc-page.brochure-page.annexure-sheet:last-child {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  .annexure-card-img {
+    max-height: 114mm !important;
+    height: 114mm !important;
+    object-fit: contain !important;
   }
 
   /* ── Tables ── */
