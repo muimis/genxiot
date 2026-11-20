@@ -260,6 +260,59 @@ function isDripoQuoteActive() {
   return (hasDripo && !hasNurseCall) || (qRef.includes('GEN-DRP') && !hasNurseCall);
 }
 
+// ─── AMOUNT IN WORDS (INDIAN NUMBERING SYSTEM) ───────────────────
+function numberToWordsIndian(num) {
+  if (!num || isNaN(num) || num <= 0) return 'Zero Rupees Only';
+  num = Math.round(num);
+  const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+    'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+  const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+  function inWords(n) {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+    if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + inWords(n % 100) : '');
+    return '';
+  }
+
+  let crore = Math.floor(num / 10000000);
+  num %= 10000000;
+  let lakh = Math.floor(num / 100000);
+  num %= 100000;
+  let thousand = Math.floor(num / 1000);
+  num %= 1000;
+  let remainder = num;
+
+  let str = '';
+  if (crore > 0) str += inWords(crore) + ' Crore ';
+  if (lakh > 0) str += inWords(lakh) + ' Lakh ';
+  if (thousand > 0) str += inWords(thousand) + ' Thousand ';
+  if (remainder > 0) str += inWords(remainder);
+
+  return 'Rupees ' + str.trim() + ' Only';
+}
+
+// ─── DOCUMENT TYPE CONTROLS ─────────────────────────────────────
+let currentDocType = 'commercial';
+
+function onDocTypeChange() {
+  const sel = document.getElementById('docTypeSelect');
+  if (sel) currentDocType = sel.value;
+  updateDocTypeDisplay();
+}
+
+function updateDocTypeDisplay() {
+  const label = document.getElementById('qDocTypeLabel');
+  if (!label) return;
+  if (currentDocType === 'budgetary') {
+    label.textContent = 'BUDGETARY PROPOSAL REF';
+  } else if (currentDocType === 'revised') {
+    label.textContent = 'REVISED QUOTATION REF';
+  } else {
+    label.textContent = 'COMMERCIAL QUOTATION REF';
+  }
+}
+
 // Dynamically return product name and description based on quote context (Alamo vs Dripo)
 function getItemDisplayInfo(item, isDripo) {
   let name = item.name;
@@ -973,28 +1026,26 @@ function generateQuoteRef() {
   const refInput = document.getElementById('quoteRef');
   if (!refInput) return;
 
-  const { dateStr } = getQuoteDateParts();
+  const { yyyy } = getQuoteDateParts();
   let currentRef = refInput.value || '';
   
-  // Safely extract existing random number if already generated, otherwise use currentRandom or generate new
-  let randMatch = currentRef.match(/^GEN-(?:ALA|DRP)-\d{6,8}-(\d{2,4})-?/i);
-  let rand = randMatch ? randMatch[1] : (window.currentRandom || Math.floor(Math.random() * 90 + 10));
+  // Safely extract existing serial / random number if already generated
+  let randMatch = currentRef.match(/^GEN-(?:ALA|DRP)-(?:\d{4}|\d{6,8})-(\d{2,4})-?/i);
+  let rand = randMatch ? randMatch[1] : (window.currentRandom || String(Math.floor(Math.random() * 900 + 100)).padStart(3, '0'));
   window.currentRandom = rand;
 
   const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
   const hasNurseCall = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
   const prefixProd = (hasDripo && !hasNurseCall) ? 'GEN-DRP' : 'GEN-ALA';
-  let base = `${prefixProd}-${dateStr}-${rand}-`;
-  window.currentBaseQtn = base;
-
-  if (!cName) {
-    refInput.value = base;
-  } else {
-    // Take first three letters (alphanumeric only)
-    let prefix = cName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 3).toUpperCase();
-    if (prefix.length < 3) prefix = prefix.padEnd(3, 'X'); // Pad if name is too short
-    refInput.value = base + prefix + 'V' + vNum;
+  
+  // Systematic universal standard: GEN-ALA-2026-001-V1 (with client acronym if name is present)
+  let clientTag = '';
+  if (cName) {
+    let prefix = cName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
+    if (prefix.length >= 2) clientTag = '-' + prefix;
   }
+  
+  refInput.value = `${prefixProd}-${yyyy || 2026}-${rand}${clientTag}-V${vNum}`;
   updateVersionBadge(vNum);
   recalc();
 }
@@ -1083,7 +1134,8 @@ function saveQuote() {
     archBasis:           document.getElementById('archBasisInput')?.value      || '',
     brochureLayoutMode:  currentBrochureLayoutMode,
     showOptionalAddons:  document.getElementById('chkShowOptionalAddons')?.checked ?? true,
-    selectedAddonCodes:  Array.from(selectedAddonCodes)
+    selectedAddonCodes:  Array.from(selectedAddonCodes),
+    docType:             currentDocType
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -1333,6 +1385,12 @@ function restoreQuote(data) {
     userCustomizedAddons = true;
   }
   renderOptionalAddonsPicker();
+
+  if (data.docType) {
+    currentDocType = data.docType;
+    setVal('docTypeSelect', data.docType);
+    updateDocTypeDisplay();
+  }
 
 
   // ── Bank details ───────────────────────────────────────────────
@@ -1633,17 +1691,48 @@ function recalc() {
   const extWarrantyTaxable = isExtBilled ? extAmt : 0;
   const addWarrantyTaxable = hasAddWarranty ? addCost : 0;
   const taxableValue  = afterDiscount + extWarrantyTaxable + addWarrantyTaxable + shipping;
-  const cgst          = taxableValue * 0.09;
-  const sgst          = taxableValue * 0.09;
-  const exactGrandTotal = taxableValue + cgst + sgst;
+
+  // Determine GST treatment: Intra-State (Kerala / State 32) vs Inter-State (Outside Kerala)
+  const clientStateInput = (document.getElementById('clientState')?.value || '').trim().toLowerCase();
+  const clientGstInput = (document.getElementById('clientGst')?.value || '').trim();
+  const gstStateCode = clientGstInput.slice(0, 2);
+
+  const isKerala = (clientStateInput === 'kerala' || gstStateCode === '32' || (!clientStateInput && !gstStateCode));
+  const isInterState = !isKerala;
+
+  let cgst = 0, sgst = 0, igst = 0;
+  if (isInterState) {
+    igst = taxableValue * 0.18;
+    cgst = 0;
+    sgst = 0;
+  } else {
+    cgst = taxableValue * 0.09;
+    sgst = taxableValue * 0.09;
+    igst = 0;
+  }
+  const exactGrandTotal = taxableValue + (isInterState ? igst : (cgst + sgst));
   const roundedGrandTotal = Math.round(exactGrandTotal);
   const roundOff = Number((roundedGrandTotal - exactGrandTotal).toFixed(2));
 
   // Update web UI
   setText('calcSub',    '₹' + fmt(subtotal));
   setText('calcTax',    '₹' + fmt(taxableValue));
-  setText('calcCGST',   '₹' + fmt(cgst));
-  setText('calcSGST',   '₹' + fmt(sgst));
+  
+  const calcCgstRow = document.getElementById('calcCgstRow');
+  const calcSgstRow = document.getElementById('calcSgstRow');
+  const calcIgstRow = document.getElementById('calcIgstRow');
+  if (isInterState) {
+    if (calcCgstRow) calcCgstRow.style.display = 'none';
+    if (calcSgstRow) calcSgstRow.style.display = 'none';
+    if (calcIgstRow) calcIgstRow.style.display = 'flex';
+    setText('calcIGST', '₹' + fmt(igst));
+  } else {
+    if (calcCgstRow) calcCgstRow.style.display = 'flex';
+    if (calcSgstRow) calcSgstRow.style.display = 'flex';
+    if (calcIgstRow) calcIgstRow.style.display = 'none';
+    setText('calcCGST', '₹' + fmt(cgst));
+    setText('calcSGST', '₹' + fmt(sgst));
+  }
   
   // Sidebar calcAddWarrantyRow
   const calcAddWarrantyRow = document.getElementById('calcAddWarrantyRow');
@@ -1711,7 +1800,7 @@ function recalc() {
   syncDoc(subtotal, discount, afterDiscount, taxableValue, cgst, sgst, roundedGrandTotal, advPct, shipping, roundOff, {
     extOpt, extPct, extDuration, extAmt, isExtBilled,
     hasAddWarranty, addDur, addCost
-  });
+  }, igst, isInterState);
 }
 
 
@@ -1753,7 +1842,7 @@ function getPlaceOfSupply(stateName, gstNumber) {
 }
 
 // ─── SYNC PROPOSAL DOCUMENT ──────────────────────────────────────
-function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff, extInfo) {
+function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, advPct, shipping, roundOff, extInfo, igst, isInterState) {
 
   const clientName    = (document.getElementById('clientName')?.value)    || '';
   const clientLoc     = (document.getElementById('clientLocation')?.value) || '';
@@ -2077,10 +2166,29 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     qExtOptNote.innerHTML = '';
   }
 
+  const qCgstRow = document.getElementById('qCgstRow');
+  const qSgstRow = document.getElementById('qSgstRow');
+  const qIgstRow = document.getElementById('qIgstRow');
+
+  if (isInterState) {
+    if (qCgstRow) qCgstRow.style.display = 'none';
+    if (qSgstRow) qSgstRow.style.display = 'none';
+    if (qIgstRow) qIgstRow.style.display = '';
+    setText('qIGST', '₹' + fmt(igst || 0));
+    setText('qGTLabel', 'Grand Total (18% IGST)');
+  } else {
+    if (qCgstRow) qCgstRow.style.display = '';
+    if (qSgstRow) qSgstRow.style.display = '';
+    if (qIgstRow) qIgstRow.style.display = 'none';
+    setText('qCGST', '₹' + fmt(cgst));
+    setText('qSGST', '₹' + fmt(sgst));
+    setText('qGTLabel', 'Grand Total (18% GST: CGST 9% + SGST 9%)');
+  }
+
   setText('qTaxable',  '₹' + fmt(taxable));
-  setText('qCGST',     '₹' + fmt(cgst));
-  setText('qSGST',     '₹' + fmt(sgst));
   setText('qGT',       '₹' + fmt(grand));
+  setText('qAmountWords', numberToWordsIndian(grand));
+  updateDocTypeDisplay();
   
   const qRoundOffRow = document.getElementById('qRoundOffRow');
   if (qRoundOffRow) {
@@ -2093,9 +2201,19 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
   }
 
   const qDiscRow = document.getElementById('qDiscRow');
+  const qDiscLabel = document.getElementById('qDiscLabel');
   if (qDiscRow) {
-    qDiscRow.style.display = discount > 0 ? '' : 'none';
-    setText('qDisc', '−₹' + fmt(discount));
+    if (discount > 0) {
+      qDiscRow.style.display = '';
+      if (qDiscLabel) {
+        const discType = document.getElementById('discType')?.value || 'none';
+        const discVal = document.getElementById('discVal')?.value || '0';
+        qDiscLabel.textContent = discType === 'pct' ? `${discVal}%` : 'Special Commercial Discount';
+      }
+      setText('qDisc', '−₹' + fmt(discount));
+    } else {
+      qDiscRow.style.display = 'none';
+    }
   }
 
   // Payment milestones

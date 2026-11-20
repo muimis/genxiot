@@ -526,8 +526,9 @@
           <div class="fin-row"><span>Taxable Value</span><span id="calcTax">₹0.00</span></div>
 
 
-          <div class="fin-row"><span>CGST 9%</span><span id="calcCGST">₹0.00</span></div>
-          <div class="fin-row"><span>SGST 9%</span><span id="calcSGST">₹0.00</span></div>
+          <div class="fin-row" id="calcCgstRow"><span>CGST 9%</span><span id="calcCGST">₹0.00</span></div>
+          <div class="fin-row" id="calcSgstRow"><span>SGST 9%</span><span id="calcSGST">₹0.00</span></div>
+          <div class="fin-row" id="calcIgstRow" style="display:none"><span>IGST 18%</span><span id="calcIGST">₹0.00</span></div>
           <div class="fin-row" id="roundOffRow" style="display:none"><span>Round Off</span><span id="calcRoundOff">₹0.00</span></div>
           <div class="fin-divider"></div>
           <div class="fin-row fin-total">
@@ -736,6 +737,15 @@
         <label class="chk-pill"><input type="checkbox" id="chkContact" checked onchange="updateProposalBrochure()"> Contact</label>
         <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
         <label class="chk-pill" title="Include General Terms & Conditions (Page 2)"><input type="checkbox" id="chkTerms" checked onchange="updateProposalBrochure()"> T&amp;C (Page 2)</label>
+      </div>
+      <span style="color:#cbd5e1;">|</span>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--brand-indigo); text-transform:uppercase;">Doc Type:</span>
+        <select id="docTypeSelect" onchange="onDocTypeChange()" style="font-size:0.75rem; padding: 2px 6px; border:1px solid #cbd5e1; border-radius:4px; background:#fff; color:var(--brand-navy); font-weight:600; cursor:pointer;">
+          <option value="commercial" selected>Commercial Quotation</option>
+          <option value="budgetary">Budgetary Proposal</option>
+          <option value="revised">Revised Quotation</option>
+        </select>
       </div>
       <span style="color:#cbd5e1;">|</span>
       <div style="display:flex; align-items:center; gap:6px;">
@@ -985,7 +995,7 @@
                 <td class="tf-val" id="qSub" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
               </tr>
               <tr class="tf-row tf-disc" id="qDiscRow" style="display:none">
-                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border); color: #e02020;">Discount</td>
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border); color: #e02020;">Discount (<span id="qDiscLabel">Special Discount</span>)</td>
                 <td class="tf-val" id="qDisc" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); color: #e02020;"></td>
               </tr>
               <tr class="tf-row">
@@ -1006,24 +1016,32 @@
 
                 <td class="tf-val" id="qTaxable" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border); font-weight: 700;">₹0.00</td>
               </tr>
-              <tr class="tf-row">
+              <tr class="tf-row" id="qCgstRow">
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">CGST (9%)</td>
                 <td class="tf-val" id="qCGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
               </tr>
-              <tr class="tf-row">
+              <tr class="tf-row" id="qSgstRow">
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">SGST (9%)</td>
                 <td class="tf-val" id="qSGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
+              </tr>
+              <tr class="tf-row" id="qIgstRow" style="display:none">
+                <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">IGST (18%)</td>
+                <td class="tf-val" id="qIGST" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
               </tr>
               <tr class="tf-row" id="qRoundOffRow" style="display:none">
                 <td class="tf-lbl" style="text-align: right; font-weight: 600; padding: 6px 12px; background: #f8f9ff; border: 1px solid var(--border);">Round Off</td>
                 <td class="tf-val" id="qRoundOff" style="text-align: right; padding: 6px 12px; background: #fff; border: 1px solid var(--border);">₹0.00</td>
               </tr>
               <tr class="tf-row tf-grand">
-                <td class="tf-lbl" style="background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
+                <td class="tf-lbl" id="qGTLabel" style="background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">Grand Total (18% GST)</td>
                 <td class="tf-val" style="background: var(--brand-navy) !important; color: #fff !important; padding: 10px 12px; font-weight: 700; border: 1px solid var(--brand-navy); font-size: 0.85rem; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;"><span id="qGT">₹0.00</span></td>
               </tr>
             </tbody>
           </table>
+
+          <div id="qAmountWordsRow" style="margin-top: -12px; margin-bottom: 15px; font-size: 0.74rem; color: #475569; background: #f8fafc; padding: 5px 12px; border: 1px dashed #cbd5e1; border-radius: 4px;">
+            <strong>Amount in Words:</strong> <span id="qAmountWords" style="color: var(--brand-navy); font-weight: 600;">–</span>
+          </div>
 
           <div style="display: flex; gap: 20px; align-items: stretch;">
             <!-- Left: Payment Schedule -->
@@ -1113,11 +1131,11 @@
             <li><strong>Intended use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</li>
             <li><strong>Payment:</strong> Payment follows the schedule on the quotation; the standard schedule is 50% advance on order confirmation, 30% on delivery, 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</li>
             <li><strong>Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</li>
-            <li><strong>Installation and site readiness:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</li>
+            <li><strong>Installation and site readiness:</strong> <em>GenXIoT Scope:</em> Device supply, RF/LoRa wireless calibration, central station commissioning, cloud dashboard setup, and onsite go-live training. <em>Hospital Scope:</em> Supply and installation of Legrand two-module concealed back-boxes, unswitched 220V AC power outlets, wall drilling and civil work, display TV mounting brackets, and local Wi-Fi or Ethernet internet connectivity for cloud services. The buyer confirms site readiness in writing before dispatch.</li>
             <li><strong>Inspection:</strong> The buyer may inspect goods within 3 days of delivery and report transit damage or short delivery in writing. If no notice is given within 3 days, goods are deemed accepted as delivered.</li>
-            <li><strong>Training and handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</li>
-            <li><strong>Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement.</span> Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.<span id="qExtWarrantyInline"></span></li>
-            <li><strong>Support and escalation:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation: Level 1 – GenXIoT support (<span class="dyn-support-phone">+91 9496557777</span>, info@genxiot.com); Level 2 – BDM (<span class="dyn-bdm-phone">+91 88916 70903</span>). AMC after warranty: 10% of component value plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</li>
+            <li><strong>Training and handover:</strong> GenXIoT provides onsite hands-on operational training to nursing, biomedical, and administrative staff on operating the system, acknowledging alerts, and basic troubleshooting. Installation and handover are certified through formal handover checklists acknowledged in writing by both parties.</li>
+            <li><strong>Warranty and exclusions:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement.</span> Exclusions: consumable and wear parts (modular pull cords, pendant handset buttons, AAA batteries), physical impact damage, chemical/liquid exposure, electrical surges, or tampering by unauthorized third parties. Third-party components (e.g., 32" Smart Display) carry the manufacturer's standard 1-year warranty.<span id="qExtWarrantyInline"></span></li>
+            <li><strong>Support, AMC and CMC:</strong> Support calls receive a telephone or remote response within 1 hour. Minor issues receive immediate telephonic support; major equipment faults requiring site visits are attended within 7 days. Annual Maintenance Contract (AMC, 10% of hardware value + GST) covers scheduled preventive maintenance, firmware updates, and service labor. Comprehensive Maintenance Contract (CMC) additionally covers repair and replacement of covered electronic control modules (excluding consumables). Support escalation: Level 1 – Support (<span class="dyn-support-phone">+91 9496557777</span>); Level 2 – Business Development Manager (<span class="dyn-bdm-phone">+91 88916 70903</span>).</li>
             <li><strong>Cloud software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</li>
             <li><strong>Limitation of liability:</strong> GenXIoT is not liable for indirect or consequential loss, nor for injury or loss arising from unresponded calls, power loss, network downtime or unauthorised modification. Total liability under this quotation is capped at the total amount received by GenXIoT under it.</li>
             <li><strong>Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured and work carried out.</li>
