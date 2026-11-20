@@ -1325,9 +1325,9 @@ ol.tc-list {
   padding-left: 1.25rem;
 }
 ol.tc-list li {
-  margin-bottom: 0.28rem;
-  font-size: 0.69rem;
-  line-height: 1.40;
+  margin-bottom: 0.22rem;
+  font-size: 0.70rem;
+  line-height: 1.44;
   color: #333;
 }
 ol.tc-list li strong {
@@ -1794,15 +1794,15 @@ tr.grp-row + tr {
   }
   .tc-box {
     margin: 0 !important;
-    font-size: .67rem !important;
-    line-height: 1.38 !important;
+    font-size: .70rem !important;
+    line-height: 1.44 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
   .tc-box ol.tc-list li {
-    margin-bottom: .18rem !important;
-    font-size: .67rem !important;
-    line-height: 1.38 !important;
+    margin-bottom: .22rem !important;
+    font-size: .70rem !important;
+    line-height: 1.44 !important;
   }
   .tc-box p {
     margin-bottom: .15rem !important;
@@ -1895,9 +1895,9 @@ tr.grp-row + tr {
     line-height: 1.36 !important;
   }
   ol.tc-list li {
-    margin-bottom: 0.14rem !important;
-    font-size: 0.64rem !important;
-    line-height: 1.36 !important;
+    margin-bottom: 0.20rem !important;
+    font-size: 0.69rem !important;
+    line-height: 1.42 !important;
   }
 
   /* ── Tables ── */

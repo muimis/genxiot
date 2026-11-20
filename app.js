@@ -751,7 +751,7 @@ function loadPreset(preset) {
     }
     const warrEl = document.getElementById('warranty');
     if (warrEl) {
-      warrEl.value = '12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.';
+      warrEl.value = '12 months standard warranty from date of installation and handover';
     }
 
     generateQuoteRef();
@@ -2680,8 +2680,8 @@ function resetQuote(force = false) {
   setVal('shipping',  '3500');
   setVal('advPct',    '50');
   // Terms
-  setVal('delivery',  '25 days from order confirmation & advance receipt');
-  setVal('warranty',  '12 months comprehensive warranty from date of installation. Consumables and physical damage excluded.');
+  setVal('delivery',  '25 days from order confirmation and receipt of advance payment');
+  setVal('warranty',  '12 months standard warranty from date of installation and handover');
   setVal('addWarrantyDuration',       'none');
   setVal('addWarrantyCustomDuration', '');
   setVal('addWarrantyCost',           '0');
