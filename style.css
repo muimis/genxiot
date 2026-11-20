@@ -1233,64 +1233,6 @@ textarea { resize:vertical; }
   cursor: pointer;
 }
 
-/* ── COMPACT TECHNICAL ANNEXURE (Screen & Web Preview) ── */
-.annexure-sheet {
-  padding: 20px 28px !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 1050px;
-}
-.annexure-header {
-  border-bottom: 2px solid var(--brand-navy, #101836);
-  padding-bottom: 5px;
-  margin-bottom: 12px;
-}
-.annexure-title {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--brand-navy, #101836);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.annexure-sub {
-  font-size: 0.72rem;
-  color: #64748b;
-  margin-top: 1px;
-}
-.annexure-content-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  flex: 1;
-}
-.annexure-card {
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  overflow: hidden;
-  background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.annexure-card-title {
-  background: #f8fafc;
-  font-size: 0.74rem;
-  font-weight: 700;
-  color: #334155;
-  padding: 5px 12px;
-  border-bottom: 1px solid #e2e8f0;
-  letter-spacing: 0.02em;
-}
-.annexure-card-img {
-  width: 100%;
-  flex: 1;
-  max-height: 460px;
-  object-fit: contain;
-  display: block;
-  background: #ffffff;
-}
-
 /* ════════════════════════════════════════════════════
    PRINT STYLES — consolidated single block
    Key: @page margin:0 removes browser title/timestamp
@@ -1318,6 +1260,8 @@ textarea { resize:vertical; }
   #calculatorView > header,
   #calculatorView > main,
   #pdfMergeModal { display: none !important; }
+
+  #calculatorView { display: block !important; }
 
   /* ── Show the modal / printDoc as a flat document ── */
   #modalBg {
@@ -1383,12 +1327,13 @@ textarea { resize:vertical; }
     break-inside: avoid;
   }
 
-  /* ── Brochure pages: strictly lock to viewport, zero overflow ── */
+  /* ── Brochure pages: strictly lock to A4 portrait, zero overflow ── */
   .doc-page.brochure-page {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    min-height: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    min-height: 297mm !important;
     overflow: hidden !important;
     page-break-before: auto !important;
     break-before: auto !important;
@@ -1403,11 +1348,11 @@ textarea { resize:vertical; }
     background: #ffffff !important;
   }
   .doc-page.brochure-page .brochure-deck-img {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    object-fit: contain !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    max-width: 210mm !important;
+    max-height: 297mm !important;
+    object-fit: fill !important;
     display: block !important;
     margin: 0 auto !important;
     padding: 0 !important;
@@ -1424,8 +1369,8 @@ textarea { resize:vertical; }
     position: absolute !important;
     top: 57% !important;
     left: 5.5% !important;
-    width: 38% !important;
-    max-width: 360px !important;
+    width: 86mm !important;
+    max-width: 86mm !important;
     background: rgba(16, 24, 54, 0.95) !important;
     color: #ffffff !important;
     padding: 10px 14px !important;
@@ -1499,110 +1444,89 @@ textarea { resize:vertical; }
     padding: 8px 12px !important;
   }
 
-  /* ── Terms Page & Quote Table Multi-Page Flow ── */
+  /* ── Quote Table & Page 1: Strict 1-Page Quotation ── */
   #quoteTable {
-    page-break-inside: auto !important;
-    break-inside: auto !important;
-  }
-  #rowQuote {
+    width: 100% !important;
+    border: none !important;
+    border-spacing: 0 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+  body.show-terms #quoteTable {
     page-break-after: always !important;
     break-after: page !important;
   }
-  #rowTerms {
-    display: table-row !important;
-    page-break-before: always !important;
-    break-before: page !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-  body.has-annexure #rowTerms {
+  body:not(.show-terms).has-back-brochure #quoteTable {
     page-break-after: always !important;
     break-after: page !important;
   }
-  body:not(.show-terms) #rowTerms {
-    display: none !important;
+  body:not(.show-terms).no-back-brochure #quoteTable {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
-  body:not(.show-terms) #rowQuote {
-    page-break-after: auto !important;
-    break-after: auto !important;
-  }
-  body:not(.show-terms).has-annexure #rowQuote {
-    page-break-after: always !important;
-    break-after: page !important;
-  }
-
   #pageQuote {
     page-break-after: avoid !important;
     break-after: avoid !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
+
+  /* ── Terms Page: Page 2 of Quotation ── */
   #pageTerms {
+    display: none !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  body.show-terms #pageTerms {
     display: block !important;
+    page-break-before: always !important;
+    break-before: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 8mm 14mm 6mm 14mm !important;
+    box-sizing: border-box !important;
+  }
+  body.show-terms.has-back-brochure #pageTerms {
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+  body.show-terms.no-back-brochure #pageTerms {
     page-break-after: avoid !important;
     break-after: avoid !important;
   }
   #pageTerms .doc-footer {
-    display: none !important;
+    display: block !important;
   }
   #qOptionalNote {
-    margin: 0 38px 8px !important;
+    margin: 0 0 8px !important;
   }
   .doc-h3 {
-    margin: 0.5rem 38px 0.25rem !important;
+    margin: 0.2rem 0 0.25rem !important;
   }
   .tc-box {
-    margin: 0 38px !important;
-    font-size: .69rem !important;
-    line-height: 1.45 !important;
+    margin: 0 !important;
+    font-size: .67rem !important;
+    line-height: 1.40 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
   .tc-box p {
-    margin-bottom: .20rem !important;
+    margin-bottom: .15rem !important;
   }
   .sig-section {
     display: flex !important;
     justify-content: space-between !important;
-    margin: 1.5rem 38px 0.6rem !important;
+    margin: 0.8rem 0 0.3rem !important;
     gap: 3rem !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
-  }
-
-  /* ── Compact Technical Annexure Print Styles ── */
-  .doc-page.brochure-page.annexure-sheet {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
-    page-break-before: always !important;
-    break-before: page !important;
-    page-break-after: always !important;
-    break-after: page !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-    padding: 8mm 12mm !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-    background: #ffffff !important;
-  }
-  .doc-page.brochure-page.annexure-sheet:last-child {
-    page-break-after: avoid !important;
-    break-after: avoid !important;
-  }
-  .annexure-card-img {
-    max-height: 114mm !important;
-    height: 114mm !important;
-    object-fit: contain !important;
   }
 
   /* ── Tables ── */

@@ -1843,42 +1843,30 @@ function syncDoc(subtotal, discount, afterDiscount, taxable, cgst, sgst, grand, 
     
     if (qOptionalNote) {
       if (optionalItems.length > 0) {
-          let optHtml = `
-            <div style="margin-top: 10px; padding: 8px 10px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #f8fafc;">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
-                <h4 style="margin: 0; font-size: 0.78rem; color: #1e293b; text-transform: uppercase; letter-spacing: 0.05em;">OPTIONAL UPGRADES</h4>
-                <span style="font-size: 0.70rem; color: #64748b; font-weight: 600;">(Exclusive of GST at 18%)</span>
-              </div>
-              <p style="margin: 0 0 6px 0; font-size: 0.72rem; color: #64748b;">These optional add-ons are not included above, but can be added anytime at these per-piece rates:</p>
-              <table style="width: 100%; border-collapse: collapse; font-size: 0.72rem; color: #334155;">
-          `;
-          optionalItems.forEach(item => {
-            let itemName = item.name.split(' (HSN:')[0].split(' (SAC:')[0].replace(/^Alamo\s+/i, '');
-            
-            let itemDesc = item.desc;
-            if (item.code === 'ALAMO-NS-TV') {
-              itemDesc = isDripoOnlyQuote
-                ? '32" Android Smart TV running Dripo Central Monitoring Station for real-time IV infusion monitoring & alerts.'
-                : ('32" Smart Display pre-loaded with Alamo Monitor software for live audio-visual alerts.' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹12,000/pc)' : ''));
-            } else if (item.code === 'ALAMO-CLOUD-SW') {
-              itemDesc = 'Escalation, reporting, historical analytics and Code Blue alerts (₹3,500/yr renewal after 3 yrs).' + (itemDesc.includes('Gateway') ? ' (Req. Gateway @ ₹12,000/pc)' : '');
-            }
-
-            optHtml += `
-              <tr>
-                <td style="padding: 4px 6px 4px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600; vertical-align: top; width: 25%;">${itemName}</td>
-                <td style="padding: 4px 6px; border-bottom: 1px solid #e2e8f0; vertical-align: top;">${itemDesc}</td>
-                <td style="padding: 4px 0; border-bottom: 1px solid #e2e8f0; font-weight: 600; vertical-align: top; text-align: right; color: var(--brand-navy); white-space: nowrap; width: 22%;">₹${fmt(item.rate)} / pc</td>
-              </tr>
-            `;
-          });
+        let optHtml = `
+          <div style="margin-bottom: 8px; padding: 6px 10px; border: 1px dashed #cbd5e1; border-radius: 4px; background: #f8fafc; font-size: 0.68rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 3px;">
+              <strong style="color: #1e293b; text-transform: uppercase; letter-spacing: 0.04em;">Optional Upgrades (Exclusive of GST at 18%)</strong>
+              <span style="color: #64748b; font-size: 0.63rem;">Rates valid for quotation validity period</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 14px; line-height: 1.35; color: #334155;">
+        `;
+        optionalItems.forEach(item => {
+          let itemName = item.name.split(' (HSN:')[0].split(' (SAC:')[0].replace(/^Alamo\s+/i, '');
+          let extra = '';
+          if (item.code === 'ALAMO-CLOUD-SW') extra = ' (₹3,500/yr renewal)';
+          else if (item.code === 'ALAMO-NS-TV') extra = ' (Display Monitor)';
           optHtml += `
-              </table>
-              <div style="margin-top: 6px; font-size: 0.68rem; color: #64748b; font-style: italic;">
-                Rates are per piece, exclusive of GST at 18%, valid for the quotation validity period.
-              </div>
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dotted #e2e8f0; padding: 1px 0;">
+              <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 68%;">${itemName}${extra}</span>
+              <strong style="color: var(--brand-navy); white-space: nowrap;">₹${fmt(item.rate)} / pc</strong>
             </div>
           `;
+        });
+        optHtml += `
+            </div>
+          </div>
+        `;
         qOptionalNote.innerHTML = optHtml;
       } else {
         qOptionalNote.innerHTML = '';
@@ -2118,73 +2106,83 @@ function updateProposalBrochure() {
     el('brochureCoverBadge').style.display = showBadge ? 'block' : 'none';
   }
 
-  // Cover Page visibility (Page 1 before quotation)
-  const showCover = el('chkCover') ? el('chkCover').checked : (activeDocMode === 'proposal');
-  if (el('brochurePage1')) el('brochurePage1').style.display = showCover ? 'block' : 'none';
-  if (el('brochureCoverWrapper')) el('brochureCoverWrapper').style.display = showCover ? 'block' : 'none';
-  document.body.classList.toggle('has-cover', showCover);
-
-  // Terms & Conditions visibility (Page 2 - ALWAYS enabled by default!)
+  // Terms & Conditions visibility (Page 2 of quotation)
   const showTerms = el('chkTerms') ? el('chkTerms').checked : true;
-  if (el('rowTerms')) el('rowTerms').style.display = showTerms ? 'table-row' : 'none';
   if (el('pageTerms')) el('pageTerms').style.display = showTerms ? 'block' : 'none';
   document.body.classList.toggle('show-terms', showTerms);
 
-  // Sync client name to signature blocks
-  if (el('qSigClientInline')) el('qSigClientInline').textContent = cName || 'Client / Hospital';
-  if (el('qSigClient')) el('qSigClient').textContent = cName || 'Client / Hospital';
-
-  // Supporting Technical Annexure visibility (Placed AFTER quotation & terms)
-  const showAnnexure = el('chkAnnexure') ? el('chkAnnexure').checked : (activeDocMode === 'proposal');
-  const isCompact = el('chkCompact') ? el('chkCompact').checked : true;
-  const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0) || (el('chkDripo') ? el('chkDripo').checked : false);
-
-  if (el('proposalAnnexure')) {
-    el('proposalAnnexure').style.display = showAnnexure ? 'block' : 'none';
+  // Sync client name to compact signature on 1-page quotation
+  if (el('qSigClientInline')) {
+    el('qSigClientInline').textContent = cName || 'Client / Hospital';
   }
 
-  if (el('annexureCompact')) {
-    el('annexureCompact').style.display = (showAnnexure && isCompact) ? 'block' : 'none';
-  }
-  if (el('annexureSheetDripo')) {
-    el('annexureSheetDripo').style.display = (showAnnexure && isCompact && hasDripo) ? 'flex' : 'none';
-  }
-
-  if (el('annexureFull')) {
-    el('annexureFull').style.display = (showAnnexure && !isCompact) ? 'block' : 'none';
+  // Active mode check
+  if (activeDocMode !== 'proposal') {
+    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
+    if (el('proposalBackPages')) el('proposalBackPages').style.display = 'none';
+    document.body.classList.remove('has-back-brochure');
+    document.body.classList.add('no-back-brochure');
+    return;
   }
 
-  document.body.classList.toggle('has-annexure', showAnnexure);
+  // In Proposal mode:
+  if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'block';
+  if (el('proposalBackPages')) el('proposalBackPages').style.display = 'block';
+
+  const chkCover = el('chkCover') ? el('chkCover').checked : true;
+  const chkAlamo = el('chkAlamo') ? el('chkAlamo').checked : true;
+  const chkDripo = el('chkDripo') ? el('chkDripo').checked : false;
+  const chkClients = el('chkClients') ? el('chkClients').checked : true;
+  const chkContact = el('chkContact') ? el('chkContact').checked : true;
+
+  if (el('brochurePage1')) el('brochurePage1').style.display = chkCover ? 'block' : 'none';
+  if (el('brochurePage2')) el('brochurePage2').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage3')) el('brochurePage3').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage4')) el('brochurePage4').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage5')) el('brochurePage5').style.display = chkAlamo ? 'block' : 'none';
+  if (el('brochurePage6')) el('brochurePage6').style.display = chkDripo ? 'block' : 'none';
+  if (el('brochurePage7')) el('brochurePage7').style.display = chkClients ? 'block' : 'none';
+  if (el('brochurePage8')) el('brochurePage8').style.display = chkContact ? 'block' : 'none';
+
+  const hasBack = chkClients || chkContact;
+  document.body.classList.toggle('has-back-brochure', hasBack);
+  document.body.classList.toggle('no-back-brochure', !hasBack);
 }
 
 function setBrochurePreset(preset) {
   const el = id => document.getElementById(id);
-  if (preset === 'compact') {
-    // 4-Page Compact Proposal: Cover + Quote + T&C + 2p Compact Technical Annexure
+  if (preset === 'all') {
     if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = true;
+    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
     if (el('chkTerms')) el('chkTerms').checked = true;
-    if (el('chkAnnexure')) el('chkAnnexure').checked = true;
-    if (el('chkCompact')) el('chkCompact').checked = true;
     previewProposal();
-  } else if (preset === 'quote_terms') {
-    // 2-Page Commercial Quotation: BOQ + Standard Terms & Conditions
-    if (el('chkCover')) el('chkCover').checked = false;
-    if (el('chkTerms')) el('chkTerms').checked = true;
-    if (el('chkAnnexure')) el('chkAnnexure').checked = false;
-    openModal();
-  } else if (preset === 'all') {
-    // Full Extended Deck
+  } else if (preset === 'alamo') {
     if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = true;
+    if (el('chkDripo')) el('chkDripo').checked = false;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
     if (el('chkTerms')) el('chkTerms').checked = true;
-    if (el('chkAnnexure')) el('chkAnnexure').checked = true;
-    if (el('chkCompact')) el('chkCompact').checked = false;
+    previewProposal();
+  } else if (preset === 'dripo') {
+    if (el('chkCover')) el('chkCover').checked = true;
+    if (el('chkAlamo')) el('chkAlamo').checked = false;
+    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkClients')) el('chkClients').checked = true;
+    if (el('chkContact')) el('chkContact').checked = true;
+    if (el('chkTerms')) el('chkTerms').checked = true;
     previewProposal();
   } else if (preset === 'none') {
-    // 1-Page BOQ Only
     if (el('chkCover')) el('chkCover').checked = false;
+    if (el('chkAlamo')) el('chkAlamo').checked = false;
+    if (el('chkDripo')) el('chkDripo').checked = false;
+    if (el('chkClients')) el('chkClients').checked = false;
+    if (el('chkContact')) el('chkContact').checked = false;
     if (el('chkTerms')) el('chkTerms').checked = false;
-    if (el('chkAnnexure')) el('chkAnnexure').checked = false;
-    openModal();
+    openModal(); // Quick BOQ mode (1 single page)
   }
   updateProposalBrochure();
 }
@@ -3009,7 +3007,6 @@ function _applyCoverPageMode(on) {
     if (el('qDocRef'))       el('qDocRef').textContent       = (el('quoteRef')?.value) || '';
     if (el('quoteTable'))    el('quoteTable').style.display  = 'table';
     if (el('pageQuote'))     el('pageQuote').style.display   = 'block';
-    if (el('pageTerms'))     el('pageTerms').style.display   = 'none';
     if (el('pageCover'))     el('pageCover').style.display   = 'none';
     if (el('qValidRow'))     el('qValidRow').style.display   = '';
     if (el('qPORow'))        el('qPORow').style.display      = (document.getElementById('poRef')?.value || '').trim() ? '' : 'none';

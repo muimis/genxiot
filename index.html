@@ -662,22 +662,23 @@
     <!-- Proposal Deck Settings Bar (Visible when Proposal or Quotation mode is active) -->
     <div class="modal-ctrl no-print" id="proposalSettings" style="background: #f8f9ff; border-top: 1px solid #e2e8f0; justify-content: flex-start; padding: 8px 20px; gap: 12px; flex-wrap: wrap; font-size: 0.8rem;">
       <span style="font-size:0.75rem; font-weight:700; color:var(--brand-indigo); text-transform:uppercase; display:flex; align-items:center; gap:5px;">
-        <i data-lucide="layers" size="14"></i> View &amp; Print Presets:
+        <i data-lucide="layers" size="14"></i> Brochure Deck:
       </span>
       <div style="display:flex; gap:6px; align-items:center;">
-        <button type="button" class="btn btn-sm" onclick="setBrochurePreset('compact')" style="background: #0284c7; color:#fff; padding: 3px 10px; font-size: 0.72rem; height: auto; font-weight:700; border:none; border-radius:4px; cursor:pointer;" title="Cover + Quotation + Terms + 2-Page Compact Technical Annexure">★ Compact Proposal (4p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('quote_terms')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Quotation BOQ + Standard Terms & Conditions (2 Pages)">Quote + T&amp;C (2p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Full Multi-Page Brochure Deck">Full Deck (8p)</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 3px 8px; font-size: 0.72rem; height: auto;" title="Single-Page BOQ Only">BOQ Only (1p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('all')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">All (10p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('alamo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Alamo (9p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('dripo')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">Dripo (6p)</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="setBrochurePreset('none')" style="padding: 2px 8px; font-size: 0.72rem; height: auto;">BOQ Only (1p)</button>
       </div>
       <span style="color:#cbd5e1;">|</span>
       <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <label class="chk-pill" title="Toggle Executive Cover Page (Page 1)"><input type="checkbox" id="chkCover" checked onchange="updateProposalBrochure()"> Cover</label>
-        <label class="chk-pill" title="Include Standard Terms & Conditions (Page 2)" style="font-weight:700; color:#0369a1;"><input type="checkbox" id="chkTerms" checked onchange="updateProposalBrochure()"> Terms &amp; Conditions</label>
-        <label class="chk-pill" title="Include Technical Specifications Annexure"><input type="checkbox" id="chkAnnexure" checked onchange="updateProposalBrochure()"> Technical Annexure</label>
-        <label class="chk-pill" title="Use Compact 2-Page Annexure Layout"><input type="checkbox" id="chkCompact" checked onchange="updateProposalBrochure()"> Compact Layout</label>
-        <label class="chk-pill" title="Include Dripo IV Infusion in Annexure"><input type="checkbox" id="chkDripo" onchange="updateProposalBrochure()"> Dripo IV</label>
-        <label class="chk-pill" title="Toggle Dynamic Hospital Badge on Cover"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
+        <label class="chk-pill"><input type="checkbox" id="chkCover" checked onchange="updateProposalBrochure()"> Cover</label>
+        <label class="chk-pill"><input type="checkbox" id="chkAlamo" checked onchange="updateProposalBrochure()"> Alamo Products</label>
+        <label class="chk-pill"><input type="checkbox" id="chkDripo" onchange="this.dataset.userModified='true'; updateProposalBrochure()"> Dripo IV</label>
+        <label class="chk-pill"><input type="checkbox" id="chkClients" checked onchange="updateProposalBrochure()"> Customers</label>
+        <label class="chk-pill"><input type="checkbox" id="chkContact" checked onchange="updateProposalBrochure()"> Contact</label>
+        <label class="chk-pill"><input type="checkbox" id="chkBadge" checked onchange="updateProposalBrochure()"> Client Badge</label>
+        <label class="chk-pill" title="Include General Terms & Conditions (Page 2)"><input type="checkbox" id="chkTerms" checked onchange="updateProposalBrochure()"> T&amp;C (Page 2)</label>
       </div>
     </div>
 
@@ -762,8 +763,9 @@
         </div>
       </div>
 
-      <!-- ── EXECUTIVE COVER PAGE (Page 1 when Cover is enabled) ── -->
-      <div id="brochureCoverWrapper">
+      <!-- ── FRONT BROCHURE PAGES (Executive Techno-Commercial Proposal Deck) ── -->
+      <div id="proposalFrontPages">
+        <!-- Page 1: Executive Cover Page -->
         <div class="doc-page brochure-page" id="brochurePage1">
           <img src="brochure/page_1.jpg" alt="GenXIoT Healthcare Solutions" class="brochure-deck-img">
           <div class="brochure-cover-badge" id="brochureCoverBadge">
@@ -776,6 +778,31 @@
               <div><strong>Rep:</strong> <span id="bcbRepName">GenXIoT Sales Team</span></div>
             </div>
           </div>
+        </div>
+
+        <!-- Page 2: Call Point Solutions -->
+        <div class="doc-page brochure-page" id="brochurePage2">
+          <img src="brochure/page_2.jpg" alt="Call Point Solutions" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 3: Bed & Bathroom Side Accessories -->
+        <div class="doc-page brochure-page" id="brochurePage3">
+          <img src="brochure/page_3.jpg" alt="Bed and Bathroom Side Accessories" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 4: Indicators and Display Solutions -->
+        <div class="doc-page brochure-page" id="brochurePage4">
+          <img src="brochure/page_4.jpg" alt="Indicators and Display Solutions" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 5: Insights and Reports -->
+        <div class="doc-page brochure-page" id="brochurePage5">
+          <img src="brochure/page_5.jpg" alt="Insights and Reports" class="brochure-deck-img">
+        </div>
+
+        <!-- Page 6: Dripo Smart Infusion Monitor -->
+        <div class="doc-page brochure-page" id="brochurePage6">
+          <img src="brochure/page_6.jpg" alt="Dripo Intelligent Bystander for IV Drips" class="brochure-deck-img">
         </div>
       </div>
 
@@ -812,7 +839,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr id="rowQuote">
+          <tr>
             <td style="padding: 0 12mm;">
 
       <!-- ── PAGE 1: BILL OF QUANTITIES ── -->
@@ -1001,33 +1028,43 @@
       </div>
             </td>
           </tr>
-
-          <!-- ── PAGE 2: STANDARD TERMS & CONDITIONS ── -->
-          <tr id="rowTerms">
+        </tbody>
+        <tfoot>
+          <tr>
             <td style="padding: 0 12mm;">
-      <div class="doc-page" id="pageTerms" style="margin-top: 10px;">
-        <div id="qOptionalNote" style="margin: 0px 38px 20px; font-size: 0.85rem; color: #333; font-weight: 500;"></div>
-        <h3 class="doc-h3">Standard Terms &amp; Conditions</h3>
+        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.75rem; padding-top: 8px; border-top: 1px solid #eee;">
+          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
+        </div>
+              <div class="print-spacer-bottom" style="height: 10mm;"></div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
 
-        <div class="tc-box" style="font-size:0.75rem; line-height:1.55; color:#333;">
-          <p><strong>1. Validity &amp; Acceptance:</strong> This quotation is valid until the validity date stated on it. Acceptance is by a signed copy or purchase order, together with the advance. Prices are in INR, exclusive of GST, which is charged at the rate in force on the invoice date. Quantities are based on the facility details provided; changes are priced separately in writing.</p>
-          <p><strong>2. Radio Coverage:</strong> Gateway and repeater quantities are based on the layout provided: one gateway for local operation, one for cloud, and repeaters for local coverage as the floor plan requires. Wireless coverage depends on building construction. If on-site testing shows additional gateways or repeaters are needed, they will be supplied at the rates in this quotation through a written variation.</p>
-          <p><strong>3. Intended Use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</p>
-          <p><strong>4. Payment Terms:</strong> Payment follows the schedule on the quotation: 50% advance on order confirmation, 30% on delivery, and 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</p>
-          <p><strong>5. Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</p>
-          <p><strong>6. Installation &amp; Customer Scope:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</p>
-          <p><strong>7. Training &amp; Handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</p>
-          <p><strong>8. Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement. Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.</span></p>
-          <p id="qExtWarrantyRow" style="display:none;"><strong>Extended Warranty:</strong> <span id="qExtWarranty"></span></p>
-          <p><strong>9. Support &amp; Maintenance:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation matrix: Level 1 – GenXIoT support (+91 9496557777, info@genxiot.com); Level 2 – BDM (+91 88916 70903). AMC after warranty: 10% plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</p>
-          <p><strong>10. Cloud Software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</p>
-          <p><strong>11. Limitation of Liability:</strong> GenXIoT is not liable for indirect or consequential loss.</p>
-          <p><strong>12. Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured.</p>
-          <p><strong>13. Force Majeure:</strong> Neither party is liable for delay caused by events beyond reasonable control.</p>
-          <p><strong>14. Jurisdiction:</strong> Indian law applies. Courts at Thiruvananthapuram have exclusive jurisdiction.</p>
+      <!-- ── PAGE 2: STANDARD TERMS & CONDITIONS ── -->
+      <div class="doc-page" id="pageTerms" style="display:none;">
+        <div id="qOptionalNote" style="margin: 0 0 10px; font-size: 0.8rem; color: #333; font-weight: 500;"></div>
+        <h3 class="doc-h3" style="margin: 0 0 10px; font-size: 0.95rem; font-weight: 700; color: var(--brand-navy); border-bottom: 2px solid var(--brand-navy); padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em;">Standard Terms &amp; Conditions</h3>
+
+        <div class="tc-box" style="font-size:0.71rem; line-height:1.46; color:#333;">
+          <p style="margin: 0 0 6px 0;"><strong>1. Validity &amp; Acceptance:</strong> This quotation is valid until the validity date stated on it. Acceptance is by a signed copy or purchase order, together with the advance. Prices are in INR, exclusive of GST, which is charged at the rate in force on the invoice date. Quantities are based on the facility details provided; changes are priced separately in writing.</p>
+          <p style="margin: 0 0 6px 0;"><strong>2. Radio Coverage:</strong> Gateway and repeater quantities are based on the layout provided: one gateway for local operation, one for cloud, and repeaters for local coverage as the floor plan requires. Wireless coverage depends on building construction. If on-site testing shows additional gateways or repeaters are needed, they will be supplied at the rates in this quotation through a written variation.</p>
+          <p style="margin: 0 0 6px 0;"><strong>3. Intended Use:</strong> The system is an assistive alert system. It does not replace clinical monitoring, nursing supervision or emergency procedures. The buyer is responsible for staff response, power supply and network availability.</p>
+          <p style="margin: 0 0 6px 0;"><strong>4. Payment Terms:</strong> Payment follows the schedule on the quotation: 50% advance on order confirmation, 30% on delivery, and 20% on installation sign-off. Each payment is due immediately on its milestone: the advance with the order, the delivery payment on delivery, and the balance on signed handover. The balance falls due no later than on notice of installation completion, unless the buyer gives a written list of defects at that time. Delayed payments may pause dispatch or installation. Ownership of goods remains with GenXIoT until full payment. The advance is non-refundable once procurement begins. Bank charges of the buyer's bank are borne by the buyer. TDS, if applicable, is deducted as per law, with a certificate provided.</p>
+          <p style="margin: 0 0 6px 0;"><strong>5. Delivery:</strong> <span id="qDelivery">25 days from the latest of order confirmation, advance receipt, and written confirmation of layout and technical details.</span> Part shipments are allowed. Delays caused by the buyer or by force majeure extend the period accordingly.</p>
+          <p style="margin: 0 0 6px 0;"><strong>6. Installation &amp; Customer Scope:</strong> GenXIoT carries out configuration, calibration and go-live training. The hospital completes before installation: wall mounting, electrical and wiring work, Legrand two-module boxes, 220V points, drilling, civil work, display mounting, and internet or Wi-Fi for cloud. The buyer confirms site readiness in writing.</p>
+          <p style="margin: 0 0 6px 0;"><strong>7. Training &amp; Handover:</strong> GenXIoT provides onsite hands-on training to nursing and technical staff on using the system, responding to alerts and basic troubleshooting. Installation and training are documented with checklists and training records, acknowledged in writing by both parties.</p>
+          <p style="margin: 0 0 6px 0;"><strong>8. Warranty:</strong> <span id="qWarranty">12 months from the date of installation and handover. Covers manufacturing defects under normal use, by repair or replacement. Excluded: pull cords, pendant buttons and batteries; physical damage; damage from non-compliance with assembly, installation or operating instructions, unsuitable storage or use, or faulty installation by the buyer or third parties; normal wear; electrical, chemical and atmospheric influences; and third-party components, such as the display, which carry the manufacturer's 1-year warranty.</span></p>
+          <p id="qExtWarrantyRow" style="display:none; margin: 0 0 6px 0;"><strong>Extended Warranty:</strong> <span id="qExtWarranty"></span></p>
+          <p style="margin: 0 0 6px 0;"><strong>9. Support &amp; Maintenance:</strong> Minor faults get telephonic support immediately. Major faults needing a site visit get one within a week. Equipment repairs are carried out at the service site and the item is returned to the buyer. Support calls by phone or email get a response within 1 hour. Support covers the devices supplied, not wiring, power, network or building work. Escalation matrix: Level 1 – GenXIoT support (+91 9496557777, info@genxiot.com); Level 2 – BDM (+91 88916 70903). AMC after warranty: 10% plus GST for 1 year, covering preventive checks, software upgrades and performance optimisation.</p>
+          <p style="margin: 0 0 6px 0;"><strong>10. Cloud Software:</strong> A subscription of 3 years from go-live per nursing station, then renewable at ₹3,500 per nursing station per year. It is a limited, non-transferable licence. Cloud service depends on the buyer's internet connectivity; local call alerts work without internet.</p>
+          <p style="margin: 0 0 6px 0;"><strong>11. Limitation of Liability:</strong> GenXIoT is not liable for indirect or consequential loss.</p>
+          <p style="margin: 0 0 6px 0;"><strong>12. Cancellation:</strong> After acceptance, cancellation needs written consent, and charges apply for materials already procured.</p>
+          <p style="margin: 0 0 6px 0;"><strong>13. Force Majeure:</strong> Neither party is liable for delay caused by events beyond reasonable control.</p>
+          <p style="margin: 0 0 6px 0;"><strong>14. Jurisdiction:</strong> Indian law applies. Courts at Thiruvananthapuram have exclusive jurisdiction.</p>
         </div>
 
-        <div class="sig-section" style="margin-top:20px;">
+        <div class="sig-section" style="margin-top:16px;">
           <div class="sig-block">
             <div class="sig-line"></div>
             <p class="sig-name">Authorized Signatory</p>
@@ -1044,87 +1081,21 @@
           </div>
         </div>
 
-        <!-- Footer moved to global tfoot -->
-      </div>
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td style="padding: 0 12mm;">
-        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.75rem; padding-top: 8px; border-top: 1px solid #eee;">
+        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.72rem; padding-top: 8px; border-top: 1px solid #eee; margin-top: 18px;">
           <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; +91 9496557777 &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
-              <div class="print-spacer-bottom" style="height: 10mm;"></div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+      </div>
 
-      <!-- ── SUPPORTING TECHNICAL ANNEXURE (Placed AFTER Quotation & Terms) ── -->
-      <div id="proposalAnnexure">
-        <!-- Compact 2-Page Annexure Layout (Default) -->
-        <div id="annexureCompact">
-          <!-- Annexure Sheet 1: System Architecture & Hardware -->
-          <div class="doc-page brochure-page annexure-sheet" id="annexureSheet1">
-            <div class="annexure-header">
-              <div class="annexure-title">TECHNICAL ANNEXURE · SYSTEM ARCHITECTURE &amp; HARDWARE</div>
-              <div class="annexure-sub">Alamo Wireless Nurse Call System · Plug &amp; Play Wireless Infrastructure</div>
-            </div>
-            <div class="annexure-content-grid">
-              <div class="annexure-card">
-                <div class="annexure-card-title">1. System Architecture &amp; LoRa Mesh Connectivity</div>
-                <img src="brochure/page_2.jpg" alt="Alamo Wireless Architecture" class="annexure-card-img">
-              </div>
-              <div class="annexure-card">
-                <div class="annexure-card-title">2. Bedside &amp; Washroom Call Point Hardware</div>
-                <img src="brochure/page_3.jpg" alt="Alamo Call Points" class="annexure-card-img">
-              </div>
-            </div>
-          </div>
-
-          <!-- Annexure Sheet 2: Cloud Software, Analytics & Client References -->
-          <div class="doc-page brochure-page annexure-sheet" id="annexureSheet2">
-            <div class="annexure-header">
-              <div class="annexure-title">TECHNICAL ANNEXURE · CLOUD SOFTWARE &amp; DEPLOYMENT</div>
-              <div class="annexure-sub">Escalation Management, Analytics &amp; Verified Hospital Installations</div>
-            </div>
-            <div class="annexure-content-grid">
-              <div class="annexure-card">
-                <div class="annexure-card-title">3. Alamo Smart Cloud &amp; Mobile Notifications</div>
-                <img src="brochure/page_5.jpg" alt="Alamo Cloud Software" class="annexure-card-img">
-              </div>
-              <div class="annexure-card">
-                <div class="annexure-card-title">4. Reference Hospital Installations &amp; Performance</div>
-                <img src="brochure/page_7.jpg" alt="Hospital References" class="annexure-card-img">
-              </div>
-            </div>
-          </div>
-
-          <!-- Annexure Sheet 3: Dripo Smart Infusion (Conditional) -->
-          <div class="doc-page brochure-page annexure-sheet" id="annexureSheetDripo" style="display:none;">
-            <div class="annexure-header">
-              <div class="annexure-title">TECHNICAL ANNEXURE · DRIPO SMART INFUSION MONITOR</div>
-              <div class="annexure-sub">Intelligent Infusion Monitoring, Real-Time Flow Alerts &amp; Central Station</div>
-            </div>
-            <div class="annexure-content-grid">
-              <div class="annexure-card" style="flex:1;">
-                <div class="annexure-card-title">Dripo Intelligent Bystander for IV Drips</div>
-                <img src="brochure/page_6.jpg" alt="Dripo Smart Infusion Monitor" class="annexure-card-img">
-              </div>
-            </div>
-          </div>
+      <!-- ── BACK BROCHURE PAGES (Customers & Contact) ── -->
+      <div id="proposalBackPages">
+        <!-- Page 7: Our Customers -->
+        <div class="doc-page brochure-page" id="brochurePage7">
+          <img src="brochure/page_7.jpg" alt="Our Customers" class="brochure-deck-img">
         </div>
 
-        <!-- Full Multi-Page Deck Mode (Optional) -->
-        <div id="annexureFull" style="display:none;">
-          <div class="doc-page brochure-page" id="brochurePage2"><img src="brochure/page_2.jpg" alt="Architecture" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage3"><img src="brochure/page_3.jpg" alt="Call Points" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage4"><img src="brochure/page_4.jpg" alt="Displays" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage5"><img src="brochure/page_5.jpg" alt="Cloud Software" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage6"><img src="brochure/page_6.jpg" alt="Dripo" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage7"><img src="brochure/page_7.jpg" alt="Customers" class="brochure-deck-img"></div>
-          <div class="doc-page brochure-page" id="brochurePage8"><img src="brochure/page_8.jpg" alt="Contact" class="brochure-deck-img"></div>
+        <!-- Page 8: Contact Us -->
+        <div class="doc-page brochure-page" id="brochurePage8">
+          <img src="brochure/page_8.jpg" alt="Contact Us" class="brochure-deck-img">
         </div>
       </div>
 
