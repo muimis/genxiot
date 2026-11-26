@@ -324,6 +324,18 @@ textarea { resize:vertical; }
 .tax-inv-table td {
   border: 1px solid #cbd5e1;
 }
+.cert-sn-cell:empty::before {
+  content: "Click to enter Serial No(s) / Device ID(s)...";
+  color: #94a3b8;
+  font-style: italic;
+}
+@media print {
+  .cert-sn-cell:empty::before {
+    content: "Verified on Site";
+    color: #64748b;
+    font-style: normal;
+  }
+}
 .cover-main  { flex:1;display:flex;flex-direction:column;padding:56px 64px; }
 .cover-logo  { height:70px;object-fit:contain;margin-bottom:auto; }
 .cover-meta  { text-align:right;margin-top:auto;padding-bottom:24px; }
@@ -1777,10 +1789,33 @@ tr.grp-row + tr {
     display: none !important;
   }
 
-  body.mode-tax-invoice #pageTaxInvoice {
+  body.mode-tax-invoice.include-cover-page #pageCover {
     display: block !important;
     page-break-before: avoid !important;
     break-before: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    height: auto !important;
+    max-height: 297mm !important;
+    margin: 0 auto !important;
+    padding: 8mm 12mm 6mm 12mm !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  body.mode-tax-invoice:not(.include-cover-page) #pageCover {
+    display: none !important;
+  }
+
+  body.mode-tax-invoice #pageTaxInvoice {
+    display: block !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
     page-break-after: always !important;
     break-after: page !important;
     page-break-inside: avoid !important;
@@ -1814,7 +1849,6 @@ tr.grp-row + tr {
   body.mode-tax-invoice #pageQuote,
   body.mode-tax-invoice #quoteTable,
   body.mode-tax-invoice #pageTerms,
-  body.mode-tax-invoice #pageCover,
   body.mode-tax-invoice #proposalFrontPages,
   body.mode-tax-invoice #proposalBackPages {
     display: none !important;

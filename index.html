@@ -678,9 +678,6 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openPdfMerger()" title="Merge Cover with Invoice">
         <i data-lucide="combine" size="16"></i> <span>Merge PDF</span>
       </button>
-      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewCoverPage()" title="Preview Final Cover Page">
-        <i data-lucide="file-text" size="16"></i> <span>Cover Page</span>
-      </button>
       <button class="btn btn-cyan btn-lg action-text-btn" onclick="printDoc()">
         <i data-lucide="printer" size="16"></i> <span>Print</span>
       </button>
@@ -710,9 +707,6 @@
         </button>
         <button class="btn btn-ghost" onclick="previewTaxInvoice()" id="modalInvoiceBtn" title="Preview Final Tax Invoice &amp; Handover Dossier" style="color:var(--brand-indigo); font-weight:700;">
           <i data-lucide="receipt" size="15"></i> Tax Invoice
-        </button>
-        <button class="btn btn-ghost" onclick="previewCoverPage()" id="modalCoverBtn" title="Preview Cover Page">
-          <i data-lucide="file-text" size="15"></i> Cover Page
         </button>
         <button class="btn btn-cyan" onclick="printDoc()" id="modalPrintBtn">
           <i data-lucide="printer" size="15"></i> PRINT CURRENT VIEW
@@ -785,49 +779,68 @@
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
         <label style="margin:0; font-weight:600; color:#374151;">Inv No:</label>
-        <input type="text" id="invInputNo" value="2" placeholder="e.g. 2 or GEN/26-27/002" style="width:90px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:var(--brand-navy);" oninput="updateTaxInvoiceView()">
+        <input type="text" id="invInputNo" value="" placeholder="e.g. 2 or GEN/26-27/002" style="width:110px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:var(--brand-navy);" oninput="updateTaxInvoiceView()">
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
-        <label style="margin:0; font-weight:600; color:#374151;">Date:</label>
+        <label style="margin:0; font-weight:600; color:#374151;">Inv Date:</label>
         <input type="date" id="invInputDate" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem;" onchange="updateTaxInvoiceView()">
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Install Date:</label>
+        <input type="date" id="invInputInstDate" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem;" onchange="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
         <label style="margin:0; font-weight:600; color:#374151;">PO No:</label>
-        <input type="text" id="invInputPo" placeholder="PO Number" style="width:130px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
+        <input type="text" id="invInputPo" placeholder="PO Number" style="width:125px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
         <label style="margin:0; font-weight:600; color:#374151;">PO Date:</label>
         <input type="date" id="invInputPoDate" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem;" onchange="updateTaxInvoiceView()">
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
-        <label style="margin:0; font-weight:600; color:#374151;">Advance Paid (₹):</label>
-        <input type="number" id="invInputAdv" placeholder="Auto 50%" style="width:105px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
+        <label style="margin:0; font-weight:600; color:#374151;">Install Ref:</label>
+        <input type="text" id="invInputInstRef" value="" placeholder="e.g. INS-1126-Hospital" style="width:140px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
-        <label style="margin:0; font-weight:600; color:#374151;">Hardware Warranty:</label>
-        <select id="invInputWarrHw" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
-          <option value="2yr" selected>2 Years Replacement (Credence/PO)</option>
-          <option value="1yr">1 Year Standard Replacement</option>
-          <option value="3yr">3 Years Comprehensive Replacement</option>
-        </select>
+        <label style="margin:0; font-weight:600; color:#374151;">HW Warranty:</label>
+        <input type="text" id="invInputWarrHw" list="hwWarrPresets" value="1 Year Standard Replacement" placeholder="Type or pick..." style="width:170px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" oninput="updateTaxInvoiceView()">
+        <datalist id="hwWarrPresets">
+          <option value="1 Year Standard Replacement"></option>
+          <option value="2 Years Replacement Warranty"></option>
+          <option value="3 Years Comprehensive Replacement"></option>
+          <option value="5 Years Extended Warranty"></option>
+        </datalist>
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
         <label style="margin:0; font-weight:600; color:#374151;">TV Warranty:</label>
-        <select id="invInputWarrTv" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
-          <option value="1plus1" selected>1 Year OEM + 1 Year CMC (Total 2 Yrs)</option>
-          <option value="1yr">1 Year Manufacturer Warranty</option>
-        </select>
+        <input type="text" id="invInputWarrTv" list="tvWarrPresets" value="1 Year Manufacturer Warranty" placeholder="Type or pick..." style="width:175px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" oninput="updateTaxInvoiceView()">
+        <datalist id="tvWarrPresets">
+          <option value="1 Year Manufacturer Warranty"></option>
+          <option value="1 Year OEM + 1 Year Extended CMC (2 Yrs)"></option>
+          <option value="2 Years Manufacturer Warranty"></option>
+          <option value="Not Applicable (Client Supplied)"></option>
+        </datalist>
       </div>
       <div style="display:flex; align-items:center; gap:4px;">
-        <label style="margin:0; font-weight:600; color:#374151;">CMC Coverage:</label>
-        <select id="invInputCmc" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
-          <option value="1yr_inc" selected>1 Year CMC Included (Covering Year 3)</option>
-          <option value="none">Standard Post-Warranty (Separate)</option>
-        </select>
+        <label style="margin:0; font-weight:600; color:#374151;">CMC Terms:</label>
+        <input type="text" id="invInputCmc" list="cmcPresets" value="Post-warranty AMC/CMC optional" placeholder="Type or pick..." style="width:175px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" oninput="updateTaxInvoiceView()">
+        <datalist id="cmcPresets">
+          <option value="Post-warranty AMC/CMC optional"></option>
+          <option value="1 Year CMC Included (Post-Warranty)"></option>
+          <option value="2 Years CMC Included (Post-Warranty)"></option>
+          <option value="Included as per PO terms"></option>
+        </datalist>
       </div>
-      <div style="display:flex; align-items:center; gap:4px;">
-        <label style="margin:0; font-weight:600; color:#374151;">Install Ref:</label>
-        <input type="text" id="invInputInstRef" value="INS-1126-Credence Hospital-" placeholder="e.g. INS-1126..." style="width:145px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
+      <div style="display:flex; align-items:center; gap:8px; border-left:1px solid #bbf7d0; padding-left:8px;">
+        <label style="margin:0; font-weight:600; color:#166534; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Include Cover Letter &amp; Payment Summary as Page 1 of the Tax Invoice Dossier">
+          <input type="checkbox" id="invIncludeCover" checked onchange="updateTaxInvoiceView()">
+          Cover Page
+        </label>
+        <label style="margin:0; font-weight:600; color:#374151; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Normally Tax Invoice shows Full Amount and Cover Page shows Advance/Balance">
+          <input type="checkbox" id="invShowAdvance" onchange="updateTaxInvoiceView()">
+          Advance on Invoice
+        </label>
+        <input type="number" id="invInputAdv" placeholder="Adv ₹ (Auto)" style="width:95px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
       </div>
     </div>
 
@@ -836,9 +849,26 @@
     ════════════════════════════════════════ -->
     <div id="printDoc">
 
-      <!-- ── COVER PAGE ── -->
+      <!-- ── COVER PAGE (Page 1 of Final Tax Invoice Dossier) ── -->
       <div class="doc-page cover-page" id="pageCover" style="display:none;">
-        <div class="qtn-parties" style="margin-bottom: 30px;">
+        <div class="qtn-header" style="margin-bottom:8px;">
+          <div class="qtn-h-left">
+            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
+            <div class="qtn-company">GENXIOT LLP</div>
+            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
+            <div class="qtn-addr">6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
+            <div class="qtn-contact"><span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP</div>
+          </div>
+          <div class="qtn-h-right" style="text-align:right;">
+            <div style="font-size:1.0rem; font-weight:800; color:var(--brand-navy); letter-spacing:0.04em;">INVOICE COVER LETTER</div>
+            <div style="margin-top:4px; font-size:0.78rem;"><strong>Invoice No:</strong> <span id="cInvNo">1</span></div>
+            <div style="font-size:0.76rem;"><strong>Date:</strong> <span id="cDate">–</span></div>
+            <div style="font-size:0.76rem;"><strong>PO Ref:</strong> <span id="cPoNo">–</span></div>
+          </div>
+        </div>
+        <div class="qtn-gradient-bar" style="margin-bottom:18px;"></div>
+
+        <div class="qtn-parties" style="margin-bottom: 22px;">
           <div class="party">
             <div class="party-label">TO</div>
             <div class="party-name" id="cClientName">Hospital Name</div>
@@ -848,10 +878,10 @@
           </div>
         </div>
 
-        <div style="font-size: 0.9rem; color: #333; line-height: 1.6; margin: 0 38px 20px;">
+        <div style="font-size: 0.88rem; color: #333; line-height: 1.55; margin: 0 38px 16px;">
           <p>Dear Sir/Madam,</p>
-          <p>Thank you for your business. Please find attached the final invoice for your order.</p>
-          <p>Below is the summary of your account for this transaction:</p>
+          <p>Thank you for your business. Please find attached the final Tax Invoice and System Commissioning &amp; Handover Certificate for your order.</p>
+          <p>Below is the payment reconciliation summary for this transaction:</p>
         </div>
 
         <div style="margin: 20px 38px;">
@@ -1028,7 +1058,7 @@
               <strong>Total Invoice Amount (in words):</strong><br>
               <span id="tiWordsTotal" style="font-style:italic; font-weight:600; color:#1e293b;">–</span>
             </div>
-            <div style="margin-top:3px;">
+            <div style="margin-top:3px;" id="tiWordsBalanceWrap">
               <strong>Net Balance Due (in words):</strong><br>
               <span id="tiWordsBalance" style="font-style:italic; font-weight:700; color:#047857;">–</span>
             </div>
@@ -1053,15 +1083,15 @@
                 <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; color:#475569;">Output IGST (18%)</td>
                 <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; text-align:right;" id="tiSummaryIgst">₹0.00</td>
               </tr>
-              <tr style="background:#f8fafc; font-weight:700;">
-                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; color:var(--brand-navy);">Total Invoice Value (incl. GST)</td>
-                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; text-align:right; color:var(--brand-navy);" id="tiSummaryTotal">₹0.00</td>
+              <tr id="tiRowTotal" style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem;">
+                <td style="padding:6px 8px;">TOTAL INVOICE VALUE (incl. GST)</td>
+                <td style="padding:6px 8px; text-align:right;" id="tiSummaryTotal">₹0.00</td>
               </tr>
-              <tr style="color:#b91c1c;">
+              <tr id="tiRowAdvance" style="color:#b91c1c; display:none;">
                 <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; font-weight:600;">Less: Advance Received</td>
                 <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; text-align:right; font-weight:600;" id="tiSummaryAdvance">-₹0.00</td>
               </tr>
-              <tr style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem;">
+              <tr id="tiRowBalance" style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem; display:none;">
                 <td style="padding:6px 8px;">FINAL BALANCE DUE</td>
                 <td style="padding:6px 8px; text-align:right;" id="tiSummaryBalance">₹0.00</td>
               </tr>
@@ -1119,10 +1149,31 @@
           </p>
         </div>
 
-        <!-- Section 2: Certified Warranty & Maintenance Agreement -->
-        <div style="margin-bottom:10px;">
-          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            2. Certified Warranty &amp; Maintenance Coverage
+        <!-- Section 2: Installed Equipment & Serial Numbers -->
+        <div style="margin-bottom:8px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em; display:flex; justify-content:space-between; align-items:center;">
+            <span>2. Installed Equipment &amp; Serial Numbers</span>
+            <span class="no-print" style="font-size:0.65rem; font-weight:500; color:#64748b; text-transform:none; letter-spacing:0;">Click serial number cells below to edit before printing</span>
+          </h4>
+          <table style="width:100%; border-collapse:collapse; font-size:0.67rem; line-height:1.3; border:1px solid #cbd5e1;">
+            <thead>
+              <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
+                <th style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; width:24px;">#</th>
+                <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; width:36%;">Equipment / Component</th>
+                <th style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; width:45px;">Qty</th>
+                <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left;">Serial Number(s) / Device ID(s) / Location</th>
+              </tr>
+            </thead>
+            <tbody id="certSerialBody">
+              <!-- Populated dynamically from BOM -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Section 3: Certified Warranty & Maintenance Agreement -->
+        <div style="margin-bottom:8px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            3. Certified Warranty &amp; Maintenance Coverage
           </h4>
           <table style="width:100%; border-collapse:collapse; font-size:0.69rem; line-height:1.38; border:1px solid #cbd5e1;">
             <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
@@ -1155,20 +1206,20 @@
           </table>
         </div>
 
-        <!-- Section 3: Training Acknowledgment -->
-        <div style="margin-bottom:10px;">
-          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            3. Clinical &amp; Biomedical Staff Training Completed
+        <!-- Section 4: Training Acknowledgment -->
+        <div style="margin-bottom:8px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            4. Clinical &amp; Biomedical Staff Training Completed
           </h4>
-          <p style="font-size:0.70rem; line-height:1.42; color:#333; margin:0;">
+          <p style="font-size:0.69rem; line-height:1.38; color:#333; margin:0;">
             Comprehensive operational training covering bedside call initiation, housekeeping calls, emergency alert acknowledgement, staff presence tracking, central monitor dashboard navigation, and basic troubleshooting was successfully conducted for hospital nursing and technical staff on <strong id="certTrainingDate">–</strong>.
           </p>
         </div>
 
-        <!-- Section 4: Bilateral Handover Sign-off Block -->
-        <div style="margin-top:14px;">
-          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 6px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            4. Acceptance &amp; Handover Sign-Off
+        <!-- Section 5: Bilateral Handover Sign-off Block -->
+        <div style="margin-top:10px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 4px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            5. Acceptance &amp; Handover Sign-Off
           </h4>
           <div class="sig-section" style="margin-top:10px; gap:2.5rem;">
             <div class="sig-block">
