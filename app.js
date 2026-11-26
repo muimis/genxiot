@@ -262,34 +262,52 @@ function isDripoQuoteActive() {
 
 // ─── AMOUNT IN WORDS (INDIAN NUMBERING SYSTEM) ───────────────────
 function numberToWordsIndian(num) {
-  if (!num || isNaN(num) || num <= 0) return 'Zero Rupees Only';
-  num = Math.round(num);
+  if (num === null || num === undefined || isNaN(num)) return 'Zero Rupees Only';
+  if (num === 0) return 'Zero Rupees Only';
+  const isNeg = num < 0;
+  num = Math.abs(num);
+  let whole = Math.floor(num);
+  let paise = Math.round((num - whole) * 100);
+  if (paise === 100) {
+    whole += 1;
+    paise = 0;
+  }
+
   const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
     'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
   const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
   function inWords(n) {
+    if (n === 0) return '';
     if (n < 20) return a[n];
     if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
     if (n < 1000) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 !== 0 ? ' and ' + inWords(n % 100) : '');
     return '';
   }
 
-  let crore = Math.floor(num / 10000000);
-  num %= 10000000;
-  let lakh = Math.floor(num / 100000);
-  num %= 100000;
-  let thousand = Math.floor(num / 1000);
-  num %= 1000;
-  let remainder = num;
+  function convertWhole(n) {
+    if (n === 0) return 'Zero';
+    let crore = Math.floor(n / 10000000);
+    n %= 10000000;
+    let lakh = Math.floor(n / 100000);
+    n %= 100000;
+    let thousand = Math.floor(n / 1000);
+    n %= 1000;
+    let remainder = n;
 
-  let str = '';
-  if (crore > 0) str += inWords(crore) + ' Crore ';
-  if (lakh > 0) str += inWords(lakh) + ' Lakh ';
-  if (thousand > 0) str += inWords(thousand) + ' Thousand ';
-  if (remainder > 0) str += inWords(remainder);
+    let s = '';
+    if (crore > 0) s += inWords(crore) + ' Crore ';
+    if (lakh > 0) s += inWords(lakh) + ' Lakh ';
+    if (thousand > 0) s += inWords(thousand) + ' Thousand ';
+    if (remainder > 0) s += inWords(remainder);
+    return s.trim();
+  }
 
-  return 'Rupees ' + str.trim() + ' Only';
+  let res = (isNeg ? 'Minus ' : '') + 'Rupees ' + convertWhole(whole);
+  if (paise > 0) {
+    res += ' and ' + inWords(paise) + ' Paise';
+  }
+  return res + ' Only';
 }
 
 // ─── DOCUMENT TYPE CONTROLS ─────────────────────────────────────
@@ -1652,7 +1670,8 @@ function recalc() {
   const discType = document.getElementById('discType')?.value || 'none';
   const discVal  = Math.max(0, parseFloat(document.getElementById('discVal')?.value) || 0);
   const shipping = Math.max(0, parseFloat(document.getElementById('shipping')?.value) || 0);
-  const advPct   = Math.max(0, Math.min(100, parseFloat(document.getElementById('advPct')?.value) || 50));
+  const rawAdv   = parseFloat(document.getElementById('advPct')?.value);
+  const advPct   = Math.max(0, Math.min(100, isNaN(rawAdv) ? 50 : rawAdv));
 
   let discount = 0;
   if (discType === 'pct')  discount = subtotal * (discVal / 100);
@@ -1790,7 +1809,7 @@ function recalc() {
   }
 
   const postPct = document.getElementById('postPct');
-  if (postPct) postPct.value = Math.round(100 - advPct - 30) + '%';
+  if (postPct) postPct.value = Math.max(0, Math.round(100 - advPct - 30)) + '%';
 
   const hasDripo = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
   const hasNurseCall = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-DL') && b.qty > 0);
@@ -2477,7 +2496,11 @@ function updateProposalBrochure() {
 
   // Terms & Conditions visibility (Page 2 of quotation)
   const showTerms = el('chkTerms') ? el('chkTerms').checked : true;
-  if (el('pageTerms')) el('pageTerms').style.display = showTerms ? 'block' : 'none';
+  if (activeDocMode === 'tax_invoice' || activeDocMode === 'cover') {
+    if (el('pageTerms')) el('pageTerms').style.display = 'none';
+  } else {
+    if (el('pageTerms')) el('pageTerms').style.display = showTerms ? 'block' : 'none';
+  }
   document.body.classList.toggle('show-terms', showTerms);
 
   // Sync client name to compact signature on 1-page quotation
@@ -2500,12 +2523,12 @@ function updateProposalBrochure() {
 
   const chkCover = el('chkCover') ? el('chkCover').checked : true;
   const chkAlamo = el('chkAlamo') ? el('chkAlamo').checked : true;
-  const chkDripo = el('chkDripo') ? el('chkDripo').checked : false;
+  const chkDripo = el('chkDripoBrochure') ? el('chkDripoBrochure').checked : false;
   const chkClients = el('chkClients') ? el('chkClients').checked : true;
   const chkContact = el('chkContact') ? el('chkContact').checked : true;
 
   const hasBedCallPoint = bom.some(b => (b.code === 'ALAMO-CP-R' || b.code === 'ALAMO-CP-B') && b.qty > 0);
-  const hasAccessories = bom.some(b => (b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-PD-D' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PC') && b.qty > 0);
+  const hasAccessories = bom.some(b => (b.code === 'ALAMO-PD-S' || b.code === 'ALAMO-PD-D' || b.code === 'ALAMO-CP-B' || b.code === 'ALAMO-PL' || b.code === 'ALAMO-CB-ACC') && b.qty > 0);
   const hasDisplaysOrIndicators = bom.some(b => (b.code === 'ALAMO-DL' || b.code === 'ALAMO-MINI' || b.code === 'ALAMO-NS-TV') && b.qty > 0);
   const hasCloudSoftware = bom.some(b => b.code === 'ALAMO-CLOUD-SW' && b.qty > 0);
   const hasDripoUnits = bom.some(b => b.code === 'DRIPO-IM' && b.qty > 0);
@@ -2545,7 +2568,7 @@ function setBrochurePreset(preset) {
   if (preset === 'all') {
     if (el('chkCover')) el('chkCover').checked = true;
     if (el('chkAlamo')) el('chkAlamo').checked = true;
-    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkDripoBrochure')) el('chkDripoBrochure').checked = true;
     if (el('chkClients')) el('chkClients').checked = true;
     if (el('chkContact')) el('chkContact').checked = true;
     if (el('chkTerms')) el('chkTerms').checked = true;
@@ -2553,7 +2576,7 @@ function setBrochurePreset(preset) {
   } else if (preset === 'alamo') {
     if (el('chkCover')) el('chkCover').checked = true;
     if (el('chkAlamo')) el('chkAlamo').checked = true;
-    if (el('chkDripo')) el('chkDripo').checked = false;
+    if (el('chkDripoBrochure')) el('chkDripoBrochure').checked = false;
     if (el('chkClients')) el('chkClients').checked = true;
     if (el('chkContact')) el('chkContact').checked = true;
     if (el('chkTerms')) el('chkTerms').checked = true;
@@ -2561,7 +2584,7 @@ function setBrochurePreset(preset) {
   } else if (preset === 'dripo') {
     if (el('chkCover')) el('chkCover').checked = true;
     if (el('chkAlamo')) el('chkAlamo').checked = false;
-    if (el('chkDripo')) el('chkDripo').checked = true;
+    if (el('chkDripoBrochure')) el('chkDripoBrochure').checked = true;
     if (el('chkClients')) el('chkClients').checked = true;
     if (el('chkContact')) el('chkContact').checked = true;
     if (el('chkTerms')) el('chkTerms').checked = true;
@@ -2569,12 +2592,13 @@ function setBrochurePreset(preset) {
   } else if (preset === 'none') {
     if (el('chkCover')) el('chkCover').checked = false;
     if (el('chkAlamo')) el('chkAlamo').checked = false;
-    if (el('chkDripo')) el('chkDripo').checked = false;
+    if (el('chkDripoBrochure')) el('chkDripoBrochure').checked = false;
     if (el('chkClients')) el('chkClients').checked = false;
     if (el('chkContact')) el('chkContact').checked = false;
     if (el('chkTerms')) el('chkTerms').checked = false;
     openModal(); // Quick BOQ mode (1 single page)
   }
+  if (el('chkDripoBrochure')) el('chkDripoBrochure').dataset.userModified = 'true';
   updateProposalBrochure();
 }
 
@@ -2589,13 +2613,12 @@ function previewProposal() {
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
   if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
-  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
 
   // Auto-detect Dripo quote to enable Dripo page by default if quote has Dripo
   const isDripo = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
-  const chkDripo = document.getElementById('chkDripo');
-  if (chkDripo && isDripo && !chkDripo.dataset.userModified) {
-    chkDripo.checked = true;
+  const chkDripoBrochure = document.getElementById('chkDripoBrochure');
+  if (chkDripoBrochure && isDripo && !chkDripoBrochure.dataset.userModified) {
+    chkDripoBrochure.checked = true;
   }
 
   const el = id => document.getElementById(id);
@@ -2618,7 +2641,6 @@ function openModal() {
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
   if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
-  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
 
   const el = id => document.getElementById(id);
   if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Quick Quotation / BOQ Preview';
@@ -2635,13 +2657,15 @@ function closeModal() {
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
   if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
-  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
   updateProposalBrochure();
 }
 
 function printDoc() {
   recalc();
   updateProposalBrochure();
+  if (activeDocMode === 'tax_invoice' && typeof updateTaxInvoiceView === 'function') {
+    updateTaxInvoiceView();
+  }
   const ctrls = document.querySelectorAll('.modal-ctrl');
   ctrls.forEach(c => c.style.display = 'none');
   document.getElementById('modalBg').classList.add('open');
@@ -3669,6 +3693,7 @@ function updateTaxInvoiceView() {
     const hsnMap = {
       'ALAMO-CP-R': '85365090',
       'ALAMO-CP-B': '85365090',
+      'ALAMO-PL': '85365090',
       'ALAMO-PD-S': '85365090',
       'ALAMO-PD-D': '85365090',
       'ALAMO-CB-ACC': '85365090',
@@ -3679,11 +3704,23 @@ function updateTaxInvoiceView() {
       'ALAMO-GW': '85176230',
       'ALAMO-RPT': '85176290',
       'ALAMO-MINI': '85318000',
+      'ALAMO-CLOUD-SW': '9983',
       'DRIPO-IM': '90189099'
     };
 
-    // Calculate effective global discount percentage if any
-    const discPctInput = parseFloat(document.getElementById('discPct')?.value) || 0;
+    // Calculate effective global discount percentage from discType & discVal
+    const subtotal = bom.reduce((sum, item) => sum + ((item.qty || 0) * (item.rate || 0)), 0);
+    const discType = el('discType')?.value || 'none';
+    const discVal = Math.max(0, parseFloat(el('discVal')?.value) || 0);
+    let effectiveDiscPct = 0;
+    if (discType === 'pct') {
+      effectiveDiscPct = discVal;
+    } else if (discType === 'flat' && subtotal > 0) {
+      effectiveDiscPct = (Math.min(discVal, subtotal) / subtotal) * 100;
+    }
+    const discLabel = effectiveDiscPct > 0
+      ? (discType === 'pct' ? `${effectiveDiscPct}%` : `${effectiveDiscPct.toFixed(2)}%`)
+      : '—';
     const isDripoOnlyQuote = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
 
     bom.forEach(item => {
@@ -3696,7 +3733,7 @@ function updateTaxInvoiceView() {
       const qty = item.qty;
       const rate = item.rate;
       const grossAmt = qty * rate;
-      const lineDisc = Math.round(grossAmt * (discPctInput / 100) * 100) / 100;
+      const lineDisc = Math.round(grossAmt * (effectiveDiscPct / 100) * 100) / 100;
       const lineTaxable = Math.round((grossAmt - lineDisc) * 100) / 100;
       
       let lineCgst = 0, lineSgst = 0, lineIgst = 0;
@@ -3720,13 +3757,13 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;">
-          <strong style="color:#1e293b;">${displayInfo.name.replace(/\(HSN:.*?\)/, '').trim()}</strong>
+          <strong style="color:#1e293b;">${displayInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim()}</strong>
           <span style="font-size:0.65rem; color:#64748b; font-family:Consolas, monospace;"> [${code}]</span>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">${hsn}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">${qty}.00 Nos</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(rate)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">${discPctInput > 0 ? discPctInput + '%' : '—'}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">${discLabel}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(lineTaxable)}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? lineIgst : lineCgst)}</td>
         ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(lineSgst)}</td>` : ''}
@@ -3735,10 +3772,53 @@ function updateTaxInvoiceView() {
       tbody.appendChild(tr);
     });
 
+    // Additional Warranty row if active and billed
+    const addDur = (typeof getAddWarrantyDuration === 'function') ? getAddWarrantyDuration() : 'none';
+    const addCost = Math.max(0, parseFloat(el('addWarrantyCost')?.value) || 0);
+    if (addDur !== 'none' && addCost > 0) {
+      const addTaxable = Math.round(addCost * 100) / 100;
+      let addCgst = 0, addSgst = 0, addIgst = 0;
+      if (isInterState) {
+        addIgst = Math.round(addTaxable * 0.18 * 100) / 100;
+      } else {
+        addCgst = Math.round(addTaxable * 0.09 * 100) / 100;
+        addSgst = Math.round(addTaxable * 0.09 * 100) / 100;
+      }
+      const addTotal = addTaxable + (isInterState ? addIgst : (addCgst + addSgst));
+
+      totQty += 1;
+      totTaxable += addTaxable;
+      totCgst += addCgst;
+      totSgst += addSgst;
+      totIgst += addIgst;
+      totAmount += addTotal;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #cbd5e1';
+      tr.innerHTML = `
+        <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+          <strong style="color:#1e293b;">ADDITIONAL WARRANTY COVERAGE (${addDur})</strong>
+        </td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">998719</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(addTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">—</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(addTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? addIgst : addCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(addSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(addTotal)}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
     // CMC (Extended Warranty) row if active
-    const extInfo = (typeof getExtendedWarrantyInfo === 'function') ? getExtendedWarrantyInfo() : null;
-    if (extInfo?.isExtBilled && extInfo.extAmt > 0) {
-      const cmcTaxable = Math.round(extInfo.extAmt * 100) / 100;
+    const extOpt = el('extWarrantyOpt')?.value || 'none';
+    const extPct = Math.max(0, parseFloat(el('extWarrantyPct')?.value) || 0);
+    const extAmt = Math.round(subtotal * (extPct / 100));
+    if (extOpt === 'included' && extAmt > 0) {
+      const extDuration = (typeof getExtWarrantyDuration === 'function') ? getExtWarrantyDuration() : '1 Year';
+      const cmcTaxable = Math.round(extAmt * 100) / 100;
       let cmcCgst = 0, cmcSgst = 0, cmcIgst = 0;
       if (isInterState) {
         cmcIgst = Math.round(cmcTaxable * 0.18 * 100) / 100;
@@ -3760,7 +3840,7 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;">
-          <strong style="color:#1e293b;">CMC (COMPREHENSIVE EXTENDED WARRANTY) PER YEAR</strong>
+          <strong style="color:#1e293b;">CMC (COMPREHENSIVE EXTENDED WARRANTY) — ${extDuration}</strong>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">998719</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
@@ -3835,9 +3915,18 @@ function updateTaxInvoiceView() {
     if (el('tiSummaryTotal')) el('tiSummaryTotal').textContent = '₹' + fmt(totAmount);
 
     // Advance & Balance Calculation
+    const rawQuoteAdv = parseFloat(el('advPct')?.value);
+    const quoteAdvPct = Math.max(0, Math.min(100, isNaN(rawQuoteAdv) ? 50 : rawQuoteAdv));
     const advInput = el('invInputAdv')?.value;
-    const advAmt = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : Math.round(totAmount * 0.5 * 100) / 100;
+    const parsedAdvInput = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : NaN;
+    const advAmt = !isNaN(parsedAdvInput)
+      ? parsedAdvInput
+      : Math.round(totAmount * (quoteAdvPct / 100) * 100) / 100;
     const balAmt = Math.round((totAmount - advAmt) * 100) / 100;
+
+    if (el('tiPaymentTermsText')) {
+      el('tiPaymentTermsText').textContent = `${quoteAdvPct}% Advance / Balance on Install`;
+    }
 
     if (el('tiSummaryAdvance')) el('tiSummaryAdvance').textContent = '-₹' + fmt(advAmt);
     if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
