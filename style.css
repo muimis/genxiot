@@ -307,6 +307,23 @@ textarea { resize:vertical; }
 
 /* ── COVER PAGE ─────────────────────────────── */
 .cover-page { display:flex;flex-direction:column; }
+.tax-invoice-page,
+.handover-cert-page {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  width: 100%;
+  max-width: 210mm;
+  margin: 0 auto 30px;
+  box-sizing: border-box;
+  padding: 30px 40px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+  border-radius: 4px;
+}
+.tax-inv-table th,
+.tax-inv-table td {
+  border: 1px solid #cbd5e1;
+}
 .cover-main  { flex:1;display:flex;flex-direction:column;padding:56px 64px; }
 .cover-logo  { height:70px;object-fit:contain;margin-bottom:auto; }
 .cover-meta  { text-align:right;margin-top:auto;padding-bottom:24px; }
@@ -1752,6 +1769,57 @@ tr.grp-row + tr {
     break-inside: avoid !important;
   }
 
+  /* ── Tax Invoice & Handover Dossier Print Styles ── */
+  .tax-invoice-page,
+  #pageTaxInvoice,
+  .handover-cert-page,
+  #pageHandoverCert {
+    display: none !important;
+  }
+
+  body.mode-tax-invoice #pageTaxInvoice {
+    display: block !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 8mm 12mm 6mm 12mm !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  body.mode-tax-invoice #pageHandoverCert {
+    display: block !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 8mm 12mm 6mm 12mm !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  body.mode-tax-invoice #pageQuote,
+  body.mode-tax-invoice #quoteTable,
+  body.mode-tax-invoice #pageTerms,
+  body.mode-tax-invoice #pageCover,
+  body.mode-tax-invoice #proposalFrontPages,
+  body.mode-tax-invoice #proposalBackPages {
+    display: none !important;
+  }
+
   /* ── Terms Page: Page 2 of Quotation ── */
   #pageTerms {
     display: none !important;
@@ -1760,7 +1828,7 @@ tr.grp-row + tr {
     page-break-after: avoid !important;
     break-after: avoid !important;
   }
-  body.show-terms #pageTerms {
+  body.show-terms:not(.mode-tax-invoice) #pageTerms {
     display: block !important;
     page-break-before: always !important;
     break-before: page !important;
@@ -1775,13 +1843,17 @@ tr.grp-row + tr {
     box-sizing: border-box !important;
     overflow: hidden !important;
   }
-  body.show-terms.has-back-brochure #pageTerms {
+  body.show-terms:not(.mode-tax-invoice).has-back-brochure #pageTerms {
     page-break-after: always !important;
     break-after: page !important;
   }
-  body.show-terms.no-back-brochure #pageTerms {
+  body.show-terms:not(.mode-tax-invoice).no-back-brochure #pageTerms {
     page-break-after: avoid !important;
     break-after: avoid !important;
+  }
+  body.mode-tax-invoice #pageTerms,
+  body.mode-tax-invoice.show-terms #pageTerms {
+    display: none !important;
   }
   #pageTerms .doc-footer {
     display: block !important;

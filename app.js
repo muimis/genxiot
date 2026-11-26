@@ -298,7 +298,13 @@ let currentDocType = 'commercial';
 function onDocTypeChange() {
   const sel = document.getElementById('docTypeSelect');
   if (sel) currentDocType = sel.value;
-  updateDocTypeDisplay();
+  if (currentDocType === 'tax_invoice') {
+    previewTaxInvoice();
+  } else {
+    if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
+    updateDocTypeDisplay();
+    recalc();
+  }
 }
 
 function updateDocTypeDisplay() {
@@ -308,6 +314,8 @@ function updateDocTypeDisplay() {
     label.textContent = 'BUDGETARY PROPOSAL REF';
   } else if (currentDocType === 'revised') {
     label.textContent = 'REVISED QUOTATION REF';
+  } else if (currentDocType === 'tax_invoice') {
+    label.textContent = 'TAX INVOICE';
   } else {
     label.textContent = 'COMMERCIAL QUOTATION REF';
   }
@@ -2580,6 +2588,8 @@ function previewProposal() {
   }
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
 
   // Auto-detect Dripo quote to enable Dripo page by default if quote has Dripo
   const isDripo = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
@@ -2592,6 +2602,7 @@ function previewProposal() {
   if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Executive Techno-Commercial Proposal Preview';
   if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
   if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+  if (el('invoiceSettings')) el('invoiceSettings').style.display = 'none';
 
   updateProposalBrochure();
   if (window.lucide) lucide.createIcons();
@@ -2606,11 +2617,14 @@ function openModal() {
 
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
 
   const el = id => document.getElementById(id);
   if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Quick Quotation / BOQ Preview';
   if (el('proposalSettings')) el('proposalSettings').style.display = 'flex';
   if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+  if (el('invoiceSettings')) el('invoiceSettings').style.display = 'none';
 
   updateProposalBrochure();
   if (window.lucide) lucide.createIcons();
@@ -2620,6 +2634,8 @@ function closeModal() {
   document.getElementById('modalBg').classList.remove('open');
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
   updateProposalBrochure();
 }
 
@@ -2634,13 +2650,15 @@ function printDoc() {
     ctrls.forEach(c => {
       if (c.id === 'coverPageSettings') {
         c.style.display = (activeDocMode === 'cover') ? 'flex' : 'none';
+      } else if (c.id === 'invoiceSettings') {
+        c.style.display = (activeDocMode === 'tax_invoice') ? 'flex' : 'none';
       } else if (c.id === 'proposalSettings') {
-        c.style.display = (activeDocMode === 'proposal' || activeDocMode === 'quote') ? 'flex' : 'none';
+        c.style.display = (activeDocMode === 'cover' || activeDocMode === 'proforma' || activeDocMode === 'tax_invoice') ? 'none' : 'flex';
       } else {
-        c.style.display = '';
+        c.style.display = 'flex';
       }
     });
-  }, 600);
+  }, 100);
 }
 
 
@@ -3287,6 +3305,7 @@ function previewProforma() {
 
   // Reset Cover Page Mode just in case
   if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
 
   // Step 3: Switch to proforma mode
   _applyProformaMode(true, piRef, poRef, dueDate);
@@ -3416,6 +3435,7 @@ function previewCoverPage() {
     mb.scrollTop = 0;
   }
   if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  if (typeof _applyTaxInvoiceMode === 'function') _applyTaxInvoiceMode(false);
   _applyCoverPageMode(true);
 }
 
@@ -3483,6 +3503,392 @@ async function mergePdfs() {
   } finally {
     btn.textContent = originalText;
     btn.disabled = false;
+  }
+}
+
+// ─── FINAL TAX INVOICE & HANDOVER DOSSIER ──────────────────
+
+/**
+ * Preview the Final Tax Invoice & Handover Dossier in the modal.
+ */
+function previewTaxInvoice() {
+  activeDocMode = 'tax_invoice';
+  recalc();
+  const mb = document.getElementById('modalBg');
+  if (mb) {
+    mb.classList.add('open');
+    mb.scrollTop = 0;
+  }
+  if (typeof _applyCoverPageMode === 'function') _applyCoverPageMode(false);
+  if (typeof _applyProformaMode === 'function') _applyProformaMode(false);
+  _applyTaxInvoiceMode(true);
+}
+
+/**
+ * Enter or exit Tax Invoice mode on the printable document.
+ */
+function _applyTaxInvoiceMode(on) {
+  const el = id => document.getElementById(id);
+  if (on) {
+    activeDocMode = 'tax_invoice';
+    document.body.classList.add('mode-tax-invoice');
+
+    if (el('pageTaxInvoice'))   el('pageTaxInvoice').style.display   = 'block';
+    if (el('pageHandoverCert')) el('pageHandoverCert').style.display = 'block';
+    if (el('quoteTable'))       el('quoteTable').style.display       = 'none';
+    if (el('pageQuote'))        el('pageQuote').style.display        = 'none';
+    if (el('pageTerms'))        el('pageTerms').style.display        = 'none';
+    if (el('pageCover'))        el('pageCover').style.display        = 'none';
+    if (el('proposalFrontPages')) el('proposalFrontPages').style.display = 'none';
+    if (el('proposalBackPages'))  el('proposalBackPages').style.display  = 'none';
+
+    if (el('invoiceSettings'))   el('invoiceSettings').style.display   = 'flex';
+    if (el('proposalSettings'))  el('proposalSettings').style.display  = 'none';
+    if (el('coverPageSettings')) el('coverPageSettings').style.display = 'none';
+
+    if (el('modalTitle')) el('modalTitle').textContent = 'GenXIoT · Final Tax Invoice & Handover Dossier Preview';
+    
+    // Auto-initialize inputs if empty
+    const todayIso = new Date().toISOString().split('T')[0];
+    if (el('invInputDate') && !el('invInputDate').value) {
+      el('invInputDate').value = todayIso;
+    }
+    if (el('invInputPo') && !el('invInputPo').value) {
+      el('invInputPo').value = (el('poRef')?.value || '').trim();
+    }
+    if (el('invInputPoDate') && !el('invInputPoDate').value) {
+      el('invInputPoDate').value = todayIso;
+    }
+
+    // Synchronize docType select if present
+    if (el('docTypeSelect') && el('docTypeSelect').value !== 'tax_invoice') {
+      el('docTypeSelect').value = 'tax_invoice';
+    }
+
+    updateTaxInvoiceView();
+  } else {
+    document.body.classList.remove('mode-tax-invoice');
+    if (el('pageTaxInvoice'))   el('pageTaxInvoice').style.display   = 'none';
+    if (el('pageHandoverCert')) el('pageHandoverCert').style.display = 'none';
+    if (el('invoiceSettings'))  el('invoiceSettings').style.display  = 'none';
+    if (el('docTypeSelect') && el('docTypeSelect').value === 'tax_invoice') {
+      el('docTypeSelect').value = 'commercial';
+    }
+  }
+}
+
+/**
+ * Render all dynamic Tax Invoice and Handover Certificate fields.
+ */
+function updateTaxInvoiceView() {
+  const el = id => document.getElementById(id);
+  if (!el('pageTaxInvoice')) return;
+
+  const clientName  = (el('clientName')?.value || 'Client Name').trim();
+  const clientLoc   = (el('clientLocation')?.value || '').trim();
+  const clientGst   = (el('clientGst')?.value || '').trim();
+  const clientState = (el('clientState')?.value || 'Kerala').trim();
+
+  // PO & Invoice inputs
+  const invNo = (el('invInputNo')?.value || '2').trim();
+  const invDateVal = el('invInputDate')?.value || new Date().toISOString().split('T')[0];
+  const poNo = (el('invInputPo')?.value || el('poRef')?.value || '—').trim();
+  const poDateVal = el('invInputPoDate')?.value;
+  const instRef = (el('invInputInstRef')?.value || 'INS-1126-Credence Hospital-').trim();
+  
+  // Format date helper
+  const fmtDate = (dStr) => {
+    if (!dStr) return '—';
+    try {
+      const parts = dStr.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+      return dStr;
+    } catch(e) { return dStr; }
+  };
+
+  const invDateFmt = fmtDate(invDateVal);
+  const poDateFmt  = poDateVal ? fmtDate(poDateVal) : '—';
+
+  // Tax treatment
+  const clientStateInput = clientState.toLowerCase();
+  const gstStateCode = clientGst.slice(0, 2);
+  const isKerala = (clientStateInput === 'kerala' || gstStateCode === '32' || (!clientStateInput && !gstStateCode));
+  const isInterState = !isKerala;
+  const stateCode = gstStateCode || (isKerala ? '32' : '33');
+
+  // Populate Header & Metadata
+  if (el('tiInvNo')) el('tiInvNo').textContent = invNo;
+  if (el('tiInvDate')) el('tiInvDate').textContent = invDateFmt;
+  if (el('tiPlaceOfSupply')) el('tiPlaceOfSupply').textContent = clientState + ' (Code: ' + stateCode + ')';
+
+  if (el('tiShipName')) el('tiShipName').textContent = clientName;
+  if (el('tiShipAddr')) el('tiShipAddr').textContent = clientLoc;
+  if (el('tiShipGst'))  el('tiShipGst').textContent  = clientGst || '—';
+  if (el('tiShipState')) el('tiShipState').textContent = clientState + ', Code : ' + stateCode;
+
+  if (el('tiBillName')) el('tiBillName').textContent = clientName;
+  if (el('tiBillAddr')) el('tiBillAddr').textContent = clientLoc;
+  if (el('tiBillGst'))  el('tiBillGst').textContent  = clientGst || '—';
+  if (el('tiBillState')) el('tiBillState').textContent = clientState + ', Code : ' + stateCode;
+
+  if (el('tiPoNo')) el('tiPoNo').textContent = poNo;
+  if (el('tiPoDate')) el('tiPoDate').textContent = poDateFmt;
+  if (el('tiDeliveryDate')) el('tiDeliveryDate').textContent = invDateFmt;
+  if (el('tiInstallRef')) el('tiInstallRef').textContent = instRef;
+
+  // Table Column Headers adjustment for IGST vs CGST+SGST
+  const thCgst = el('tiColCgst');
+  const thSgst = el('tiColSgst');
+  if (thCgst && thSgst) {
+    if (isInterState) {
+      thCgst.textContent = 'IGST (18%)';
+      thSgst.style.display = 'none';
+    } else {
+      thCgst.textContent = 'CGST (9%)';
+      thSgst.textContent = 'SGST (9%)';
+      thSgst.style.display = '';
+    }
+  }
+
+  // Populate Table Items
+  const tbody = el('tiItemBody');
+  if (tbody) {
+    tbody.innerHTML = '';
+    let sr = 1;
+    let totQty = 0;
+    let totTaxable = 0;
+    let totCgst = 0;
+    let totSgst = 0;
+    let totIgst = 0;
+    let totAmount = 0;
+
+    // HSN Lookup Map
+    const hsnMap = {
+      'ALAMO-CP-R': '85365090',
+      'ALAMO-CP-B': '85365090',
+      'ALAMO-PD-S': '85365090',
+      'ALAMO-PD-D': '85365090',
+      'ALAMO-CB-ACC': '85365090',
+      'ALAMO-DL': '85318000',
+      'ALAMO-WCP': '85365090',
+      'ALAMO-PCR': '85365090',
+      'ALAMO-NS-TV': '85287390',
+      'ALAMO-GW': '85176230',
+      'ALAMO-RPT': '85176290',
+      'ALAMO-MINI': '85318000',
+      'DRIPO-IM': '90189099'
+    };
+
+    // Calculate effective global discount percentage if any
+    const discPctInput = parseFloat(document.getElementById('discPct')?.value) || 0;
+    const isDripoOnlyQuote = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
+
+    bom.forEach(item => {
+      if (!item.qty || item.qty === 0) return;
+
+      const code = item.code;
+      const hsn = hsnMap[code] || '85365090';
+      const displayInfo = getItemDisplayInfo(item, isDripoOnlyQuote);
+      
+      const qty = item.qty;
+      const rate = item.rate;
+      const grossAmt = qty * rate;
+      const lineDisc = Math.round(grossAmt * (discPctInput / 100) * 100) / 100;
+      const lineTaxable = Math.round((grossAmt - lineDisc) * 100) / 100;
+      
+      let lineCgst = 0, lineSgst = 0, lineIgst = 0;
+      if (isInterState) {
+        lineIgst = Math.round(lineTaxable * 0.18 * 100) / 100;
+      } else {
+        lineCgst = Math.round(lineTaxable * 0.09 * 100) / 100;
+        lineSgst = Math.round(lineTaxable * 0.09 * 100) / 100;
+      }
+      const lineTotal = lineTaxable + (isInterState ? lineIgst : (lineCgst + lineSgst));
+
+      totQty += qty;
+      totTaxable += lineTaxable;
+      totCgst += lineCgst;
+      totSgst += lineSgst;
+      totIgst += lineIgst;
+      totAmount += lineTotal;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #cbd5e1';
+      tr.innerHTML = `
+        <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+          <strong style="color:#1e293b;">${displayInfo.name.replace(/\(HSN:.*?\)/, '').trim()}</strong>
+          <span style="font-size:0.65rem; color:#64748b; font-family:Consolas, monospace;"> [${code}]</span>
+        </td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">${hsn}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">${qty}.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(rate)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">${discPctInput > 0 ? discPctInput + '%' : '—'}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(lineTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? lineIgst : lineCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(lineSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(lineTotal)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // CMC (Extended Warranty) row if active
+    const extInfo = (typeof getExtendedWarrantyInfo === 'function') ? getExtendedWarrantyInfo() : null;
+    if (extInfo?.isExtBilled && extInfo.extAmt > 0) {
+      const cmcTaxable = Math.round(extInfo.extAmt * 100) / 100;
+      let cmcCgst = 0, cmcSgst = 0, cmcIgst = 0;
+      if (isInterState) {
+        cmcIgst = Math.round(cmcTaxable * 0.18 * 100) / 100;
+      } else {
+        cmcCgst = Math.round(cmcTaxable * 0.09 * 100) / 100;
+        cmcSgst = Math.round(cmcTaxable * 0.09 * 100) / 100;
+      }
+      const cmcTotal = cmcTaxable + (isInterState ? cmcIgst : (cmcCgst + cmcSgst));
+
+      totQty += 1;
+      totTaxable += cmcTaxable;
+      totCgst += cmcCgst;
+      totSgst += cmcSgst;
+      totIgst += cmcIgst;
+      totAmount += cmcTotal;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #cbd5e1';
+      tr.innerHTML = `
+        <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+          <strong style="color:#1e293b;">CMC (COMPREHENSIVE EXTENDED WARRANTY) PER YEAR</strong>
+        </td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">998719</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(cmcTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">—</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(cmcTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? cmcIgst : cmcCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(cmcSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(cmcTotal)}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // Shipping / Handling Charge row
+    const shipVal = parseFloat(document.getElementById('shipping')?.value) || 0;
+    if (shipVal > 0) {
+      const shipTaxable = Math.round(shipVal * 100) / 100;
+      let shipCgst = 0, shipSgst = 0, shipIgst = 0;
+      if (isInterState) {
+        shipIgst = Math.round(shipTaxable * 0.18 * 100) / 100;
+      } else {
+        shipCgst = Math.round(shipTaxable * 0.09 * 100) / 100;
+        shipSgst = Math.round(shipTaxable * 0.09 * 100) / 100;
+      }
+      const shipTotal = shipTaxable + (isInterState ? shipIgst : (shipCgst + shipSgst));
+
+      totQty += 1;
+      totTaxable += shipTaxable;
+      totCgst += shipCgst;
+      totSgst += shipSgst;
+      totIgst += shipIgst;
+      totAmount += shipTotal;
+
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #cbd5e1';
+      tr.innerHTML = `
+        <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+          <strong style="color:#1e293b;">HANDLING CHARGES / SHIPPING CHARGES</strong>
+        </td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">996799</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(shipTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">—</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(shipTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? shipIgst : shipCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(shipSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(shipTotal)}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    // Footers
+    if (el('tiFootQty')) el('tiFootQty').textContent = totQty + '.00 Nos';
+    if (el('tiFootTaxable')) el('tiFootTaxable').textContent = '₹' + fmt(totTaxable);
+    if (el('tiFootCgst')) el('tiFootCgst').textContent = '₹' + fmt(isInterState ? totIgst : totCgst);
+    if (el('tiFootSgst')) {
+      el('tiFootSgst').style.display = isInterState ? 'none' : '';
+      el('tiFootSgst').textContent = '₹' + fmt(totSgst);
+    }
+    if (el('tiFootTotal')) el('tiFootTotal').textContent = '₹' + fmt(totAmount);
+
+    // Summary Box
+    if (el('tiSummaryTaxable')) el('tiSummaryTaxable').textContent = '₹' + fmt(totTaxable);
+    if (el('tiRowCgst')) el('tiRowCgst').style.display = isInterState ? 'none' : '';
+    if (el('tiRowSgst')) el('tiRowSgst').style.display = isInterState ? 'none' : '';
+    if (el('tiRowIgst')) el('tiRowIgst').style.display = isInterState ? '' : 'none';
+
+    if (el('tiSummaryCgst')) el('tiSummaryCgst').textContent = '₹' + fmt(totCgst);
+    if (el('tiSummarySgst')) el('tiSummarySgst').textContent = '₹' + fmt(totSgst);
+    if (el('tiSummaryIgst')) el('tiSummaryIgst').textContent = '₹' + fmt(totIgst);
+    if (el('tiSummaryTotal')) el('tiSummaryTotal').textContent = '₹' + fmt(totAmount);
+
+    // Advance & Balance Calculation
+    const advInput = el('invInputAdv')?.value;
+    const advAmt = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : Math.round(totAmount * 0.5 * 100) / 100;
+    const balAmt = Math.round((totAmount - advAmt) * 100) / 100;
+
+    if (el('tiSummaryAdvance')) el('tiSummaryAdvance').textContent = '-₹' + fmt(advAmt);
+    if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
+
+    // Words
+    if (el('tiWordsTotal')) el('tiWordsTotal').textContent = numberToWordsIndian(totAmount);
+    if (el('tiWordsBalance')) el('tiWordsBalance').textContent = numberToWordsIndian(balAmt);
+  }
+
+  // Populate Page 2: Handover Certificate
+  if (el('certInvRef')) el('certInvRef').textContent = invNo;
+  if (el('certDate')) el('certDate').textContent = invDateFmt;
+  if (el('certClientName')) el('certClientName').textContent = clientName;
+  if (el('certClientInline')) el('certClientInline').textContent = clientName;
+  if (el('certPoRef')) el('certPoRef').textContent = poNo;
+  if (el('certPoInline')) el('certPoInline').textContent = poNo;
+  if (el('certInstallRef')) el('certInstallRef').textContent = instRef;
+  if (el('certCommDate')) el('certCommDate').textContent = invDateFmt;
+  if (el('certTrainingDate')) el('certTrainingDate').textContent = invDateFmt;
+  if (el('certSigDateGenx')) el('certSigDateGenx').textContent = invDateFmt;
+  if (el('certSigClientName')) el('certSigClientName').textContent = clientName;
+
+  // Warranty / CMC dynamic text
+  const warrHw = el('invInputWarrHw')?.value || '2yr';
+  const warrTv = el('invInputWarrTv')?.value || '1plus1';
+  const cmcOpt = el('invInputCmc')?.value || '1yr_inc';
+
+  if (el('certHwWarrText')) {
+    if (warrHw === '2yr') {
+      el('certHwWarrText').textContent = '2 Years Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.';
+    } else if (warrHw === '3yr') {
+      el('certHwWarrText').textContent = '3 Years Comprehensive Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.';
+    } else {
+      el('certHwWarrText').textContent = '1 Year Standard Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects.';
+    }
+  }
+
+  if (el('certTvWarrText')) {
+    if (warrTv === '1plus1') {
+      el('certTvWarrText').textContent = '1 Year Manufacturer Warranty + 1 Year Extended CMC (Total 2 Years from date of purchase).';
+    } else {
+      el('certTvWarrText').textContent = '1 Year Standard Manufacturer Warranty from date of purchase.';
+    }
+  }
+
+  if (el('certCmcText')) {
+    if (cmcOpt === '1yr_inc') {
+      el('certCmcText').textContent = '1 Year Comprehensive Maintenance Contract (CMC) included for Year 3 coverage (hardware) and Year 2 coverage (TV). Covers preventive visits, priority breakdown labor, and replacement of covered electronics.';
+    } else {
+      el('certCmcText').textContent = 'Post-warranty Annual Maintenance Contract (AMC / CMC) available upon separate service agreement.';
+    }
   }
 }
 

@@ -672,6 +672,9 @@
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewProforma()" id="actionProformaBtn" title="Preview Proforma Invoice">
         <i data-lucide="file-check" size="16"></i> <span>Proforma</span>
       </button>
+      <button class="btn btn-ghost btn-lg action-text-btn" onclick="previewTaxInvoice()" id="actionInvoiceBtn" title="Generate Final Tax Invoice &amp; Handover Dossier" style="color:var(--brand-indigo); font-weight:700;">
+        <i data-lucide="receipt" size="16"></i> <span>Tax Invoice</span>
+      </button>
       <button class="btn btn-ghost btn-lg action-text-btn" onclick="openPdfMerger()" title="Merge Cover with Invoice">
         <i data-lucide="combine" size="16"></i> <span>Merge PDF</span>
       </button>
@@ -704,6 +707,9 @@
         </button>
         <button class="btn btn-ghost" onclick="previewProforma()" id="modalProformaBtn" title="Preview Proforma Invoice">
           <i data-lucide="file-check" size="15"></i> Proforma
+        </button>
+        <button class="btn btn-ghost" onclick="previewTaxInvoice()" id="modalInvoiceBtn" title="Preview Final Tax Invoice &amp; Handover Dossier" style="color:var(--brand-indigo); font-weight:700;">
+          <i data-lucide="receipt" size="15"></i> Tax Invoice
         </button>
         <button class="btn btn-ghost" onclick="previewCoverPage()" id="modalCoverBtn" title="Preview Cover Page">
           <i data-lucide="file-text" size="15"></i> Cover Page
@@ -745,6 +751,7 @@
           <option value="commercial" selected>Commercial Quotation</option>
           <option value="budgetary">Budgetary Proposal</option>
           <option value="revised">Revised Quotation</option>
+          <option value="tax_invoice">Tax Invoice / Final Bill</option>
         </select>
       </div>
       <span style="color:#cbd5e1;">|</span>
@@ -768,6 +775,59 @@
       <div style="display: flex; gap: 10px; align-items: center;">
         <label style="margin:0; font-size: 0.8rem; font-weight: 500;">Advance (₹)</label>
         <input type="number" id="coverAdvAmt" placeholder="Auto" oninput="_applyCoverPageMode(true)" style="width: 120px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px;">
+      </div>
+    </div>
+
+    <!-- Final Tax Invoice & Handover Settings Bar (Visible when Tax Invoice mode is active) -->
+    <div class="modal-ctrl no-print" id="invoiceSettings" style="display:none; background:#f0fdf4; border-top:1px solid #bbf7d0; padding:8px 16px; gap:10px; flex-wrap:wrap; font-size:0.76rem; align-items:center;">
+      <div style="font-weight:700; color:#166534; text-transform:uppercase; font-size:0.75rem; display:flex; align-items:center; gap:4px; margin-right:4px;">
+        <i data-lucide="receipt" size="14"></i> Invoice Controls:
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Inv No:</label>
+        <input type="text" id="invInputNo" value="2" placeholder="e.g. 2 or GEN/26-27/002" style="width:90px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:var(--brand-navy);" oninput="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Date:</label>
+        <input type="date" id="invInputDate" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem;" onchange="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">PO No:</label>
+        <input type="text" id="invInputPo" placeholder="PO Number" style="width:130px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">PO Date:</label>
+        <input type="date" id="invInputPoDate" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.75rem;" onchange="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Advance Paid (₹):</label>
+        <input type="number" id="invInputAdv" placeholder="Auto 50%" style="width:105px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Hardware Warranty:</label>
+        <select id="invInputWarrHw" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
+          <option value="2yr" selected>2 Years Replacement (Credence/PO)</option>
+          <option value="1yr">1 Year Standard Replacement</option>
+          <option value="3yr">3 Years Comprehensive Replacement</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">TV Warranty:</label>
+        <select id="invInputWarrTv" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
+          <option value="1plus1" selected>1 Year OEM + 1 Year CMC (Total 2 Yrs)</option>
+          <option value="1yr">1 Year Manufacturer Warranty</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">CMC Coverage:</label>
+        <select id="invInputCmc" style="padding:2px 4px; border:1px solid #cbd5e1; border-radius:4px; font-size:0.74rem;" onchange="updateTaxInvoiceView()">
+          <option value="1yr_inc" selected>1 Year CMC Included (Covering Year 3)</option>
+          <option value="none">Standard Post-Warranty (Separate)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <label style="margin:0; font-weight:600; color:#374151;">Install Ref:</label>
+        <input type="text" id="invInputInstRef" value="INS-1126-Credence Hospital-" placeholder="e.g. INS-1126..." style="width:145px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px;" oninput="updateTaxInvoiceView()">
       </div>
     </div>
 
@@ -836,6 +896,300 @@
           <p>If you have any questions regarding this balance, please contact us at info@genxiot.com or +91 9496557777.</p>
           <p style="margin-top: 30px;">Sincerely,</p>
           <p style="margin-top: 20px; font-weight: 600;">GenXIoT LLP</p>
+        </div>
+      </div>
+
+      <!-- ── PAGE: DIRECT FINAL TAX INVOICE (Page 1 of Dossier) ── -->
+      <div class="doc-page tax-invoice-page" id="pageTaxInvoice" style="display:none;">
+        <!-- Header -->
+        <div class="qtn-header" style="margin-bottom:6px;">
+          <div class="qtn-h-left">
+            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
+            <div class="qtn-company">GENXIOT LLP</div>
+            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
+            <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
+            <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Nivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
+            <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN/UIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; <strong>State:</strong> Kerala &nbsp;|&nbsp; <strong>Code:</strong> 32</div>
+            <div class="qtn-contact"><span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
+          </div>
+          <div class="qtn-h-right" style="text-align:right;">
+            <div style="font-size:1.1rem; font-weight:800; color:var(--brand-navy); letter-spacing:0.04em;">TAX INVOICE</div>
+            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">ORIGINAL FOR RECIPIENT</div>
+            <div style="margin-top:6px; font-size:0.8rem;"><strong>Invoice No:</strong> <span id="tiInvNo" style="font-weight:700; color:var(--brand-indigo); font-size:0.95rem;">2</span></div>
+            <div style="font-size:0.78rem; margin-top:2px;"><strong>Date:</strong> <span id="tiInvDate">–</span></div>
+            <div style="font-size:0.75rem; color:#475569; margin-top:2px;"><strong>Place of Supply:</strong> <span id="tiPlaceOfSupply">Kerala (Code: 32)</span></div>
+          </div>
+        </div>
+
+        <div class="qtn-gradient-bar" style="margin-bottom:8px;"></div>
+
+        <!-- 2-Column Tax Invoice Parties & Transport Block -->
+        <table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:0.72rem; line-height:1.35; border:1px solid #cbd5e1;">
+          <tbody>
+            <tr>
+              <!-- Consignee / Ship to -->
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #cbd5e1; border-bottom:1px solid #cbd5e1; background:#fbfcfe;">
+                <div style="font-size:0.68rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:2px;">Consignee (Ship to)</div>
+                <div style="font-weight:700; font-size:0.82rem; color:var(--brand-navy);" id="tiShipName">Hospital Name</div>
+                <div id="tiShipAddr" style="color:#334155;">Location, Kerala</div>
+                <div style="margin-top:2px;"><strong>GSTIN/UIN:</strong> <span id="tiShipGst" style="font-family:Consolas, monospace; font-weight:600;">–</span></div>
+                <div><strong>State Name:</strong> <span id="tiShipState">Kerala, Code : 32</span></div>
+              </td>
+              <!-- Invoice References -->
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-bottom:1px solid #cbd5e1; background:#f8fafc;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                  <span style="color:#64748b;">Buyer's Order / PO No:</span>
+                  <strong id="tiPoNo" style="color:#1e293b;">–</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                  <span style="color:#64748b;">Buyer's Order Dated:</span>
+                  <span id="tiPoDate" style="font-weight:600;">–</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                  <span style="color:#64748b;">Delivery / Install Date:</span>
+                  <span id="tiDeliveryDate" style="font-weight:600;">–</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:#64748b;">Installation Report Ref:</span>
+                  <span id="tiInstallRef" style="font-weight:600; font-size:0.70rem;">–</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <!-- Buyer / Bill to -->
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #cbd5e1; background:#fbfcfe;">
+                <div style="font-size:0.68rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:2px;">Buyer (Bill to)</div>
+                <div style="font-weight:700; font-size:0.82rem; color:var(--brand-navy);" id="tiBillName">Hospital Name</div>
+                <div id="tiBillAddr" style="color:#334155;">Location, Kerala</div>
+                <div style="margin-top:2px;"><strong>GSTIN/UIN:</strong> <span id="tiBillGst" style="font-family:Consolas, monospace; font-weight:600;">–</span></div>
+                <div><strong>State Name:</strong> <span id="tiBillState">Kerala, Code : 32</span></div>
+              </td>
+              <!-- Mode of Dispatch & Payment Terms -->
+              <td style="width:50%; vertical-align:top; padding:6px 10px; background:#f8fafc;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                  <span style="color:#64748b;">Terms of Delivery:</span>
+                  <span style="font-weight:600;">Delivered &amp; Installed at Site</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
+                  <span style="color:#64748b;">Mode / Terms of Payment:</span>
+                  <span style="font-weight:600;" id="tiPaymentTermsText">50% Advance / Balance on Install</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span style="color:#64748b;">Reverse Charge Applicable:</span>
+                  <span style="font-weight:600;">No</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Itemized Tax Invoice Table -->
+        <table class="tax-inv-table" style="width:100%; border-collapse:collapse; font-size:0.69rem; line-height:1.32; border:1px solid #cbd5e1; margin-bottom:8px;">
+          <thead>
+            <tr style="background:#f1f5f9; color:#1e293b; font-weight:700; border-bottom:1px solid #cbd5e1;">
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:center; width:22px;">#</th>
+              <th style="padding:5px 6px; border:1px solid #cbd5e1; text-align:left;">Description of Goods and Services</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:center; width:58px; font-family:Consolas, monospace;">HSN/SAC</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:center; width:45px;">Quantity</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:right; width:55px;">Rate (₹)</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:center; width:40px;">Disc %</th>
+              <th style="padding:5px 6px; border:1px solid #cbd5e1; text-align:right; width:65px;">Taxable (₹)</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:right; width:58px;" id="tiColCgst">CGST (9%)</th>
+              <th style="padding:5px 4px; border:1px solid #cbd5e1; text-align:right; width:58px;" id="tiColSgst">SGST (9%)</th>
+              <th style="padding:5px 6px; border:1px solid #cbd5e1; text-align:right; width:72px;">Total (₹)</th>
+            </tr>
+          </thead>
+          <tbody id="tiItemBody">
+            <!-- Dynamically populated from bom -->
+          </tbody>
+          <tfoot>
+            <tr style="background:#f8fafc; font-weight:700; border-top:1px solid #cbd5e1;">
+              <td colspan="3" style="padding:5px 6px; border:1px solid #cbd5e1; text-align:right;">Total:</td>
+              <td style="padding:5px 4px; border:1px solid #cbd5e1; text-align:center;" id="tiFootQty">0</td>
+              <td colspan="2" style="padding:5px 4px; border:1px solid #cbd5e1;"></td>
+              <td style="padding:5px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiFootTaxable">₹0.00</td>
+              <td style="padding:5px 4px; border:1px solid #cbd5e1; text-align:right;" id="tiFootCgst">₹0.00</td>
+              <td style="padding:5px 4px; border:1px solid #cbd5e1; text-align:right;" id="tiFootSgst">₹0.00</td>
+              <td style="padding:5px 6px; border:1px solid #cbd5e1; text-align:right; color:var(--brand-navy); font-size:0.75rem;" id="tiFootTotal">₹0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Reconciliation, Words & Bank Remittance Box -->
+        <div style="display:flex; justify-content:space-between; gap:10px; margin-top:6px; font-size:0.71rem;">
+          <!-- Left: Bank Details & Words -->
+          <div style="flex:1; border:1px solid #cbd5e1; border-radius:4px; padding:6px 10px; background:#f8fafc; line-height:1.4;">
+            <div style="font-weight:700; color:var(--brand-navy); font-size:0.72rem; text-transform:uppercase; margin-bottom:3px;">Payment Remittance Details</div>
+            <div><strong>Beneficiary Name:</strong> GenXIoT LLP</div>
+            <div><strong>Account Number:</strong> 0624073000000447</div>
+            <div><strong>Bank &amp; Branch:</strong> South Indian Bank, Technopark Trivandrum</div>
+            <div><strong>IFSC Code:</strong> SIBL0000624</div>
+            <div style="margin-top:5px; padding-top:4px; border-top:1px dashed #cbd5e1;">
+              <strong>Total Invoice Amount (in words):</strong><br>
+              <span id="tiWordsTotal" style="font-style:italic; font-weight:600; color:#1e293b;">–</span>
+            </div>
+            <div style="margin-top:3px;">
+              <strong>Net Balance Due (in words):</strong><br>
+              <span id="tiWordsBalance" style="font-style:italic; font-weight:700; color:#047857;">–</span>
+            </div>
+          </div>
+
+          <!-- Right: Commercial Reconciliation Summary -->
+          <div style="width:280px; border:1px solid #cbd5e1; border-radius:4px; overflow:hidden; font-size:0.73rem;">
+            <table style="width:100%; border-collapse:collapse;">
+              <tr>
+                <td style="padding:4px 8px; border-bottom:1px solid #e2e8f0; background:#f1f5f9; font-weight:600;">Total Taxable Value</td>
+                <td style="padding:4px 8px; border-bottom:1px solid #e2e8f0; text-align:right; font-weight:600;" id="tiSummaryTaxable">₹0.00</td>
+              </tr>
+              <tr id="tiRowCgst">
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; color:#475569;">Output CGST (9%)</td>
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; text-align:right;" id="tiSummaryCgst">₹0.00</td>
+              </tr>
+              <tr id="tiRowSgst">
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; color:#475569;">Output SGST (9%)</td>
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; text-align:right;" id="tiSummarySgst">₹0.00</td>
+              </tr>
+              <tr id="tiRowIgst" style="display:none;">
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; color:#475569;">Output IGST (18%)</td>
+                <td style="padding:3px 8px; border-bottom:1px solid #e2e8f0; text-align:right;" id="tiSummaryIgst">₹0.00</td>
+              </tr>
+              <tr style="background:#f8fafc; font-weight:700;">
+                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; color:var(--brand-navy);">Total Invoice Value (incl. GST)</td>
+                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; text-align:right; color:var(--brand-navy);" id="tiSummaryTotal">₹0.00</td>
+              </tr>
+              <tr style="color:#b91c1c;">
+                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; font-weight:600;">Less: Advance Received</td>
+                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; text-align:right; font-weight:600;" id="tiSummaryAdvance">-₹0.00</td>
+              </tr>
+              <tr style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem;">
+                <td style="padding:6px 8px;">FINAL BALANCE DUE</td>
+                <td style="padding:6px 8px; text-align:right;" id="tiSummaryBalance">₹0.00</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Declaration & Signatory -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; font-size:0.69rem; border-top:1px solid #e2e8f0; padding-top:6px;">
+          <div style="color:#64748b; max-width:65%;">
+            <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700; color:var(--brand-navy); margin-bottom:28px;">for GENXIOT LLP</div>
+            <div style="border-top:1px solid #333; padding-top:2px; font-weight:600;">Authorized Signatory</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PAGE: SYSTEM COMMISSIONING, WARRANTY & HANDOVER CERTIFICATE (Page 2 of Dossier) ── -->
+      <div class="doc-page handover-cert-page" id="pageHandoverCert" style="display:none;">
+        <!-- Header -->
+        <div class="qtn-header" style="margin-bottom:6px;">
+          <div class="qtn-h-left">
+            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
+            <div class="qtn-company">GENXIOT LLP</div>
+            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
+            <div class="qtn-addr">STPI Building, Technopark, Trivandrum &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP</div>
+          </div>
+          <div class="qtn-h-right" style="text-align:right;">
+            <div style="font-size:0.75rem; color:#64748b;">SERVICE &amp; HANDOVER DOSSIER</div>
+            <div style="font-weight:700; font-size:0.85rem; color:var(--brand-navy); margin-top:2px;">ANNEXURE TO INVOICE #<span id="certInvRef">2</span></div>
+            <div style="font-size:0.72rem; color:#475569; margin-top:2px;">Date: <span id="certDate">–</span></div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 6px 0 10px; padding: 4px 0; background: var(--brand-indigo); color: #fff; font-weight: 700; font-size: 0.88rem; letter-spacing: 0.08em; text-transform: uppercase;">
+          SYSTEM COMMISSIONING, WARRANTY &amp; HANDOVER CERTIFICATE
+        </div>
+
+        <div style="font-size:0.72rem; color:#334155; margin-bottom:10px; padding:6px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+          <div><strong>Hospital / Facility:</strong> <span id="certClientName">Hospital Name</span></div>
+          <div><strong>Buyer PO Ref:</strong> <span id="certPoRef">–</span></div>
+          <div><strong>Installation Ref:</strong> <span id="certInstallRef">–</span></div>
+          <div><strong>Commissioning Date:</strong> <span id="certCommDate">–</span></div>
+        </div>
+
+        <!-- Section 1: Scope Completion & Commissioning -->
+        <div style="margin-bottom:10px;">
+          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            1. Scope Completion &amp; System Commissioning
+          </h4>
+          <p style="font-size:0.70rem; line-height:1.42; color:#333; margin:0;">
+            GenXIoT LLP confirms that the wireless Nurse Call / IoT System specified under Purchase Order <strong id="certPoInline">–</strong> has been successfully delivered, installed, RF-calibrated, and commissioned into active operational service at <strong id="certClientInline">Hospital Name</strong>. All bedside call points, patient pendants, over-door lights, wireless gateways, repeaters, and central monitoring smart displays have passed multi-stage functional verification and live alert testing.
+          </p>
+        </div>
+
+        <!-- Section 2: Certified Warranty & Maintenance Agreement -->
+        <div style="margin-bottom:10px;">
+          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            2. Certified Warranty &amp; Maintenance Coverage
+          </h4>
+          <table style="width:100%; border-collapse:collapse; font-size:0.69rem; line-height:1.38; border:1px solid #cbd5e1;">
+            <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
+              <th style="padding:4px 8px; border:1px solid #cbd5e1; text-align:left; width:34%;">Coverage Category</th>
+              <th style="padding:4px 8px; border:1px solid #cbd5e1; text-align:left;">Agreed Terms &amp; Conditions (as per PO / Written Agreement)</th>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Hardware Call Points &amp; Repeaters</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certHwWarrText">2 Years Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Central Display (Smart TV)</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certTvWarrText">1 Year Manufacturer Warranty + 1 Year Extended CMC (Total 2 Years from date of purchase).</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Comprehensive Maintenance (CMC)</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certCmcText">1 Year Comprehensive Maintenance Contract (CMC) included for Year 3 coverage (hardware) and Year 2 coverage (TV). Covers preventive visits, priority breakdown labor, and replacement of covered electronics.</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Standard Exclusions</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;">Consumable and wear items (modular pull cords, AAA batteries), intentional physical impact damage, liquid submersion/ingress, electrical surges/lightning, and unauthorized modifications.</td>
+            </tr>
+            <tr>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Service Level Agreement (SLA)</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;">
+                Immediate remote / telephone response within <strong>1 hour</strong>. Certified technician on-site deployment within <strong>7 business days</strong> for major hardware faults that cannot be rectified remotely.<br>
+                <strong>Direct Escalation:</strong> Helpdesk: <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; BDM: <span class="dyn-bdm-phone">+91 88916 70903</span> &nbsp;|&nbsp; info@genxiot.com
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Section 3: Training Acknowledgment -->
+        <div style="margin-bottom:10px;">
+          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            3. Clinical &amp; Biomedical Staff Training Completed
+          </h4>
+          <p style="font-size:0.70rem; line-height:1.42; color:#333; margin:0;">
+            Comprehensive operational training covering bedside call initiation, housekeeping calls, emergency alert acknowledgement, staff presence tracking, central monitor dashboard navigation, and basic troubleshooting was successfully conducted for hospital nursing and technical staff on <strong id="certTrainingDate">–</strong>.
+          </p>
+        </div>
+
+        <!-- Section 4: Bilateral Handover Sign-off Block -->
+        <div style="margin-top:14px;">
+          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 6px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            4. Acceptance &amp; Handover Sign-Off
+          </h4>
+          <div class="sig-section" style="margin-top:10px; gap:2.5rem;">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <p class="sig-name" id="certSigGenxName">Muhainmin A S</p>
+              <p class="sig-org">Commissioning Engineer · GENXIOT LLP</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Signature &amp; Official Stamp</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Date: <span id="certSigDateGenx">–</span></p>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <p class="sig-name">Accepted &amp; Handover Received By</p>
+              <p class="sig-org" id="certSigClientName">Hospital Name</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Biomedical Engineer / Nursing In-Charge</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Signature, Designation &amp; Stamp: ____________________</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.70rem; padding-top: 6px; border-top: 1px solid #eee; margin-top: 16px;">
+          <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
         </div>
       </div>
 
