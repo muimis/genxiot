@@ -4063,7 +4063,6 @@ function updateTaxInvoiceView() {
   if (el('certInstallRef')) el('certInstallRef').textContent = instRef;
   if (el('certCommDate')) el('certCommDate').textContent = instDateFmt;
   if (el('certTrainingDate')) el('certTrainingDate').textContent = instDateFmt;
-  if (el('certSigDateGenx')) el('certSigDateGenx').textContent = instDateFmt;
   if (el('certSigClientName')) el('certSigClientName').textContent = clientName;
 
   // Pre-fill Customer Receiver name from contactPerson if not manually edited
