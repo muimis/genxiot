@@ -4182,6 +4182,11 @@ function recalcTaxInvoiceFromTable() {
   if (el('cTotalAmt')) el('cTotalAmt').textContent = '₹' + fmt(totAmount);
   if (el('cAdvAmt')) el('cAdvAmt').textContent = '-₹' + fmt(advAmt);
   if (el('cBalAmt')) el('cBalAmt').textContent = '₹' + fmt(balAmt);
+  if (el('cInvNo') && el('tiInvNo')) el('cInvNo').textContent = el('tiInvNo').textContent;
+  if (el('cDate') && el('tiInvDate')) el('cDate').textContent = el('tiInvDate').textContent;
+  if (el('cPoNo') && el('tiPoNo')) el('cPoNo').textContent = el('tiPoNo').textContent;
+  if (el('cInstRef') && el('invInputInstRef')) el('cInstRef').textContent = el('invInputInstRef').value || '—';
+  if (el('cInstDate') && el('certCommDate')) el('cInstDate').textContent = el('certCommDate').textContent;
 
   window._tiLastTotal = totAmount;
   if (window._lastImportedPo) updatePoCrossCheckBanner();
