@@ -3558,11 +3558,14 @@ function _applyTaxInvoiceMode(on) {
     document.body.classList.add('mode-tax-invoice');
 
     const incCover = el('invIncludeCover') ? el('invIncludeCover').checked : true;
+    const incAnnex = el('invIncludeAnnexure') ? el('invIncludeAnnexure').checked : true;
     document.body.classList.toggle('include-cover-page', incCover);
+    document.body.classList.toggle('include-annexure', incAnnex);
 
-    if (el('pageCover'))        el('pageCover').style.display        = incCover ? 'block' : 'none';
-    if (el('pageTaxInvoice'))   el('pageTaxInvoice').style.display   = 'block';
-    if (el('pageHandoverCert')) el('pageHandoverCert').style.display = 'block';
+    if (el('pageCover'))           el('pageCover').style.display           = incCover ? 'block' : 'none';
+    if (el('pageTaxInvoice'))      el('pageTaxInvoice').style.display      = 'block';
+    if (el('pageHandoverCert'))    el('pageHandoverCert').style.display    = 'block';
+    if (el('pageInstallAnnexure')) el('pageInstallAnnexure').style.display = incAnnex ? 'block' : 'none';
     if (el('quoteTable'))       el('quoteTable').style.display       = 'none';
     if (el('pageQuote'))        el('pageQuote').style.display        = 'none';
     if (el('pageTerms'))        el('pageTerms').style.display        = 'none';
@@ -3607,11 +3610,12 @@ function _applyTaxInvoiceMode(on) {
 
     updateTaxInvoiceView();
   } else {
-    document.body.classList.remove('mode-tax-invoice', 'include-cover-page');
-    if (el('pageTaxInvoice'))   el('pageTaxInvoice').style.display   = 'none';
-    if (el('pageHandoverCert')) el('pageHandoverCert').style.display = 'none';
-    if (el('pageCover'))        el('pageCover').style.display        = 'none';
-    if (el('invoiceSettings'))  el('invoiceSettings').style.display  = 'none';
+    document.body.classList.remove('mode-tax-invoice', 'include-cover-page', 'include-annexure');
+    if (el('pageTaxInvoice'))      el('pageTaxInvoice').style.display      = 'none';
+    if (el('pageHandoverCert'))    el('pageHandoverCert').style.display    = 'none';
+    if (el('pageInstallAnnexure')) el('pageInstallAnnexure').style.display = 'none';
+    if (el('pageCover'))           el('pageCover').style.display           = 'none';
+    if (el('invoiceSettings'))     el('invoiceSettings').style.display     = 'none';
     if (el('docTypeSelect') && el('docTypeSelect').value === 'tax_invoice') {
       el('docTypeSelect').value = 'commercial';
     }
@@ -3977,8 +3981,48 @@ function updateTaxInvoiceView() {
     if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
 
     // Words
+    const totalTaxAmt = isInterState ? totIgst : (totCgst + totSgst);
     if (el('tiWordsTotal')) el('tiWordsTotal').textContent = numberToWordsIndian(totAmount);
+    if (el('tiWordsTax'))   el('tiWordsTax').textContent   = numberToWordsIndian(totalTaxAmt);
     if (el('tiWordsBalance')) el('tiWordsBalance').textContent = numberToWordsIndian(balAmt);
+
+    // Tally-style Tax Summary Breakdown
+    if (el('tiBreakTaxable'))  el('tiBreakTaxable').textContent  = '₹' + fmt(totTaxable);
+    if (el('tiBreakTotalTax')) el('tiBreakTotalTax').textContent = '₹' + fmt(totalTaxAmt);
+    if (isInterState) {
+      if (el('tiBreakCgstHead'))    el('tiBreakCgstHead').textContent    = 'IGST Rate';
+      if (el('tiBreakCgstAmtHead')) el('tiBreakCgstAmtHead').textContent = 'IGST Amount';
+      if (el('tiBreakCgstRate'))    el('tiBreakCgstRate').textContent    = '18%';
+      if (el('tiBreakCgstAmt'))     el('tiBreakCgstAmt').textContent     = '₹' + fmt(totIgst);
+      if (el('tiBreakSgstHead'))    el('tiBreakSgstHead').style.display  = 'none';
+      if (el('tiBreakSgstAmtHead')) el('tiBreakSgstAmtHead').style.display = 'none';
+      if (el('tiBreakSgstRate'))    el('tiBreakSgstRate').style.display  = 'none';
+      if (el('tiBreakSgstAmt'))     el('tiBreakSgstAmt').style.display   = 'none';
+    } else {
+      if (el('tiBreakCgstHead'))    el('tiBreakCgstHead').textContent    = 'CGST Rate';
+      if (el('tiBreakCgstAmtHead')) el('tiBreakCgstAmtHead').textContent = 'CGST Amount';
+      if (el('tiBreakCgstRate'))    el('tiBreakCgstRate').textContent    = '9%';
+      if (el('tiBreakCgstAmt'))     el('tiBreakCgstAmt').textContent     = '₹' + fmt(totCgst);
+      if (el('tiBreakSgstHead'))    el('tiBreakSgstHead').style.display  = '';
+      if (el('tiBreakSgstAmtHead')) el('tiBreakSgstAmtHead').style.display = '';
+      if (el('tiBreakSgstRate'))    el('tiBreakSgstRate').style.display  = '';
+      if (el('tiBreakSgstAmt')) {
+        el('tiBreakSgstAmt').style.display = '';
+        el('tiBreakSgstAmt').textContent = '₹' + fmt(totSgst);
+      }
+    }
+
+    // GenXIoT Signatory on Tax Invoice (preserve manual inline edits)
+    const sigNameEl = el('tiSigName');
+    const sigDesigEl = el('tiSigDesig');
+    if (sigNameEl && !sigNameEl.dataset.userEdited) {
+      sigNameEl.textContent = el('genxSignatoryName')?.value || 'Authorized Signatory';
+      sigNameEl.oninput = () => { sigNameEl.dataset.userEdited = 'true'; };
+    }
+    if (sigDesigEl && !sigDesigEl.dataset.userEdited) {
+      sigDesigEl.textContent = el('genxSignatoryDesig')?.value || 'GENXIOT LLP';
+      sigDesigEl.oninput = () => { sigDesigEl.dataset.userEdited = 'true'; };
+    }
 
     // Populate Integrated Cover Page (Page 1 of Dossier)
     if (el('cInvNo')) el('cInvNo').textContent = invNo;
@@ -4000,7 +4044,7 @@ function updateTaxInvoiceView() {
     if (el('cBalAmt'))   el('cBalAmt').textContent   = '₹' + fmt(balAmt);
   }
 
-  // Populate Page 2: Handover Certificate
+  // Populate Page 3: Handover Certificate
   if (el('certInvRef')) el('certInvRef').textContent = invNo;
   if (el('certDate')) el('certDate').textContent = invDateFmt;
   if (el('certClientName')) el('certClientName').textContent = clientName;
@@ -4013,28 +4057,22 @@ function updateTaxInvoiceView() {
   if (el('certSigDateGenx')) el('certSigDateGenx').textContent = instDateFmt;
   if (el('certSigClientName')) el('certSigClientName').textContent = clientName;
 
-  // Populate Page 2: Installed Equipment & Serial Numbers Table
-  window._certSerialNumbers = window._certSerialNumbers || {};
-  const serialBody = el('certSerialBody');
-  if (serialBody) {
-    serialBody.innerHTML = '';
-    const isDripoOnly = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
-    let sIdx = 1;
-    bom.forEach(item => {
-      if (!item.qty || item.qty <= 0) return;
-      const dInfo = getItemDisplayInfo(item, isDripoOnly);
-      const cleanName = dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim();
-      const savedSn = window._certSerialNumbers[item.code] || '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sIdx++}</td>
-        <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:600; color:#1e293b;">${cleanName} <span style="font-size:0.62rem; color:#64748b; font-weight:400;">[${item.code}]</span></td>
-        <td style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">${item.qty}</td>
-        <td contenteditable="true" data-sn-code="${item.code}" class="cert-sn-cell" style="padding:3px 6px; border:1px solid #cbd5e1; color:#0f172a; min-width:180px; outline:none;" oninput="window._certSerialNumbers['${item.code}'] = this.textContent">${savedSn}</td>
-      `;
-      serialBody.appendChild(tr);
-    });
+  // Pre-fill Customer Receiver name from contactPerson if not manually edited
+  const custSigPerson = el('certSigClientPerson');
+  if (custSigPerson && !custSigPerson.dataset.userEdited) {
+    const cp = (el('contactPerson')?.value || '').trim();
+    if (cp) custSigPerson.textContent = cp;
+    custSigPerson.oninput = () => { custSigPerson.dataset.userEdited = 'true'; };
   }
+
+  // Track Annexure visibility and render Page 4+
+  const incAnnex = el('invIncludeAnnexure') ? el('invIncludeAnnexure').checked : true;
+  document.body.classList.toggle('include-annexure', incAnnex);
+  if (el('pageInstallAnnexure')) el('pageInstallAnnexure').style.display = incAnnex ? 'block' : 'none';
+  if (el('annexInvRef'))   el('annexInvRef').textContent   = invNo;
+  if (el('annexInstRef'))  el('annexInstRef').textContent  = instRef;
+  if (el('annexInstDate')) el('annexInstDate').textContent = instDateFmt;
+  renderInstallAnnexure();
 
   // Warranty / CMC dynamic text (free-text editable from Invoice Controls)
   const warrHw = (el('invInputWarrHw')?.value || '').trim();
@@ -4055,6 +4093,251 @@ function updateTaxInvoiceView() {
 
   if (el('certCmcText')) {
     el('certCmcText').textContent = cmcOpt || 'Post-warranty Annual Maintenance Contract (AMC / CMC) available upon separate service agreement.';
+  }
+}
+
+// ─── ANNEXURE A: EQUIPMENT RECONCILIATION & PDF DEVICE IMPORT ─────────────────
+window._certSerialNumbers = window._certSerialNumbers || {};
+window._manualAnnexureItems = window._manualAnnexureItems || [];
+window._importedDevices = window._importedDevices || [];
+
+function renderInstallAnnexure() {
+  const equipBody = document.getElementById('annexEquipBody');
+  const devBody = document.getElementById('annexDeviceBody');
+  const isDripoOnly = (typeof isDripoQuoteActive === 'function') && isDripoQuoteActive();
+
+  if (equipBody) {
+    equipBody.innerHTML = '';
+    let idx = 1;
+
+    // Auto-summarize imported call-point serials if present
+    let importedSummary = '';
+    if (window._importedDevices.length > 0) {
+      const sns = window._importedDevices.map(d => d.serial).filter(Boolean).sort();
+      if (sns.length > 1) {
+        importedSummary = `${sns.length} units (${sns[0]} to ${sns[sns.length - 1]})`;
+      } else if (sns.length === 1) {
+        importedSummary = sns[0];
+      }
+    }
+
+    bom.forEach(item => {
+      if (!item.qty || item.qty <= 0) return;
+      const dInfo = getItemDisplayInfo(item, isDripoOnly);
+      const cleanName = dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim();
+      let savedSn = window._certSerialNumbers[item.code] || '';
+      if (!savedSn && item.code === 'ALAMO-CP-R' && importedSummary) {
+        savedSn = importedSummary;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding:3px 4px; text-align:center; color:#64748b;">${idx++}</td>
+        <td style="padding:3px 6px; font-weight:600; color:#1e293b;">${cleanName} <span style="font-size:0.62rem; color:#64748b; font-weight:400;">[${item.code}]</span></td>
+        <td style="padding:3px 4px; text-align:center; font-weight:600;">${item.qty} Nos</td>
+        <td contenteditable="true" class="cert-sn-cell" style="padding:3px 6px; color:#0f172a; outline:none;" oninput="window._certSerialNumbers['${item.code}'] = this.textContent">${savedSn}</td>
+        <td class="no-print" style="padding:3px 4px; text-align:center; color:#94a3b8; font-size:0.65rem;">PO</td>
+      `;
+      equipBody.appendChild(tr);
+    });
+
+    // Manual additions (e.g. items missing from Installation Report)
+    window._manualAnnexureItems.forEach((mItem, mIdx) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="padding:3px 4px; text-align:center; color:#64748b;">${idx++}</td>
+        <td contenteditable="true" class="editable-field" style="padding:3px 6px; font-weight:600; color:#1e293b;" oninput="window._manualAnnexureItems[${mIdx}].name = this.textContent">${mItem.name}</td>
+        <td contenteditable="true" class="editable-field" style="padding:3px 4px; text-align:center; font-weight:600;" oninput="window._manualAnnexureItems[${mIdx}].qty = this.textContent">${mItem.qty}</td>
+        <td contenteditable="true" class="cert-sn-cell" style="padding:3px 6px; color:#0f172a; outline:none;" oninput="window._manualAnnexureItems[${mIdx}].serials = this.textContent">${mItem.serials}</td>
+        <td class="no-print" style="padding:3px 4px; text-align:center;">
+          <button type="button" onclick="deleteManualAnnexureItem(${mIdx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;" title="Remove">×</button>
+        </td>
+      `;
+      equipBody.appendChild(tr);
+    });
+  }
+
+  if (devBody) {
+    devBody.innerHTML = '';
+    if (window._importedDevices.length === 0) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td colspan="8" style="padding:8px; text-align:center; color:#64748b; font-style:italic;">
+          No individual device rows imported yet. Click <strong>"Import Install PDF"</strong> above or <strong>"+ Add Device Row"</strong> to populate serial numbers.
+        </td>
+      `;
+      devBody.appendChild(tr);
+    } else {
+      window._importedDevices.forEach((dev, dIdx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="padding:3px 4px; text-align:center; color:#64748b;">${dIdx + 1}</td>
+          <td contenteditable="true" style="padding:3px 5px;" oninput="window._importedDevices[${dIdx}].station = this.textContent">${dev.station || '—'}</td>
+          <td contenteditable="true" style="padding:3px 5px; font-family:Consolas, monospace; font-weight:600;" oninput="window._importedDevices[${dIdx}].serial = this.textContent">${dev.serial || ''}</td>
+          <td contenteditable="true" style="padding:3px 5px; font-family:Consolas, monospace; font-size:0.62rem;" oninput="window._importedDevices[${dIdx}].buttonId = this.textContent">${dev.buttonId || '—'}</td>
+          <td contenteditable="true" style="padding:3px 5px; text-align:center;" oninput="window._importedDevices[${dIdx}].room = this.textContent">${dev.room || '—'}</td>
+          <td contenteditable="true" style="padding:3px 5px; text-align:center;" oninput="window._importedDevices[${dIdx}].location = this.textContent">${dev.location || '—'}</td>
+          <td contenteditable="true" style="padding:3px 5px; text-align:center;" oninput="window._importedDevices[${dIdx}].bed = this.textContent">${dev.bed || '—'}</td>
+          <td class="no-print" style="padding:3px 4px; text-align:center;">
+            <button type="button" onclick="deleteDeviceRow(${dIdx})" style="background:none; border:none; color:#ef4444; cursor:pointer; font-weight:700;" title="Remove">×</button>
+          </td>
+        `;
+        devBody.appendChild(tr);
+      });
+    }
+  }
+}
+
+function addManualAnnexureItem() {
+  window._manualAnnexureItems.push({
+    name: 'Additional Installed Item (Click to edit)',
+    qty: '1 Nos',
+    serials: ''
+  });
+  renderInstallAnnexure();
+}
+
+function deleteManualAnnexureItem(idx) {
+  window._manualAnnexureItems.splice(idx, 1);
+  renderInstallAnnexure();
+}
+
+function addManualDeviceRow() {
+  window._importedDevices.push({
+    station: 'Nursing Station',
+    serial: 'SN-',
+    buttonId: '—',
+    room: '—',
+    location: 'Station',
+    bed: '—'
+  });
+  renderInstallAnnexure();
+}
+
+function deleteDeviceRow(idx) {
+  window._importedDevices.splice(idx, 1);
+  renderInstallAnnexure();
+}
+
+async function importInstallationPdf(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (typeof pdfjsLib === 'undefined') {
+    alert('PDF parser (pdf.js) is still loading or unavailable offline. Please check internet connection or add items manually.');
+    return;
+  }
+
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    const allLines = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const tc = await page.getTextContent();
+      // Group text items by Y coordinate (tolerance 3px)
+      const rowsMap = new Map();
+      tc.items.forEach(item => {
+        const y = Math.round(item.transform[5] / 3) * 3;
+        if (!rowsMap.has(y)) rowsMap.set(y, []);
+        rowsMap.get(y).push({ x: item.transform[4], str: item.str });
+      });
+      const sortedYs = Array.from(rowsMap.keys()).sort((a, b) => b - a);
+      sortedYs.forEach(y => {
+        const line = rowsMap.get(y)
+          .sort((a, b) => a.x - b.x)
+          .map(i => i.str.trim())
+          .filter(Boolean)
+          .join(' ');
+        if (line) allLines.push(line);
+      });
+    }
+
+    const fullText = allLines.join('\n');
+    const el = id => document.getElementById(id);
+
+    // 1. Extract Install Ref (e.g. INS-1126-Credence Hospital-)
+    const refMatch = fullText.match(/INS-[A-Za-z0-9\s-]+?(?=\s*•|\s*\d{4}-\d{2}-\d{2}|$)/m);
+    if (refMatch && el('invInputInstRef')) {
+      el('invInputInstRef').value = refMatch[0].trim();
+    }
+
+    // 2. Extract Installation Date (YYYY-MM-DD)
+    const dateMatch = fullText.match(/Installation Date\s+(\d{4}-\d{2}-\d{2})/i) || fullText.match(/(\d{4}-\d{2}-\d{2})/);
+    if (dateMatch && el('invInputInstDate')) {
+      el('invInputInstDate').value = dateMatch[1];
+    }
+
+    // 3. Extract Installed By
+    for (let i = 0; i < allLines.length; i++) {
+      if (/Installed By/i.test(allLines[i])) {
+        const nextLine = allLines[i + 1] || '';
+        const engName = nextLine.replace(/Credence Hospital|Hospital \/ Customer/i, '').trim();
+        if (engName && engName.length < 50) {
+          if (el('certInstalledBy')) el('certInstalledBy').textContent = engName;
+          if (el('certTrainerName')) el('certTrainerName').textContent = engName;
+          if (el('certSigGenxName')) el('certSigGenxName').textContent = engName;
+        }
+        break;
+      }
+    }
+
+    // 4. Extract Network / Gateway Mode (values sit on the line below labels)
+    let instType = '';
+    let gwModel = '';
+    for (let i = 0; i < allLines.length; i++) {
+      if (/Type of Installation/i.test(allLines[i])) {
+        const valLine = (allLines[i + 1] || '').replace(/^\d{4}-\d{2}-\d{2}\s*/, '').trim();
+        if (valLine) instType = valLine;
+      }
+      if (/Offline Gateway Model/i.test(allLines[i])) {
+        const valLine = (allLines[i + 1] || '').replace(/Not Applicable/i, '').trim();
+        if (valLine) gwModel = valLine;
+      }
+    }
+    if (el('certNetworkMode')) {
+      const parts = [];
+      if (instType) parts.push(instType);
+      if (gwModel) parts.push(gwModel + ' Gateway');
+      if (parts.length > 0) el('certNetworkMode').textContent = parts.join(' · ');
+    }
+
+    // 5. Extract Device Rows by Nursing Station
+    const devices = [];
+    let currentStation = 'Main';
+    allLines.forEach(line => {
+      const stMatch = line.match(/Nursing Station:\s*(.+)/i);
+      if (stMatch) {
+        currentStation = stMatch[1].trim();
+        return;
+      }
+      // Match: <#> <SerialNumber> <ButtonID> <Room> <Location> <Bed>
+      const rowMatch = line.match(/^\d+\s+([A-Z0-9-]{6,})\s+([A-Z0-9]{10,})\s+(\S+)\s+(\S+)\s+(.+)$/);
+      if (rowMatch) {
+        devices.push({
+          station: currentStation,
+          serial: rowMatch[1],
+          buttonId: rowMatch[2],
+          room: rowMatch[3],
+          location: rowMatch[4],
+          bed: rowMatch[5].trim()
+        });
+      }
+    });
+
+    window._importedDevices = devices;
+    if (el('invIncludeAnnexure')) el('invIncludeAnnexure').checked = true;
+    updateTaxInvoiceView();
+
+    if (typeof showToast === 'function') {
+      showToast(`Imported ${devices.length} device serial(s) from ${file.name} (supplier letterhead stripped).`, 'success', 4000);
+    }
+  } catch (err) {
+    console.error('Install PDF import error:', err);
+    alert('Could not parse PDF: ' + err.message);
+  } finally {
+    event.target.value = '';
   }
 }
 

@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="style.css?v=4.9">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
@@ -832,9 +833,17 @@
         </datalist>
       </div>
       <div style="display:flex; align-items:center; gap:8px; border-left:1px solid #bbf7d0; padding-left:8px;">
+        <input type="file" id="instPdfFileInput" accept="application/pdf" style="display:none;" onchange="importInstallationPdf(event)">
+        <button type="button" class="btn btn-sm" style="background:#0f766e; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('instPdfFileInput').click()" title="Extract serial numbers &amp; details from Installation Report PDF without supplier letterhead">
+          <i data-lucide="file-up" size="13"></i> Import Install PDF
+        </button>
         <label style="margin:0; font-weight:600; color:#166534; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Include Cover Letter &amp; Payment Summary as Page 1 of the Tax Invoice Dossier">
           <input type="checkbox" id="invIncludeCover" checked onchange="updateTaxInvoiceView()">
           Cover Page
+        </label>
+        <label style="margin:0; font-weight:600; color:#374151; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Include Annexure A (PO/Invoice Equipment &amp; Serial Numbers)">
+          <input type="checkbox" id="invIncludeAnnexure" checked onchange="updateTaxInvoiceView()">
+          Device Annexure
         </label>
         <label style="margin:0; font-weight:600; color:#374151; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Normally Tax Invoice shows Full Amount and Cover Page shows Advance/Balance">
           <input type="checkbox" id="invShowAdvance" onchange="updateTaxInvoiceView()">
@@ -1055,8 +1064,12 @@
             <div><strong>Bank &amp; Branch:</strong> South Indian Bank, Technopark Trivandrum</div>
             <div><strong>IFSC Code:</strong> SIBL0000624</div>
             <div style="margin-top:5px; padding-top:4px; border-top:1px dashed #cbd5e1;">
-              <strong>Total Invoice Amount (in words):</strong><br>
+              <strong>Amount Chargeable (in words):</strong><br>
               <span id="tiWordsTotal" style="font-style:italic; font-weight:600; color:#1e293b;">–</span>
+            </div>
+            <div style="margin-top:3px;">
+              <strong>Tax Amount (in words):</strong><br>
+              <span id="tiWordsTax" style="font-style:italic; font-weight:600; color:#475569;">–</span>
             </div>
             <div style="margin-top:3px;" id="tiWordsBalanceWrap">
               <strong>Net Balance Due (in words):</strong><br>
@@ -1099,14 +1112,39 @@
           </div>
         </div>
 
+        <!-- Tally-style Tax Summary Breakdown -->
+        <table style="width:100%; border-collapse:collapse; margin-top:6px; font-size:0.67rem; border:1px solid #cbd5e1;" id="tiTaxBreakdownTable">
+          <thead>
+            <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;">Taxable Value</th>
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:center;" id="tiBreakCgstHead">CGST Rate</th>
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiBreakCgstAmtHead">CGST Amount</th>
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:center;" id="tiBreakSgstHead">SGST Rate</th>
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiBreakSgstAmtHead">SGST Amount</th>
+              <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;">Total Tax Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="font-weight:600;">
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiBreakTaxable">₹0.00</td>
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:center;" id="tiBreakCgstRate">9%</td>
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiBreakCgstAmt">₹0.00</td>
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:center;" id="tiBreakSgstRate">9%</td>
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right;" id="tiBreakSgstAmt">₹0.00</td>
+              <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:right; color:var(--brand-navy);" id="tiBreakTotalTax">₹0.00</td>
+            </tr>
+          </tbody>
+        </table>
+
         <!-- Declaration & Signatory -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; font-size:0.69rem; border-top:1px solid #e2e8f0; padding-top:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; font-size:0.69rem; border-top:1px solid #e2e8f0; padding-top:6px;">
           <div style="color:#64748b; max-width:65%;">
             <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.
           </div>
           <div style="text-align:right;">
-            <div style="font-weight:700; color:var(--brand-navy); margin-bottom:28px;">for GENXIOT LLP</div>
-            <div style="border-top:1px solid #333; padding-top:2px; font-weight:600;">Authorized Signatory</div>
+            <div style="font-weight:700; color:var(--brand-navy); margin-bottom:24px;">for GENXIOT LLP</div>
+            <div style="border-top:1px solid #333; padding-top:2px; font-weight:700;" contenteditable="true" id="tiSigName" class="editable-field">Authorized Signatory</div>
+            <div style="font-size:0.64rem; color:#475569;" contenteditable="true" id="tiSigDesig" class="editable-field">GENXIOT LLP</div>
           </div>
         </div>
       </div>
@@ -1132,48 +1170,29 @@
           SYSTEM COMMISSIONING, WARRANTY &amp; HANDOVER CERTIFICATE
         </div>
 
-        <div style="font-size:0.72rem; color:#334155; margin-bottom:10px; padding:6px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px;">
+        <div style="font-size:0.72rem; color:#334155; margin-bottom:10px; padding:6px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; display:grid; grid-template-columns:1fr 1fr; gap:4px 16px;">
           <div><strong>Hospital / Facility:</strong> <span id="certClientName">Hospital Name</span></div>
           <div><strong>Buyer PO Ref:</strong> <span id="certPoRef">–</span></div>
           <div><strong>Installation Ref:</strong> <span id="certInstallRef">–</span></div>
           <div><strong>Commissioning Date:</strong> <span id="certCommDate">–</span></div>
+          <div><strong>Installed By:</strong> <span id="certInstalledBy" contenteditable="true" class="editable-field">Muhainmin A S</span></div>
+          <div><strong>Network &amp; Gateway Mode:</strong> <span id="certNetworkMode" contenteditable="true" class="editable-field">Offline / Local RF Network</span></div>
         </div>
 
         <!-- Section 1: Scope Completion & Commissioning -->
         <div style="margin-bottom:10px;">
-          <h4 style="font-size:0.78rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
             1. Scope Completion &amp; System Commissioning
           </h4>
           <p style="font-size:0.70rem; line-height:1.42; color:#333; margin:0;">
-            GenXIoT LLP confirms that the wireless Nurse Call / IoT System specified under Purchase Order <strong id="certPoInline">–</strong> has been successfully delivered, installed, RF-calibrated, and commissioned into active operational service at <strong id="certClientInline">Hospital Name</strong>. All bedside call points, patient pendants, over-door lights, wireless gateways, repeaters, and central monitoring smart displays have passed multi-stage functional verification and live alert testing.
+            GenXIoT LLP confirms that the wireless Nurse Call / IoT System specified under Purchase Order <strong id="certPoInline">–</strong> has been successfully delivered, installed, RF-calibrated, and commissioned into active operational service at <strong id="certClientInline">Hospital Name</strong>. All installed hardware units, accessories, gateways, repeaters, and monitoring displays (detailed in <strong>Annexure A</strong>) have passed multi-stage functional verification and live alert testing.
           </p>
         </div>
 
-        <!-- Section 2: Installed Equipment & Serial Numbers -->
-        <div style="margin-bottom:8px;">
-          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em; display:flex; justify-content:space-between; align-items:center;">
-            <span>2. Installed Equipment &amp; Serial Numbers</span>
-            <span class="no-print" style="font-size:0.65rem; font-weight:500; color:#64748b; text-transform:none; letter-spacing:0;">Click serial number cells below to edit before printing</span>
-          </h4>
-          <table style="width:100%; border-collapse:collapse; font-size:0.67rem; line-height:1.3; border:1px solid #cbd5e1;">
-            <thead>
-              <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
-                <th style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; width:24px;">#</th>
-                <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; width:36%;">Equipment / Component</th>
-                <th style="padding:3px 5px; border:1px solid #cbd5e1; text-align:center; width:45px;">Qty</th>
-                <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left;">Serial Number(s) / Device ID(s) / Location</th>
-              </tr>
-            </thead>
-            <tbody id="certSerialBody">
-              <!-- Populated dynamically from BOM -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Section 3: Certified Warranty & Maintenance Agreement -->
-        <div style="margin-bottom:8px;">
+        <!-- Section 2: Certified Warranty & Maintenance Agreement -->
+        <div style="margin-bottom:10px;">
           <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            3. Certified Warranty &amp; Maintenance Coverage
+            2. Certified Warranty &amp; Maintenance Coverage
           </h4>
           <table style="width:100%; border-collapse:collapse; font-size:0.69rem; line-height:1.38; border:1px solid #cbd5e1;">
             <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
@@ -1206,41 +1225,128 @@
           </table>
         </div>
 
-        <!-- Section 4: Training Acknowledgment -->
-        <div style="margin-bottom:8px;">
+        <!-- Section 3: Training Acknowledgment -->
+        <div style="margin-bottom:10px;">
           <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 3px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            4. Clinical &amp; Biomedical Staff Training Completed
+            3. Clinical &amp; Biomedical Staff Training Completed
           </h4>
-          <p style="font-size:0.69rem; line-height:1.38; color:#333; margin:0;">
-            Comprehensive operational training covering bedside call initiation, housekeeping calls, emergency alert acknowledgement, staff presence tracking, central monitor dashboard navigation, and basic troubleshooting was successfully conducted for hospital nursing and technical staff on <strong id="certTrainingDate">–</strong>.
+          <p style="font-size:0.69rem; line-height:1.38; color:#333; margin:0 0 6px;">
+            Comprehensive operational training covering device operation &amp; indicators, escalation workflow, system dashboard usage, and basic troubleshooting was conducted for hospital nursing and technical staff on <strong id="certTrainingDate">–</strong>.
           </p>
-        </div>
-
-        <!-- Section 5: Bilateral Handover Sign-off Block -->
-        <div style="margin-top:10px;">
-          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 4px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
-            5. Acceptance &amp; Handover Sign-Off
-          </h4>
-          <div class="sig-section" style="margin-top:10px; gap:2.5rem;">
-            <div class="sig-block">
-              <div class="sig-line"></div>
-              <p class="sig-name" id="certSigGenxName">Muhainmin A S</p>
-              <p class="sig-org">Commissioning Engineer · GENXIOT LLP</p>
-              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Signature &amp; Official Stamp</p>
-              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Date: <span id="certSigDateGenx">–</span></p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.69rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:6px 10px;">
+            <div>
+              <strong>Trainer:</strong> <span contenteditable="true" id="certTrainerName" class="editable-field">Muhainmin A S</span><br>
+              <span style="color:#64748b;" contenteditable="true" id="certTrainerDesig" class="editable-field">Field Application Engineer · GENXIOT LLP</span>
             </div>
-            <div class="sig-block">
-              <div class="sig-line"></div>
-              <p class="sig-name">Accepted &amp; Handover Received By</p>
-              <p class="sig-org" id="certSigClientName">Hospital Name</p>
-              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Biomedical Engineer / Nursing In-Charge</p>
-              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Signature, Designation &amp; Stamp: ____________________</p>
+            <div>
+              <strong>Trainee / Staff Representative:</strong> <span contenteditable="true" id="certTraineeName" class="editable-field">Nursing / BioMed Representative</span><br>
+              <span style="color:#64748b;" contenteditable="true" id="certTraineeDesig" class="editable-field">Nursing In-Charge / Biomedical Dept.</span>
             </div>
           </div>
         </div>
 
-        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.70rem; padding-top: 6px; border-top: 1px solid #eee; margin-top: 16px;">
+        <!-- Section 4: Bilateral Handover Sign-off Block -->
+        <div style="margin-top:10px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 4px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+            4. Acceptance &amp; Handover Sign-Off
+          </h4>
+          <div class="sig-section" style="margin-top:10px; gap:2.5rem;">
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <p class="sig-name editable-field" contenteditable="true" id="certSigGenxName">Muhainmin A S</p>
+              <p class="sig-org editable-field" contenteditable="true" id="certSigGenxDesig">Commissioning Engineer · GENXIOT LLP</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Handed Over By · Signature &amp; Stamp</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Date: <span id="certSigDateGenx">–</span></p>
+            </div>
+            <div class="sig-block">
+              <div class="sig-line"></div>
+              <p class="sig-name editable-field" contenteditable="true" id="certSigClientPerson">Authorized Representative</p>
+              <p class="sig-org editable-field" contenteditable="true" id="certSigClientDesig">Biomedical Engineer / Nursing In-Charge</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;" id="certSigClientName">Hospital Name</p>
+              <p style="font-size:0.68rem; color:#666; margin-top:2px;">Received By · Signature &amp; Official Stamp</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-footer" style="text-align: center; color: #777; font-size: 0.70rem; padding-top: 6px; border-top: 1px solid #eee; margin-top: 14px;">
           <span style="font-weight: 600; color: #444;">GenXIoT LLP</span> &nbsp;|&nbsp; <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP
+        </div>
+      </div>
+
+      <!-- ── PAGE: ANNEXURE A – INSTALLED EQUIPMENT & DEVICE SERIAL NUMBERS (Page 4+ of Dossier) ── -->
+      <div class="doc-page install-annexure-page" id="pageInstallAnnexure" style="display:none;">
+        <div class="qtn-header" style="margin-bottom:6px;">
+          <div class="qtn-h-left">
+            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
+            <div class="qtn-company">GENXIOT LLP</div>
+            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
+            <div class="qtn-addr">STPI Building, Technopark, Trivandrum &nbsp;|&nbsp; GSTIN: 32ABDFG7210J1ZP</div>
+          </div>
+          <div class="qtn-h-right" style="text-align:right;">
+            <div style="font-size:0.75rem; color:#64748b;">INSTALLATION &amp; ASSET ANNEXURE</div>
+            <div style="font-weight:700; font-size:0.85rem; color:var(--brand-navy); margin-top:2px;">ANNEXURE A · INVOICE #<span id="annexInvRef">1</span></div>
+            <div style="font-size:0.72rem; color:#475569; margin-top:2px;">Install Ref: <span id="annexInstRef">–</span></div>
+            <div style="font-size:0.72rem; color:#475569;">Install Date: <span id="annexInstDate">–</span></div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 4px 0 8px; padding: 4px 0; background: var(--brand-navy); color: #fff; font-weight: 700; font-size: 0.84rem; letter-spacing: 0.06em; text-transform: uppercase;">
+          ANNEXURE A: INSTALLED EQUIPMENT SUMMARY &amp; SERIAL NUMBERS
+        </div>
+
+        <!-- Part A: PO / Invoice Equipment Reconciliation (Includes items missing from raw Install PDF) -->
+        <div style="margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <h4 style="font-size:0.75rem; font-weight:700; color:var(--brand-navy); margin:0; text-transform:uppercase; letter-spacing:0.04em;">
+              A. Installed Equipment Summary (Aligned to PO / Invoice)
+            </h4>
+            <button type="button" class="no-print btn btn-sm" style="background:#eef2ff; color:var(--brand-indigo); border:1px solid #c7d2fe; padding:2px 8px; border-radius:4px; font-size:0.70rem; font-weight:600; cursor:pointer;" onclick="addManualAnnexureItem()">
+              + Add Missing Item
+            </button>
+          </div>
+          <table class="tax-inv-table" style="width:100%; border-collapse:collapse; font-size:0.68rem; line-height:1.3;">
+            <thead>
+              <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
+                <th style="padding:4px 4px; text-align:center; width:24px;">#</th>
+                <th style="padding:4px 6px; text-align:left; width:34%;">Equipment / Item Description</th>
+                <th style="padding:4px 4px; text-align:center; width:45px;">Qty</th>
+                <th style="padding:4px 6px; text-align:left;">Serial Number(s) / Location / Remarks</th>
+                <th class="no-print" style="padding:4px 4px; text-align:center; width:28px;"></th>
+              </tr>
+            </thead>
+            <tbody id="annexEquipBody">
+              <!-- Populated from BOM + Manual additions -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Part B: Detailed Device Log (Imported from Installation Report PDF + Manual Additions) -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <h4 style="font-size:0.75rem; font-weight:700; color:var(--brand-navy); margin:0; text-transform:uppercase; letter-spacing:0.04em;">
+              B. Installed Device Serial Log by Nursing Station
+            </h4>
+            <button type="button" class="no-print btn btn-sm" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:2px 8px; border-radius:4px; font-size:0.70rem; font-weight:600; cursor:pointer;" onclick="addManualDeviceRow()">
+              + Add Device Row
+            </button>
+          </div>
+          <table class="tax-inv-table" style="width:100%; border-collapse:collapse; font-size:0.66rem; line-height:1.28;">
+            <thead>
+              <tr style="background:#f1f5f9; color:#1e293b; font-weight:700;">
+                <th style="padding:3px 4px; text-align:center; width:24px;">#</th>
+                <th style="padding:3px 5px; text-align:left; width:14%;">Station / Floor</th>
+                <th style="padding:3px 5px; text-align:left; width:22%;">Serial Number</th>
+                <th style="padding:3px 5px; text-align:left; width:26%;">Button / Device ID</th>
+                <th style="padding:3px 5px; text-align:center; width:10%;">Room</th>
+                <th style="padding:3px 5px; text-align:center; width:12%;">Location</th>
+                <th style="padding:3px 5px; text-align:center; width:12%;">Bed / Unit</th>
+                <th class="no-print" style="padding:3px 4px; text-align:center; width:26px;"></th>
+              </tr>
+            </thead>
+            <tbody id="annexDeviceBody">
+              <!-- Populated from PDF import or manual addition -->
+            </tbody>
+          </table>
         </div>
       </div>
 

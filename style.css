@@ -308,7 +308,8 @@ textarea { resize:vertical; }
 /* ── COVER PAGE ─────────────────────────────── */
 .cover-page { display:flex;flex-direction:column; }
 .tax-invoice-page,
-.handover-cert-page {
+.handover-cert-page,
+.install-annexure-page {
   display: flex;
   flex-direction: column;
   background: #fff;
@@ -319,6 +320,16 @@ textarea { resize:vertical; }
   padding: 30px 40px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.06);
   border-radius: 4px;
+}
+.editable-field {
+  border-bottom: 1px dashed #94a3b8;
+  padding: 0 2px;
+  cursor: text;
+}
+.editable-field:focus {
+  outline: none;
+  background: #eff6ff;
+  border-bottom: 1px solid var(--brand-indigo);
 }
 .tax-inv-table th,
 .tax-inv-table td {
@@ -1782,10 +1793,16 @@ tr.grp-row + tr {
   }
 
   /* ── Tax Invoice & Handover Dossier Print Styles ── */
+  .editable-field {
+    border-bottom: none !important;
+    padding: 0 !important;
+  }
   .tax-invoice-page,
   #pageTaxInvoice,
   .handover-cert-page,
-  #pageHandoverCert {
+  #pageHandoverCert,
+  .install-annexure-page,
+  #pageInstallAnnexure {
     display: none !important;
   }
 
@@ -1818,6 +1835,33 @@ tr.grp-row + tr {
     break-before: auto !important;
     page-break-after: always !important;
     break-after: page !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+    width: 100% !important;
+    max-width: 210mm !important;
+    margin: 0 auto !important;
+    padding: 8mm 12mm 6mm 12mm !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  body.mode-tax-invoice #pageTaxInvoice thead,
+  body.mode-tax-invoice #pageInstallAnnexure thead {
+    display: table-header-group !important;
+  }
+  body.mode-tax-invoice #pageTaxInvoice tr,
+  body.mode-tax-invoice #pageInstallAnnexure tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  body.mode-tax-invoice #pageHandoverCert {
+    display: block !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
+    page-break-after: auto !important;
+    break-after: auto !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
     width: 100% !important;
@@ -1829,14 +1873,14 @@ tr.grp-row + tr {
     border-radius: 0 !important;
   }
 
-  body.mode-tax-invoice #pageHandoverCert {
+  body.mode-tax-invoice.include-annexure #pageInstallAnnexure {
     display: block !important;
     page-break-before: always !important;
     break-before: page !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
     width: 100% !important;
     max-width: 210mm !important;
     margin: 0 auto !important;
