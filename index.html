@@ -834,8 +834,12 @@
       </div>
       <div style="display:flex; align-items:center; gap:8px; border-left:1px solid #bbf7d0; padding-left:8px;">
         <input type="file" id="poPdfFileInput" accept="application/pdf" style="display:none;" onchange="importPoPdf(event)">
-        <button type="button" class="btn btn-sm" style="background:#1e3a8a; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('poPdfFileInput').click()" title="Import Hospital PO PDF to cross-check totals, rates, discounts &amp; warranty terms">
+        <button type="button" class="btn btn-sm" style="background:#1e3a8a; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('poPdfFileInput').click()" title="Import Hospital PO PDF to cross-check totals, GSTIN, address &amp; warranty terms">
           <i data-lucide="file-search" size="13"></i> Import PO PDF
+        </button>
+        <input type="file" id="tallyPdfFileInput" accept="application/pdf" style="display:none;" onchange="importTallyPdf(event)">
+        <button type="button" class="btn btn-sm" style="background:#7c3aed; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('tallyPdfFileInput').click()" title="Import Tally Tax Invoice PDF to cross-check figures, GSTIN &amp; line items">
+          <i data-lucide="file-check-2" size="13"></i> Import Tally PDF
         </button>
         <input type="file" id="instPdfFileInput" accept="application/pdf" style="display:none;" onchange="importInstallationPdf(event)">
         <button type="button" class="btn btn-sm" style="background:#0f766e; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('instPdfFileInput').click()" title="Extract serial numbers &amp; details from Installation Report PDF without supplier letterhead">
@@ -857,12 +861,15 @@
       </div>
     </div>
 
-    <!-- PO Cross-Check Banner (Visible after importing PO PDF) -->
-    <div class="modal-ctrl no-print" id="poCrossCheckBanner" style="display:none; background:#eff6ff; border-top:1px solid #bfdbfe; padding:6px 16px; font-size:0.74rem; color:#1e3a8a; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
-      <div id="poCrossCheckSummary">PO Cross-Check Ready</div>
-      <div style="display:flex; gap:8px; align-items:center;">
-        <button type="button" id="btnApplyPoSync" class="btn btn-sm" style="background:#1d4ed8; color:#fff; border:none; padding:3px 10px; border-radius:4px; font-size:0.72rem; font-weight:600; cursor:pointer;" onclick="applyPoOverridesToInvoice()">
-          Sync Invoice &amp; Warranty to PO
+    <!-- 3-Way Cross-Check & Source Selector Banner (App vs PO vs Tally) -->
+    <div class="modal-ctrl no-print" id="poCrossCheckBanner" style="display:none; background:#eff6ff; border-top:1px solid #bfdbfe; padding:8px 16px; font-size:0.74rem; color:#1e3a8a; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div id="poCrossCheckSummary" style="flex:1; min-width:260px;">Cross-Check Ready</div>
+      <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+        <button type="button" id="btnApplyPoSync" class="btn btn-sm" style="display:none; background:#1d4ed8; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:0.72rem; font-weight:600; cursor:pointer;" onclick="applyPoOverridesToInvoice()">
+          Use PO Details &amp; Warranty
+        </button>
+        <button type="button" id="btnApplyTallySync" class="btn btn-sm" style="display:none; background:#7c3aed; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:0.72rem; font-weight:600; cursor:pointer;" onclick="applyTallyOverridesToInvoice()">
+          Use Tally Invoice Details &amp; Items
         </button>
         <button type="button" onclick="document.getElementById('poCrossCheckBanner').style.display='none'" style="background:none; border:none; color:#64748b; cursor:pointer; font-weight:700; font-size:0.9rem;" title="Dismiss">×</button>
       </div>

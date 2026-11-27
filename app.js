@@ -3701,9 +3701,11 @@ function updateTaxInvoiceView() {
     }
   }
 
-  // Populate Table Items
+  // Populate Table Items (preserve Tally-synced rows if active)
   const tbody = el('tiItemBody');
-  if (tbody) {
+  if (tbody && window._tiUsingTallyItems && tbody.querySelectorAll('tr').length > 0) {
+    recalcTaxInvoiceFromTable();
+  } else if (tbody) {
     tbody.innerHTML = '';
     let sr = 1;
     let totQty = 0;
@@ -4179,8 +4181,31 @@ function recalcTaxInvoiceFromTable() {
   if (window._lastImportedPo) updatePoCrossCheckBanner();
 }
 
-// ─── PO PDF IMPORT & CROSS-CHECK ─────────────────────────────────────────────
+// ─── PO & TALLY PDF IMPORT & 3-WAY CROSS-CHECK ───────────────────────────────
 window._lastImportedPo = null;
+window._lastImportedTally = null;
+
+async function _extractPdfLines(file) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const allLines = [];
+  for (let p = 1; p <= pdf.numPages; p++) {
+    const page = await pdf.getPage(p);
+    const tc = await page.getTextContent();
+    const rowsMap = new Map();
+    tc.items.forEach(item => {
+      const y = Math.round(item.transform[5] / 3) * 3;
+      if (!rowsMap.has(y)) rowsMap.set(y, []);
+      rowsMap.get(y).push({ x: item.transform[4], str: item.str });
+    });
+    Array.from(rowsMap.keys()).sort((a, b) => b - a).forEach(y => {
+      const line = rowsMap.get(y).sort((a, b) => a.x - b.x).map(i => i.str.trim()).filter(Boolean).join(' ');
+      if (line) allLines.push(line);
+    });
+  }
+  return allLines;
+}
 
 async function importPoPdf(event) {
   const file = event.target.files?.[0];
@@ -4191,30 +4216,35 @@ async function importPoPdf(event) {
   }
 
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-    const allLines = [];
-    for (let p = 1; p <= pdf.numPages; p++) {
-      const page = await pdf.getPage(p);
-      const tc = await page.getTextContent();
-      const rowsMap = new Map();
-      tc.items.forEach(item => {
-        const y = Math.round(item.transform[5] / 3) * 3;
-        if (!rowsMap.has(y)) rowsMap.set(y, []);
-        rowsMap.get(y).push({ x: item.transform[4], str: item.str });
-      });
-      Array.from(rowsMap.keys()).sort((a, b) => b - a).forEach(y => {
-        const line = rowsMap.get(y).sort((a, b) => a.x - b.x).map(i => i.str.trim()).filter(Boolean).join(' ');
-        if (line) allLines.push(line);
-      });
-    }
-
+    const allLines = await _extractPdfLines(file);
     const fullText = allLines.join('\n');
+
     const poNoMatch = fullText.match(/PO\.?\s*No\s*:?\s*([A-Z0-9\/_-]+)/i);
     const poDateMatch = fullText.match(/Date\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
     const totalMatch = fullText.match(/\bTotal\s+([\d,]+\.\d{2})\b/i);
+
+    // Extract Customer GSTIN (any valid GSTIN other than GenXIoT's 32ABDFG7210J1ZP)
+    const gstMatches = fullText.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/g) || [];
+    const buyerGst = gstMatches.find(g => g !== '32ABDFG7210J1ZP') || '';
+
+    // Extract Delivery / Hospital Name & Address
+    const delivNameMatch = fullText.match(/Delivery Address\s*:\s*([^\n]+)/i);
+    let buyerName = delivNameMatch ? delivNameMatch[1].trim() : '';
+    let buyerAddr = '';
+    for (let i = 0; i < allLines.length; i++) {
+      if (/^Delivery Address\s*:/i.test(allLines[i])) {
+        const nextL = (allLines[i + 1] || '').trim();
+        if (nextL && !/^Ph:|^Fax:|^E-mail/i.test(nextL)) buyerAddr = nextL;
+        break;
+      }
+      if (/^Near\s+|^.*Kerala\s+\d{6}/i.test(allLines[i]) && !buyerAddr) {
+        buyerAddr = allLines[i].trim();
+      }
+    }
+
+    // Extract Approver Name
+    const appMatch = fullText.match(/Approved By\s*:\s*([^\n(]+)/i);
+    const approverName = appMatch ? appMatch[1].trim() : '';
 
     const hwWarrMatch = fullText.match(/Bed Call point.*?Warranty[^\n.]*/i);
     const tvWarrMatch = fullText.match(/Smart TV\s+warr[a-z]*y[^\n.]*/i);
@@ -4225,6 +4255,10 @@ async function importPoPdf(event) {
       poNo: poNoMatch ? poNoMatch[1].trim() : '',
       poDateIso: poDateMatch ? `${poDateMatch[3]}-${poDateMatch[2]}-${poDateMatch[1]}` : '',
       poTotal: totalMatch ? parseFloat(totalMatch[1].replace(/,/g, '')) : 0,
+      buyerGst,
+      buyerName,
+      buyerAddr,
+      approverName,
       hwWarranty: hwWarrMatch ? hwWarrMatch[0].trim() : '',
       tvWarranty: tvWarrMatch ? tvWarrMatch[0].trim() : '',
       paymentTerms: payMatch ? payMatch[0].trim() : ''
@@ -4233,12 +4267,15 @@ async function importPoPdf(event) {
     const el = id => document.getElementById(id);
     if (window._lastImportedPo.poNo && el('invInputPo')) el('invInputPo').value = window._lastImportedPo.poNo;
     if (window._lastImportedPo.poDateIso && el('invInputPoDate')) el('invInputPoDate').value = window._lastImportedPo.poDateIso;
+    // Auto-fill missing GSTIN / Location if currently blank
+    if (buyerGst && el('clientGst') && !el('clientGst').value.trim()) el('clientGst').value = buyerGst;
+    if (buyerAddr && el('clientLocation') && !el('clientLocation').value.trim()) el('clientLocation').value = buyerAddr;
 
     updateTaxInvoiceView();
     updatePoCrossCheckBanner();
 
     if (typeof showToast === 'function') {
-      showToast(`PO ${window._lastImportedPo.poNo || file.name} imported for cross-check.`, 'success', 3500);
+      showToast(`PO ${window._lastImportedPo.poNo || file.name} imported (${buyerGst ? 'GSTIN: ' + buyerGst : 'no GSTIN'}).`, 'success', 3500);
     }
   } catch (err) {
     console.error('PO PDF import error:', err);
@@ -4248,29 +4285,160 @@ async function importPoPdf(event) {
   }
 }
 
+async function importTallyPdf(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (typeof pdfjsLib === 'undefined') {
+    alert('PDF parser (pdf.js) is unavailable.');
+    return;
+  }
+
+  try {
+    const allLines = await _extractPdfLines(file);
+    const fullText = allLines.join('\n');
+
+    // Invoice No & Date (e.g. "2" near "Invoice No." and "26-Nov-26")
+    let invNo = '';
+    for (let i = 0; i < allLines.length; i++) {
+      if (/Invoice No\./i.test(allLines[i])) {
+        const windowText = allLines.slice(i, i + 4).join(' ');
+        const mDateLine = windowText.match(/\b([A-Za-z0-9\/_-]+)\s+\d{1,2}-[A-Za-z]{3}-\d{2,4}\b/);
+        if (mDateLine && !/^(Dated|No\.|LLP|Genxiot)$/i.test(mDateLine[1])) {
+          invNo = mDateLine[1].trim();
+        } else {
+          const mAfterLlp = windowText.match(/Genxiot\s+LLP\s+([A-Za-z0-9\/_-]+)/i);
+          if (mAfterLlp) invNo = mAfterLlp[1].trim();
+        }
+        break;
+      }
+    }
+    const dtMatch = fullText.match(/\b(\d{1,2})-([A-Za-z]{3})-(\d{2,4})\b/);
+    let invDateIso = '';
+    if (dtMatch) {
+      const months = { jan:'01', feb:'02', mar:'03', apr:'04', may:'05', jun:'06', jul:'07', aug:'08', sep:'09', oct:'10', nov:'11', dec:'12' };
+      const mm = months[dtMatch[2].toLowerCase()] || '01';
+      const yr = dtMatch[3].length === 2 ? '20' + dtMatch[3] : dtMatch[3];
+      invDateIso = `${yr}-${mm}-${String(dtMatch[1]).padStart(2, '0')}`;
+    }
+
+    const gstMatches = fullText.match(/\b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b/g) || [];
+    const buyerGst = gstMatches.find(g => g !== '32ABDFG7210J1ZP') || '';
+
+    // Buyer Name & Address under "Buyer (Bill to)"
+    let buyerName = '';
+    let buyerAddrLines = [];
+    for (let i = 0; i < allLines.length; i++) {
+      if (/Buyer\s*\(Bill to\)/i.test(allLines[i])) {
+        buyerName = (allLines[i + 1] || '').trim();
+        for (let k = i + 2; k < Math.min(i + 6, allLines.length); k++) {
+          if (/GSTIN|State Name/i.test(allLines[k])) break;
+          buyerAddrLines.push(allLines[k].trim());
+        }
+        break;
+      }
+    }
+
+    // Grand Total (e.g. "₹ 93,258.94" or max amount near Total / Amount Chargeable)
+    const rupeeMatch = fullText.match(/₹\s*([\d,]+\.\d{2})/);
+    let tallyTotal = rupeeMatch ? parseFloat(rupeeMatch[1].replace(/,/g, '')) : 0;
+    if (!tallyTotal) {
+      const totLine = allLines.find(l => /\bTotal\s+[\d.]+\s+Nos\b/i.test(l)) || '';
+      const nums = (totLine.match(/[\d,]+\.\d{2}/g) || []).map(s => parseFloat(s.replace(/,/g, ''))).filter(n => !isNaN(n));
+      if (nums.length > 0) tallyTotal = Math.max(...nums);
+    }
+
+    // Extract Tally Line Items
+    const items = [];
+    for (let i = 0; i < allLines.length; i++) {
+      // Look for lines containing HSN/SAC + Qty Nos + Rate + Nos + ... + LineTotal
+      const m = allLines[i].match(/\b(\d{4,8})\s+([\d.]+)\s+Nos\s+([\d,]+\.\d{2})\s+Nos\s+(?:(\d+)\s*%\s+)?([\d,]+\.\d{2}).*?([\d,]+\.\d{2})$/);
+      if (m) {
+        // Gather description from preceding lines back to Sl No
+        let descParts = [];
+        for (let b = i - 1; b >= Math.max(0, i - 5); b--) {
+          if (/^(Sl|No\.|Terms of Delivery|State Name|Buyer)/i.test(allLines[b])) break;
+          const clean = allLines[b].replace(/^\d+\s+/, '').trim();
+          descParts.unshift(clean);
+          if (/^\d+\s+/.test(allLines[b])) break;
+        }
+        const prefix = allLines[i].substring(0, allLines[i].indexOf(m[1])).replace(/^\d+\s+/, '').trim();
+        if (prefix) descParts.push(prefix);
+
+        items.push({
+          desc: descParts.join(' ').trim() || 'Item',
+          hsn: m[1],
+          qty: parseFloat(m[2]) || 1,
+          rate: parseFloat(m[3].replace(/,/g, '')) || 0,
+          discPct: parseFloat(m[4]) || 0
+        });
+      }
+    }
+
+    window._lastImportedTally = {
+      fileName: file.name,
+      invNo,
+      invDateIso,
+      buyerName,
+      buyerAddr: buyerAddrLines.join(', '),
+      buyerGst,
+      tallyTotal,
+      items
+    };
+
+    updatePoCrossCheckBanner();
+    if (typeof showToast === 'function') {
+      showToast(`Tally Invoice #${invNo || '?'} imported (₹${fmt(tallyTotal)}, ${items.length} items).`, 'success', 3500);
+    }
+  } catch (err) {
+    console.error('Tally PDF import error:', err);
+    alert('Could not parse Tally PDF: ' + err.message);
+  } finally {
+    event.target.value = '';
+  }
+}
+
 function updatePoCrossCheckBanner() {
   const po = window._lastImportedPo;
+  const tally = window._lastImportedTally;
   const banner = document.getElementById('poCrossCheckBanner');
   const summary = document.getElementById('poCrossCheckSummary');
-  if (!po || !banner || !summary) return;
+  const btnPo = document.getElementById('btnApplyPoSync');
+  const btnTally = document.getElementById('btnApplyTallySync');
+  if ((!po && !tally) || !banner || !summary) return;
 
   const invTotal = window._tiLastTotal || 0;
-  const diff = Math.round((invTotal - po.poTotal) * 100) / 100;
-  const isMatch = po.poTotal > 0 && Math.abs(diff) < 0.05;
+  const appGst = (document.getElementById('clientGst')?.value || '').trim();
+  const parts = [];
+  let hasMismatch = false;
+
+  if (po) {
+    const diff = Math.round((invTotal - po.poTotal) * 100) / 100;
+    const ok = po.poTotal > 0 && Math.abs(diff) < 0.05;
+    if (!ok) hasMismatch = true;
+    parts.push(`<strong>PO (${po.poNo || po.fileName}):</strong> ₹${fmt(po.poTotal)} ${ok ? '✔' : `(⚠ diff ₹${fmt(diff)})`}${po.buyerGst ? ` · GSTIN: ${po.buyerGst}` : ''}`);
+  }
+  if (tally) {
+    const diff = Math.round((invTotal - tally.tallyTotal) * 100) / 100;
+    const ok = tally.tallyTotal > 0 && Math.abs(diff) < 0.05;
+    if (!ok) hasMismatch = true;
+    parts.push(`<strong>Tally (#${tally.invNo || '?'}):</strong> ₹${fmt(tally.tallyTotal)} ${ok ? '✔' : `(⚠ diff ₹${fmt(diff)})`}${tally.buyerGst ? ` · GSTIN: ${tally.buyerGst}` : ''}`);
+  }
+
+  const gstMismatch = (po?.buyerGst && po.buyerGst !== appGst) || (tally?.buyerGst && tally.buyerGst !== appGst);
+  if (gstMismatch) hasMismatch = true;
 
   banner.style.display = 'flex';
-  banner.style.background = isMatch ? '#ecfdf5' : '#fef2f2';
-  banner.style.borderTopColor = isMatch ? '#a7f3d0' : '#fecaca';
-  banner.style.color = isMatch ? '#065f46' : '#991b1b';
+  banner.style.background = hasMismatch ? '#fef2f2' : '#ecfdf5';
+  banner.style.borderTopColor = hasMismatch ? '#fecaca' : '#a7f3d0';
+  banner.style.color = hasMismatch ? '#991b1b' : '#065f46';
+
+  if (btnPo) btnPo.style.display = po ? '' : 'none';
+  if (btnTally) btnTally.style.display = tally ? '' : 'none';
 
   summary.innerHTML = `
-    <strong>PO Cross-Check (${po.poNo || po.fileName}):</strong>
-    PO Total: <strong>₹${fmt(po.poTotal)}</strong> vs Invoice Total: <strong>₹${fmt(invTotal)}</strong>
-    ${isMatch
-      ? ' — <span style="font-weight:700;">✔ EXACT MATCH</span>'
-      : ` — <span style="font-weight:700;">⚠ Variance: ₹${fmt(diff)}</span>`
-    }
-    ${po.hwWarranty || po.tvWarranty ? `<div style="font-size:0.70rem; margin-top:2px; opacity:0.9;">Detected PO Warranty Terms: ${[po.hwWarranty, po.tvWarranty].filter(Boolean).join(' | ')}</div>` : ''}
+    <div><strong>App Invoice:</strong> ₹${fmt(invTotal)} ${appGst ? `· GSTIN: ${appGst}` : '· <span style="color:#b91c1c;">GSTIN Missing!</span>'}</div>
+    <div style="margin-top:2px;">${parts.join(' &nbsp;|&nbsp; ')}</div>
+    ${po && (po.hwWarranty || po.tvWarranty) ? `<div style="font-size:0.69rem; margin-top:2px; opacity:0.9;">PO Warranty: ${[po.hwWarranty, po.tvWarranty].filter(Boolean).join(' | ')}</div>` : ''}
   `;
 }
 
@@ -4279,6 +4447,13 @@ function applyPoOverridesToInvoice() {
   if (!po) return;
   const el = id => document.getElementById(id);
 
+  if (po.buyerGst && el('clientGst')) el('clientGst').value = po.buyerGst;
+  if (po.buyerName && el('clientName')) el('clientName').value = po.buyerName;
+  if (po.buyerAddr && el('clientLocation')) el('clientLocation').value = po.buyerAddr;
+  if (po.approverName && el('certSigClientPerson')) {
+    el('certSigClientPerson').textContent = po.approverName;
+    el('certSigClientPerson').dataset.userEdited = 'true';
+  }
   if (po.hwWarranty) {
     if (el('invInputWarrHw')) el('invInputWarrHw').value = po.hwWarranty;
     if (el('certHwWarrText')) {
@@ -4297,8 +4472,53 @@ function applyPoOverridesToInvoice() {
     el('tiPaymentTermsText').textContent = po.paymentTerms;
     el('tiPaymentTermsText').dataset.userEdited = 'true';
   }
+  updateTaxInvoiceView();
   if (typeof showToast === 'function') {
-    showToast('Applied PO warranty & payment terms to Invoice & Handover Certificate.', 'success', 3000);
+    showToast('Applied PO GSTIN, Address, Approver & Warranty terms to Invoice.', 'success', 3000);
+  }
+}
+
+function applyTallyOverridesToInvoice() {
+  const tally = window._lastImportedTally;
+  if (!tally) return;
+  const el = id => document.getElementById(id);
+
+  if (tally.invNo && el('invInputNo')) el('invInputNo').value = tally.invNo;
+  if (tally.invDateIso && el('invInputDate')) el('invInputDate').value = tally.invDateIso;
+  if (tally.buyerName && el('clientName')) el('clientName').value = tally.buyerName;
+  if (tally.buyerAddr && el('clientLocation')) el('clientLocation').value = tally.buyerAddr;
+  if (tally.buyerGst && el('clientGst')) el('clientGst').value = tally.buyerGst;
+
+  updateTaxInvoiceView();
+
+  // If Tally had extracted line items, populate #tiItemBody with exact Tally rows and recalculate
+  if (tally.items && tally.items.length > 0 && el('tiItemBody')) {
+    window._tiUsingTallyItems = true;
+    const isInterState = !!window._tiIsInterState;
+    const tbody = el('tiItemBody');
+    tbody.innerHTML = '';
+    tally.items.forEach((it, idx) => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #cbd5e1';
+      tr.innerHTML = `
+        <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${idx + 1}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${it.desc}</strong></td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${it.hsn}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${it.qty}.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(it.rate)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${it.discPct > 0 ? it.discPct + '%' : '—'}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">0.00</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-cgst">0.00</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-sgst">0.00</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;" class="ti-cell-total">0.00</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    recalcTaxInvoiceFromTable();
+  }
+
+  if (typeof showToast === 'function') {
+    showToast(`Applied Tally Invoice #${tally.invNo || ''} details & line items.`, 'success', 3000);
   }
 }
 
