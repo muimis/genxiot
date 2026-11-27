@@ -833,6 +833,10 @@
         </datalist>
       </div>
       <div style="display:flex; align-items:center; gap:8px; border-left:1px solid #bbf7d0; padding-left:8px;">
+        <input type="file" id="poPdfFileInput" accept="application/pdf" style="display:none;" onchange="importPoPdf(event)">
+        <button type="button" class="btn btn-sm" style="background:#1e3a8a; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('poPdfFileInput').click()" title="Import Hospital PO PDF to cross-check totals, rates, discounts &amp; warranty terms">
+          <i data-lucide="file-search" size="13"></i> Import PO PDF
+        </button>
         <input type="file" id="instPdfFileInput" accept="application/pdf" style="display:none;" onchange="importInstallationPdf(event)">
         <button type="button" class="btn btn-sm" style="background:#0f766e; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="document.getElementById('instPdfFileInput').click()" title="Extract serial numbers &amp; details from Installation Report PDF without supplier letterhead">
           <i data-lucide="file-up" size="13"></i> Import Install PDF
@@ -850,6 +854,17 @@
           Advance on Invoice
         </label>
         <input type="number" id="invInputAdv" placeholder="Adv ₹ (Auto)" style="width:95px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
+      </div>
+    </div>
+
+    <!-- PO Cross-Check Banner (Visible after importing PO PDF) -->
+    <div class="modal-ctrl no-print" id="poCrossCheckBanner" style="display:none; background:#eff6ff; border-top:1px solid #bfdbfe; padding:6px 16px; font-size:0.74rem; color:#1e3a8a; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+      <div id="poCrossCheckSummary">PO Cross-Check Ready</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button type="button" id="btnApplyPoSync" class="btn btn-sm" style="background:#1d4ed8; color:#fff; border:none; padding:3px 10px; border-radius:4px; font-size:0.72rem; font-weight:600; cursor:pointer;" onclick="applyPoOverridesToInvoice()">
+          Sync Invoice &amp; Warranty to PO
+        </button>
+        <button type="button" onclick="document.getElementById('poCrossCheckBanner').style.display='none'" style="background:none; border:none; color:#64748b; cursor:pointer; font-weight:700; font-size:0.9rem;" title="Dismiss">×</button>
       </div>
     </div>
 
@@ -1007,11 +1022,11 @@
               <td style="width:50%; vertical-align:top; padding:6px 10px; background:#f8fafc;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
                   <span style="color:#64748b;">Terms of Delivery:</span>
-                  <span style="font-weight:600;">Delivered &amp; Installed at Site</span>
+                  <span style="font-weight:600;" contenteditable="true" id="tiDeliveryTerms" class="editable-field" oninput="this.dataset.userEdited='true'">Delivered &amp; Installed at Site</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
                   <span style="color:#64748b;">Mode / Terms of Payment:</span>
-                  <span style="font-weight:600;" id="tiPaymentTermsText">50% Advance / Balance on Install</span>
+                  <span style="font-weight:600;" contenteditable="true" id="tiPaymentTermsText" class="editable-field" oninput="this.dataset.userEdited='true'">50% Advance / Balance on Install</span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
                   <span style="color:#64748b;">Reverse Charge Applicable:</span>
@@ -1139,7 +1154,7 @@
         <!-- Declaration & Signatory -->
         <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:8px; font-size:0.69rem; border-top:1px solid #e2e8f0; padding-top:6px;">
           <div style="color:#64748b; max-width:65%;">
-            <strong>Declaration:</strong> We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.
+            <strong>Declaration:</strong> <span contenteditable="true" id="tiDeclarationText" class="editable-field">We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.</span>
           </div>
           <div style="text-align:right;">
             <div style="font-weight:700; color:var(--brand-navy); margin-bottom:24px;">for GENXIOT LLP</div>
@@ -1201,23 +1216,23 @@
             </tr>
             <tr>
               <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Hardware Call Points &amp; Repeaters</td>
-              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certHwWarrText">2 Years Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field" id="certHwWarrText" oninput="this.dataset.userEdited='true'">2 Years Replacement Warranty from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.</td>
             </tr>
             <tr>
               <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Central Display (Smart TV)</td>
-              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certTvWarrText">1 Year Manufacturer Warranty + 1 Year Extended CMC (Total 2 Years from date of purchase).</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field" id="certTvWarrText" oninput="this.dataset.userEdited='true'">1 Year Manufacturer Warranty + 1 Year Extended CMC (Total 2 Years from date of purchase).</td>
             </tr>
             <tr>
               <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Comprehensive Maintenance (CMC)</td>
-              <td style="padding:4px 8px; border:1px solid #cbd5e1;" id="certCmcText">1 Year Comprehensive Maintenance Contract (CMC) included for Year 3 coverage (hardware) and Year 2 coverage (TV). Covers preventive visits, priority breakdown labor, and replacement of covered electronics.</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field" id="certCmcText" oninput="this.dataset.userEdited='true'">1 Year Comprehensive Maintenance Contract (CMC) included for Year 3 coverage (hardware) and Year 2 coverage (TV). Covers preventive visits, priority breakdown labor, and replacement of covered electronics.</td>
             </tr>
             <tr>
               <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Standard Exclusions</td>
-              <td style="padding:4px 8px; border:1px solid #cbd5e1;">Consumable and wear items (modular pull cords, AAA batteries), intentional physical impact damage, liquid submersion/ingress, electrical surges/lightning, and unauthorized modifications.</td>
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field" id="certExclusionsText">Consumable and wear items (modular pull cords, AAA batteries), intentional physical impact damage, liquid submersion/ingress, electrical surges/lightning, and unauthorized modifications.</td>
             </tr>
             <tr>
               <td style="padding:4px 8px; border:1px solid #cbd5e1; font-weight:600;">Service Level Agreement (SLA)</td>
-              <td style="padding:4px 8px; border:1px solid #cbd5e1;">
+              <td style="padding:4px 8px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field" id="certSlaText">
                 Immediate remote / telephone response within <strong>1 hour</strong>. Certified technician on-site deployment within <strong>7 business days</strong> for major hardware faults that cannot be rectified remotely.<br>
                 <strong>Direct Escalation:</strong> Helpdesk: <span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; BDM: <span class="dyn-bdm-phone">+91 88916 70903</span> &nbsp;|&nbsp; info@genxiot.com
               </td>

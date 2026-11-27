@@ -3780,18 +3780,18 @@ function updateTaxInvoiceView() {
       tr.style.borderBottom = '1px solid #cbd5e1';
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
           <strong style="color:#1e293b;">${displayInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim()}</strong>
           <span style="font-size:0.65rem; color:#64748b; font-family:Consolas, monospace;"> [${code}]</span>
         </td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">${hsn}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">${qty}.00 Nos</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(rate)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">${discLabel}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(lineTaxable)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? lineIgst : lineCgst)}</td>
-        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(lineSgst)}</td>` : ''}
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(lineTotal)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${hsn}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${qty}.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(rate)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${discLabel}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">${fmt(lineTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-cgst">${fmt(isInterState ? lineIgst : lineCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-sgst">${fmt(lineSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;" class="ti-cell-total">${fmt(lineTotal)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -3863,17 +3863,17 @@ function updateTaxInvoiceView() {
       tr.style.borderBottom = '1px solid #cbd5e1';
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
           <strong style="color:#1e293b;">CMC (COMPREHENSIVE EXTENDED WARRANTY) — ${extDuration}</strong>
         </td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">998719</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(cmcTaxable)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">—</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(cmcTaxable)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? cmcIgst : cmcCgst)}</td>
-        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(cmcSgst)}</td>` : ''}
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(cmcTotal)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">998719</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(cmcTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">—</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">${fmt(cmcTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-cgst">${fmt(isInterState ? cmcIgst : cmcCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-sgst">${fmt(cmcSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;" class="ti-cell-total">${fmt(cmcTotal)}</td>
       `;
       tbody.appendChild(tr);
     }
@@ -3902,17 +3902,17 @@ function updateTaxInvoiceView() {
       tr.style.borderBottom = '1px solid #cbd5e1';
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1;">
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
           <strong style="color:#1e293b;">HANDLING CHARGES / SHIPPING CHARGES</strong>
         </td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;">996799</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;">1.00 Nos</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(shipTaxable)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;">—</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;">${fmt(shipTaxable)}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(isInterState ? shipIgst : shipCgst)}</td>
-        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;">${fmt(shipSgst)}</td>` : ''}
-        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(shipTotal)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">996799</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(shipTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">—</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">${fmt(shipTaxable)}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-cgst">${fmt(isInterState ? shipIgst : shipCgst)}</td>
+        ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-sgst">${fmt(shipSgst)}</td>` : ''}
+        <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;" class="ti-cell-total">${fmt(shipTotal)}</td>
       `;
       tbody.appendChild(tr);
     }
@@ -4074,25 +4074,231 @@ function updateTaxInvoiceView() {
   if (el('annexInstDate')) el('annexInstDate').textContent = instDateFmt;
   renderInstallAnnexure();
 
-  // Warranty / CMC dynamic text (free-text editable from Invoice Controls)
+  // Warranty / CMC dynamic text (free-text editable from Invoice Controls OR inline on certificate)
   const warrHw = (el('invInputWarrHw')?.value || '').trim();
   const warrTv = (el('invInputWarrTv')?.value || '').trim();
   const cmcOpt = (el('invInputCmc')?.value || '').trim();
 
-  if (el('certHwWarrText')) {
+  if (el('certHwWarrText') && !el('certHwWarrText').dataset.userEdited) {
     el('certHwWarrText').textContent = warrHw
       ? `${warrHw} from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.`
       : 'As per Purchase Order / agreed warranty terms.';
   }
 
-  if (el('certTvWarrText')) {
+  if (el('certTvWarrText') && !el('certTvWarrText').dataset.userEdited) {
     el('certTvWarrText').textContent = warrTv
       ? `${warrTv} from date of purchase / commissioning.`
       : 'As per manufacturer standard terms.';
   }
 
-  if (el('certCmcText')) {
+  if (el('certCmcText') && !el('certCmcText').dataset.userEdited) {
     el('certCmcText').textContent = cmcOpt || 'Post-warranty Annual Maintenance Contract (AMC / CMC) available upon separate service agreement.';
+  }
+
+  window._tiLastTotal = el('tiSummaryTotal')?.textContent ? parseFloat(el('tiSummaryTotal').textContent.replace(/[^0-9.]/g, '')) : 0;
+  window._tiIsInterState = isInterState;
+  if (window._lastImportedPo) updatePoCrossCheckBanner();
+}
+
+function recalcTaxInvoiceFromTable() {
+  const el = id => document.getElementById(id);
+  const tbody = el('tiItemBody');
+  if (!tbody) return;
+  const isInterState = !!window._tiIsInterState;
+
+  let totQty = 0, totTaxable = 0, totCgst = 0, totSgst = 0, totIgst = 0, totAmount = 0;
+  tbody.querySelectorAll('tr').forEach(tr => {
+    const qtyEl = tr.querySelector('.ti-cell-qty');
+    const rateEl = tr.querySelector('.ti-cell-rate');
+    const discEl = tr.querySelector('.ti-cell-disc');
+    if (!qtyEl || !rateEl) return;
+
+    const qty = parseFloat((qtyEl.textContent || '').replace(/[^0-9.]/g, '')) || 0;
+    const rate = parseFloat((rateEl.textContent || '').replace(/[^0-9.]/g, '')) || 0;
+    const discPct = parseFloat((discEl?.textContent || '').replace(/[^0-9.]/g, '')) || 0;
+
+    const gross = qty * rate;
+    const discAmt = Math.round(gross * (discPct / 100) * 100) / 100;
+    const taxable = Math.round((gross - discAmt) * 100) / 100;
+    const cgst = isInterState ? 0 : Math.round(taxable * 0.09 * 100) / 100;
+    const sgst = isInterState ? 0 : Math.round(taxable * 0.09 * 100) / 100;
+    const igst = isInterState ? Math.round(taxable * 0.18 * 100) / 100 : 0;
+    const total = taxable + cgst + sgst + igst;
+
+    const taxCell = tr.querySelector('.ti-cell-taxable');
+    const cgstCell = tr.querySelector('.ti-cell-cgst');
+    const sgstCell = tr.querySelector('.ti-cell-sgst');
+    const totCell = tr.querySelector('.ti-cell-total');
+    if (taxCell) taxCell.textContent = fmt(taxable);
+    if (cgstCell) cgstCell.textContent = fmt(isInterState ? igst : cgst);
+    if (sgstCell) sgstCell.textContent = fmt(sgst);
+    if (totCell) totCell.textContent = fmt(total);
+
+    totQty += qty;
+    totTaxable += taxable;
+    totCgst += cgst;
+    totSgst += sgst;
+    totIgst += igst;
+    totAmount += total;
+  });
+
+  if (el('tiFootQty')) el('tiFootQty').textContent = totQty + '.00 Nos';
+  if (el('tiFootTaxable')) el('tiFootTaxable').textContent = '₹' + fmt(totTaxable);
+  if (el('tiFootCgst')) el('tiFootCgst').textContent = '₹' + fmt(isInterState ? totIgst : totCgst);
+  if (el('tiFootSgst')) el('tiFootSgst').textContent = '₹' + fmt(totSgst);
+  if (el('tiFootTotal')) el('tiFootTotal').textContent = '₹' + fmt(totAmount);
+  if (el('tiSummaryTaxable')) el('tiSummaryTaxable').textContent = '₹' + fmt(totTaxable);
+  if (el('tiSummaryCgst')) el('tiSummaryCgst').textContent = '₹' + fmt(totCgst);
+  if (el('tiSummarySgst')) el('tiSummarySgst').textContent = '₹' + fmt(totSgst);
+  if (el('tiSummaryIgst')) el('tiSummaryIgst').textContent = '₹' + fmt(totIgst);
+  if (el('tiSummaryTotal')) el('tiSummaryTotal').textContent = '₹' + fmt(totAmount);
+
+  const totalTaxAmt = isInterState ? totIgst : (totCgst + totSgst);
+  if (el('tiBreakTaxable')) el('tiBreakTaxable').textContent = '₹' + fmt(totTaxable);
+  if (el('tiBreakCgstAmt')) el('tiBreakCgstAmt').textContent = '₹' + fmt(isInterState ? totIgst : totCgst);
+  if (el('tiBreakSgstAmt')) el('tiBreakSgstAmt').textContent = '₹' + fmt(totSgst);
+  if (el('tiBreakTotalTax')) el('tiBreakTotalTax').textContent = '₹' + fmt(totalTaxAmt);
+
+  const rawQuoteAdv = parseFloat(el('advPct')?.value);
+  const quoteAdvPct = Math.max(0, Math.min(100, isNaN(rawQuoteAdv) ? 50 : rawQuoteAdv));
+  const advInput = el('invInputAdv')?.value;
+  const parsedAdvInput = (advInput && advInput.trim() !== '') ? parseFloat(advInput) : NaN;
+  const advAmt = !isNaN(parsedAdvInput) ? parsedAdvInput : Math.round(totAmount * (quoteAdvPct / 100) * 100) / 100;
+  const balAmt = Math.round((totAmount - advAmt) * 100) / 100;
+
+  if (el('tiSummaryAdvance')) el('tiSummaryAdvance').textContent = '-₹' + fmt(advAmt);
+  if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
+  if (el('tiWordsTotal')) el('tiWordsTotal').textContent = numberToWordsIndian(totAmount);
+  if (el('tiWordsTax')) el('tiWordsTax').textContent = numberToWordsIndian(totalTaxAmt);
+  if (el('tiWordsBalance')) el('tiWordsBalance').textContent = numberToWordsIndian(balAmt);
+  if (el('cTotalAmt')) el('cTotalAmt').textContent = '₹' + fmt(totAmount);
+  if (el('cAdvAmt')) el('cAdvAmt').textContent = '-₹' + fmt(advAmt);
+  if (el('cBalAmt')) el('cBalAmt').textContent = '₹' + fmt(balAmt);
+
+  window._tiLastTotal = totAmount;
+  if (window._lastImportedPo) updatePoCrossCheckBanner();
+}
+
+// ─── PO PDF IMPORT & CROSS-CHECK ─────────────────────────────────────────────
+window._lastImportedPo = null;
+
+async function importPoPdf(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (typeof pdfjsLib === 'undefined') {
+    alert('PDF parser (pdf.js) is unavailable.');
+    return;
+  }
+
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+    const allLines = [];
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const tc = await page.getTextContent();
+      const rowsMap = new Map();
+      tc.items.forEach(item => {
+        const y = Math.round(item.transform[5] / 3) * 3;
+        if (!rowsMap.has(y)) rowsMap.set(y, []);
+        rowsMap.get(y).push({ x: item.transform[4], str: item.str });
+      });
+      Array.from(rowsMap.keys()).sort((a, b) => b - a).forEach(y => {
+        const line = rowsMap.get(y).sort((a, b) => a.x - b.x).map(i => i.str.trim()).filter(Boolean).join(' ');
+        if (line) allLines.push(line);
+      });
+    }
+
+    const fullText = allLines.join('\n');
+    const poNoMatch = fullText.match(/PO\.?\s*No\s*:?\s*([A-Z0-9\/_-]+)/i);
+    const poDateMatch = fullText.match(/Date\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
+    const totalMatch = fullText.match(/\bTotal\s+([\d,]+\.\d{2})\b/i);
+
+    const hwWarrMatch = fullText.match(/Bed Call point.*?Warranty[^\n.]*/i);
+    const tvWarrMatch = fullText.match(/Smart TV\s+warr[a-z]*y[^\n.]*/i);
+    const payMatch = fullText.match(/Payment\s+\d+%[^\n.]*/i);
+
+    window._lastImportedPo = {
+      fileName: file.name,
+      poNo: poNoMatch ? poNoMatch[1].trim() : '',
+      poDateIso: poDateMatch ? `${poDateMatch[3]}-${poDateMatch[2]}-${poDateMatch[1]}` : '',
+      poTotal: totalMatch ? parseFloat(totalMatch[1].replace(/,/g, '')) : 0,
+      hwWarranty: hwWarrMatch ? hwWarrMatch[0].trim() : '',
+      tvWarranty: tvWarrMatch ? tvWarrMatch[0].trim() : '',
+      paymentTerms: payMatch ? payMatch[0].trim() : ''
+    };
+
+    const el = id => document.getElementById(id);
+    if (window._lastImportedPo.poNo && el('invInputPo')) el('invInputPo').value = window._lastImportedPo.poNo;
+    if (window._lastImportedPo.poDateIso && el('invInputPoDate')) el('invInputPoDate').value = window._lastImportedPo.poDateIso;
+
+    updateTaxInvoiceView();
+    updatePoCrossCheckBanner();
+
+    if (typeof showToast === 'function') {
+      showToast(`PO ${window._lastImportedPo.poNo || file.name} imported for cross-check.`, 'success', 3500);
+    }
+  } catch (err) {
+    console.error('PO PDF import error:', err);
+    alert('Could not parse PO PDF: ' + err.message);
+  } finally {
+    event.target.value = '';
+  }
+}
+
+function updatePoCrossCheckBanner() {
+  const po = window._lastImportedPo;
+  const banner = document.getElementById('poCrossCheckBanner');
+  const summary = document.getElementById('poCrossCheckSummary');
+  if (!po || !banner || !summary) return;
+
+  const invTotal = window._tiLastTotal || 0;
+  const diff = Math.round((invTotal - po.poTotal) * 100) / 100;
+  const isMatch = po.poTotal > 0 && Math.abs(diff) < 0.05;
+
+  banner.style.display = 'flex';
+  banner.style.background = isMatch ? '#ecfdf5' : '#fef2f2';
+  banner.style.borderTopColor = isMatch ? '#a7f3d0' : '#fecaca';
+  banner.style.color = isMatch ? '#065f46' : '#991b1b';
+
+  summary.innerHTML = `
+    <strong>PO Cross-Check (${po.poNo || po.fileName}):</strong>
+    PO Total: <strong>₹${fmt(po.poTotal)}</strong> vs Invoice Total: <strong>₹${fmt(invTotal)}</strong>
+    ${isMatch
+      ? ' — <span style="font-weight:700;">✔ EXACT MATCH</span>'
+      : ` — <span style="font-weight:700;">⚠ Variance: ₹${fmt(diff)}</span>`
+    }
+    ${po.hwWarranty || po.tvWarranty ? `<div style="font-size:0.70rem; margin-top:2px; opacity:0.9;">Detected PO Warranty Terms: ${[po.hwWarranty, po.tvWarranty].filter(Boolean).join(' | ')}</div>` : ''}
+  `;
+}
+
+function applyPoOverridesToInvoice() {
+  const po = window._lastImportedPo;
+  if (!po) return;
+  const el = id => document.getElementById(id);
+
+  if (po.hwWarranty) {
+    if (el('invInputWarrHw')) el('invInputWarrHw').value = po.hwWarranty;
+    if (el('certHwWarrText')) {
+      delete el('certHwWarrText').dataset.userEdited;
+      el('certHwWarrText').textContent = po.hwWarranty;
+    }
+  }
+  if (po.tvWarranty) {
+    if (el('invInputWarrTv')) el('invInputWarrTv').value = po.tvWarranty;
+    if (el('certTvWarrText')) {
+      delete el('certTvWarrText').dataset.userEdited;
+      el('certTvWarrText').textContent = po.tvWarranty;
+    }
+  }
+  if (po.paymentTerms && el('tiPaymentTermsText')) {
+    el('tiPaymentTermsText').textContent = po.paymentTerms;
+    el('tiPaymentTermsText').dataset.userEdited = 'true';
+  }
+  if (typeof showToast === 'function') {
+    showToast('Applied PO warranty & payment terms to Invoice & Handover Certificate.', 'success', 3000);
   }
 }
 
