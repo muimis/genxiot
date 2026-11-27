@@ -4040,6 +4040,8 @@ function updateTaxInvoiceView() {
     if (el('cInvNo')) el('cInvNo').textContent = invNo;
     if (el('cDate')) el('cDate').textContent = invDateFmt;
     if (el('cPoNo')) el('cPoNo').textContent = poNo;
+    if (el('cInstRef')) el('cInstRef').textContent = instRef;
+    if (el('cInstDate')) el('cInstDate').textContent = instDateFmt;
     if (el('cClientName')) el('cClientName').textContent = clientName;
     if (el('cClientLoc')) el('cClientLoc').textContent = clientLoc;
     if (el('cContactPerson')) el('cContactPerson').textContent = (el('contactPerson')?.value || 'Director').trim();

@@ -896,8 +896,10 @@
           <div class="qtn-h-right" style="text-align:right;">
             <div style="font-size:1.0rem; font-weight:800; color:var(--brand-navy); letter-spacing:0.04em;">INVOICE COVER LETTER</div>
             <div style="margin-top:4px; font-size:0.78rem;"><strong>Invoice No:</strong> <span id="cInvNo">1</span></div>
-            <div style="font-size:0.76rem;"><strong>Date:</strong> <span id="cDate">–</span></div>
+            <div style="font-size:0.76rem;"><strong>Invoice Date:</strong> <span id="cDate">–</span></div>
             <div style="font-size:0.76rem;"><strong>PO Ref:</strong> <span id="cPoNo">–</span></div>
+            <div style="font-size:0.74rem; color:#475569;"><strong>Install Ref:</strong> <span id="cInstRef">–</span></div>
+            <div style="font-size:0.74rem; color:#475569;"><strong>Install Date:</strong> <span id="cInstDate">–</span></div>
           </div>
         </div>
         <div class="qtn-gradient-bar" style="margin-bottom:18px;"></div>
@@ -963,85 +965,88 @@
         </div>
       </div>
 
-      <!-- ── PAGE: DIRECT FINAL TAX INVOICE (Page 1 of Dossier) ── -->
+      <!-- ── PAGE: PURE STATUTORY TAX INVOICE (Page 2 of Dossier) ── -->
       <div class="doc-page tax-invoice-page" id="pageTaxInvoice" style="display:none;">
-        <!-- Header -->
-        <div class="qtn-header" style="margin-bottom:6px;">
-          <div class="qtn-h-left">
-            <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" class="qtn-logo">
-            <div class="qtn-company">GENXIOT LLP</div>
-            <div class="qtn-tagline">Intelligent Healthcare &amp; Smart IoT Solutions</div>
-            <div class="qtn-addr"><strong>Office:</strong> 6th Floor STPI Building, Technopark, Thiruvananthapuram, Kerala – 695581</div>
-            <div class="qtn-addr" style="margin-top:2px;"><strong>Regd. Address:</strong> 4/275, Arun Nivas, Kanjiramkulam Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
-            <div class="qtn-addr" style="margin-top:2px;"><strong>GSTIN/UIN:</strong> 32ABDFG7210J1ZP &nbsp;|&nbsp; <strong>State:</strong> Kerala &nbsp;|&nbsp; <strong>Code:</strong> 32</div>
-            <div class="qtn-contact"><span class="dyn-support-phone">+91 9496557777</span> &nbsp;|&nbsp; info@genxiot.com &nbsp;|&nbsp; www.genxiot.com</div>
-          </div>
-          <div class="qtn-h-right" style="text-align:right;">
-            <div style="font-size:1.1rem; font-weight:800; color:var(--brand-navy); letter-spacing:0.04em;">TAX INVOICE</div>
-            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">ORIGINAL FOR RECIPIENT</div>
-            <div style="margin-top:6px; font-size:0.8rem;"><strong>Invoice No:</strong> <span id="tiInvNo" style="font-weight:700; color:var(--brand-indigo); font-size:0.95rem;">2</span></div>
-            <div style="font-size:0.78rem; margin-top:2px;"><strong>Date:</strong> <span id="tiInvDate">–</span></div>
-            <div style="font-size:0.75rem; color:#475569; margin-top:2px;"><strong>Place of Supply:</strong> <span id="tiPlaceOfSupply">Kerala (Code: 32)</span></div>
-          </div>
-        </div>
+        <!-- Formal Title -->
+        <div style="text-align:center; font-size:1.05rem; font-weight:800; color:#0f172a; letter-spacing:0.06em; margin-bottom:6px; text-transform:uppercase;">TAX INVOICE</div>
 
-        <div class="qtn-gradient-bar" style="margin-bottom:8px;"></div>
-
-        <!-- 2-Column Tax Invoice Parties & Transport Block -->
-        <table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:0.72rem; line-height:1.35; border:1px solid #cbd5e1;">
+        <!-- 2-Column Tally-Style Header & Parties Grid -->
+        <table style="width:100%; border-collapse:collapse; margin-bottom:6px; font-size:0.71rem; line-height:1.35; border:1px solid #94a3b8;">
           <tbody>
             <tr>
+              <!-- Supplier -->
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #94a3b8; border-bottom:1px solid #94a3b8;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;">
+                  <img src="genxiot-logo.7fba30b0.png" alt="GenXIoT" style="height:22px; object-fit:contain;">
+                  <strong style="font-size:0.86rem; color:#0f172a;">GenXIoT LLP</strong>
+                </div>
+                <div style="color:#334155;">4/275, Arun Nivas, Kanjiramkulam, Kazhavur, Thiruvananthapuram, Kerala – 695526</div>
+                <div style="margin-top:2px;"><strong>GSTIN/UIN:</strong> <span style="font-family:Consolas, monospace; font-weight:600;">32ABDFG7210J1ZP</span></div>
+                <div><strong>State Name:</strong> Kerala, Code : 32</div>
+                <div style="color:#475569;">E-Mail: info@genxiot.com &nbsp;|&nbsp; Ph: <span class="dyn-support-phone">+91 9496557777</span></div>
+              </td>
+              <!-- Invoice Meta -->
+              <td style="width:50%; vertical-align:top; padding:0; border-bottom:1px solid #94a3b8;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.71rem;">
+                  <tr>
+                    <td style="width:50%; padding:5px 8px; border-right:1px solid #94a3b8; border-bottom:1px solid #94a3b8;">
+                      <div style="font-size:0.65rem; color:#64748b;">Invoice No.</div>
+                      <strong id="tiInvNo" style="font-size:0.82rem; color:#0f172a;">1</strong>
+                    </td>
+                    <td style="width:50%; padding:5px 8px; border-bottom:1px solid #94a3b8;">
+                      <div style="font-size:0.65rem; color:#64748b;">Dated</div>
+                      <strong id="tiInvDate" style="color:#0f172a;">–</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px; border-right:1px solid #94a3b8; border-bottom:1px solid #94a3b8;">
+                      <div style="font-size:0.65rem; color:#64748b;">Buyer's Order No.</div>
+                      <strong id="tiPoNo" style="color:#0f172a;">–</strong>
+                    </td>
+                    <td style="padding:5px 8px; border-bottom:1px solid #94a3b8;">
+                      <div style="font-size:0.65rem; color:#64748b;">Dated</div>
+                      <strong id="tiPoDate" style="color:#0f172a;">–</strong>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:5px 8px; border-right:1px solid #94a3b8;">
+                      <div style="font-size:0.65rem; color:#64748b;">Place of Supply</div>
+                      <span id="tiPlaceOfSupply" style="font-weight:600;">Kerala (Code: 32)</span>
+                    </td>
+                    <td style="padding:5px 8px;">
+                      <div style="font-size:0.65rem; color:#64748b;">Reverse Charge</div>
+                      <span style="font-weight:600;">No</span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
               <!-- Consignee / Ship to -->
-              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #cbd5e1; border-bottom:1px solid #cbd5e1; background:#fbfcfe;">
-                <div style="font-size:0.68rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:2px;">Consignee (Ship to)</div>
-                <div style="font-weight:700; font-size:0.82rem; color:var(--brand-navy);" id="tiShipName">Hospital Name</div>
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #94a3b8; border-bottom:1px solid #94a3b8;">
+                <div style="font-size:0.66rem; color:#64748b;">Consignee (Ship to)</div>
+                <div style="font-weight:700; font-size:0.80rem; color:#0f172a;" id="tiShipName">Hospital Name</div>
                 <div id="tiShipAddr" style="color:#334155;">Location, Kerala</div>
                 <div style="margin-top:2px;"><strong>GSTIN/UIN:</strong> <span id="tiShipGst" style="font-family:Consolas, monospace; font-weight:600;">–</span></div>
                 <div><strong>State Name:</strong> <span id="tiShipState">Kerala, Code : 32</span></div>
               </td>
-              <!-- Invoice References -->
-              <td style="width:50%; vertical-align:top; padding:6px 10px; border-bottom:1px solid #cbd5e1; background:#f8fafc;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                  <span style="color:#64748b;">Buyer's Order / PO No:</span>
-                  <strong id="tiPoNo" style="color:#1e293b;">–</strong>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                  <span style="color:#64748b;">Buyer's Order Dated:</span>
-                  <span id="tiPoDate" style="font-weight:600;">–</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                  <span style="color:#64748b;">Delivery / Install Date:</span>
-                  <span id="tiDeliveryDate" style="font-weight:600;">–</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                  <span style="color:#64748b;">Installation Report Ref:</span>
-                  <span id="tiInstallRef" style="font-weight:600; font-size:0.70rem;">–</span>
-                </div>
-              </td>
-            </tr>
-            <tr>
               <!-- Buyer / Bill to -->
-              <td style="width:50%; vertical-align:top; padding:6px 10px; border-right:1px solid #cbd5e1; background:#fbfcfe;">
-                <div style="font-size:0.68rem; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:2px;">Buyer (Bill to)</div>
-                <div style="font-weight:700; font-size:0.82rem; color:var(--brand-navy);" id="tiBillName">Hospital Name</div>
+              <td style="width:50%; vertical-align:top; padding:6px 10px; border-bottom:1px solid #94a3b8;">
+                <div style="font-size:0.66rem; color:#64748b;">Buyer (Bill to)</div>
+                <div style="font-weight:700; font-size:0.80rem; color:#0f172a;" id="tiBillName">Hospital Name</div>
                 <div id="tiBillAddr" style="color:#334155;">Location, Kerala</div>
                 <div style="margin-top:2px;"><strong>GSTIN/UIN:</strong> <span id="tiBillGst" style="font-family:Consolas, monospace; font-weight:600;">–</span></div>
                 <div><strong>State Name:</strong> <span id="tiBillState">Kerala, Code : 32</span></div>
               </td>
-              <!-- Mode of Dispatch & Payment Terms -->
-              <td style="width:50%; vertical-align:top; padding:6px 10px; background:#f8fafc;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                  <span style="color:#64748b;">Terms of Delivery:</span>
-                  <span style="font-weight:600;" contenteditable="true" id="tiDeliveryTerms" class="editable-field" oninput="this.dataset.userEdited='true'">Delivered &amp; Installed at Site</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:3px;">
-                  <span style="color:#64748b;">Mode / Terms of Payment:</span>
-                  <span style="font-weight:600;" contenteditable="true" id="tiPaymentTermsText" class="editable-field" oninput="this.dataset.userEdited='true'">50% Advance / Balance on Install</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                  <span style="color:#64748b;">Reverse Charge Applicable:</span>
-                  <span style="font-weight:600;">No</span>
-                </div>
+            </tr>
+            <tr>
+              <td style="padding:4px 10px; border-right:1px solid #94a3b8;">
+                <span style="color:#64748b;">Terms of Delivery:</span>
+                <span style="font-weight:600; margin-left:4px;" contenteditable="true" id="tiDeliveryTerms" class="editable-field" oninput="this.dataset.userEdited='true'">Delivered &amp; Installed at Site</span>
+              </td>
+              <td style="padding:4px 10px;">
+                <span style="color:#64748b;">Mode / Terms of Payment:</span>
+                <span style="font-weight:600; margin-left:4px;" contenteditable="true" id="tiPaymentTermsText" class="editable-field" oninput="this.dataset.userEdited='true'">As per Agreed PO Terms</span>
               </td>
             </tr>
           </tbody>
@@ -1079,26 +1084,21 @@
           </tfoot>
         </table>
 
-        <!-- Reconciliation, Words & Bank Remittance Box -->
+        <!-- Words & Totals Summary Box (Pure Statutory Format) -->
         <div style="display:flex; justify-content:space-between; gap:10px; margin-top:6px; font-size:0.71rem;">
-          <!-- Left: Bank Details & Words -->
-          <div style="flex:1; border:1px solid #cbd5e1; border-radius:4px; padding:6px 10px; background:#f8fafc; line-height:1.4;">
-            <div style="font-weight:700; color:var(--brand-navy); font-size:0.72rem; text-transform:uppercase; margin-bottom:3px;">Payment Remittance Details</div>
-            <div><strong>Beneficiary Name:</strong> GenXIoT LLP</div>
-            <div><strong>Account Number:</strong> 0624073000000447</div>
-            <div><strong>Bank &amp; Branch:</strong> South Indian Bank, Technopark Trivandrum</div>
-            <div><strong>IFSC Code:</strong> SIBL0000624</div>
-            <div style="margin-top:5px; padding-top:4px; border-top:1px dashed #cbd5e1;">
-              <strong>Amount Chargeable (in words):</strong><br>
-              <span id="tiWordsTotal" style="font-style:italic; font-weight:600; color:#1e293b;">–</span>
+          <!-- Left: Amount & Tax in Words -->
+          <div style="flex:1; border:1px solid #94a3b8; padding:6px 10px; line-height:1.45;">
+            <div>
+              <span style="color:#475569;">Amount Chargeable (in words):</span><br>
+              <strong id="tiWordsTotal" style="color:#0f172a;">–</strong>
             </div>
-            <div style="margin-top:3px;">
-              <strong>Tax Amount (in words):</strong><br>
-              <span id="tiWordsTax" style="font-style:italic; font-weight:600; color:#475569;">–</span>
+            <div style="margin-top:6px; padding-top:5px; border-top:1px dashed #cbd5e1;">
+              <span style="color:#475569;">Tax Amount (in words):</span><br>
+              <strong id="tiWordsTax" style="color:#334155;">–</strong>
             </div>
-            <div style="margin-top:3px;" id="tiWordsBalanceWrap">
-              <strong>Net Balance Due (in words):</strong><br>
-              <span id="tiWordsBalance" style="font-style:italic; font-weight:700; color:#047857;">–</span>
+            <div style="margin-top:4px;" id="tiWordsBalanceWrap">
+              <span style="color:#475569;">Net Balance Due (in words):</span><br>
+              <strong id="tiWordsBalance" style="color:#047857;">–</strong>
             </div>
           </div>
 
