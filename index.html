@@ -1084,6 +1084,8 @@
           </tfoot>
         </table>
 
+        <!-- Bottom Statutory Block (kept together if invoice spans 2 pages) -->
+        <div class="ti-bottom-block">
         <!-- Words & Totals Summary Box (Pure Statutory Format) -->
         <div style="display:flex; justify-content:space-between; gap:10px; margin-top:6px; font-size:0.71rem;">
           <!-- Left: Amount & Tax in Words -->
@@ -1167,10 +1169,11 @@
             <strong>Declaration:</strong> <span contenteditable="true" id="tiDeclarationText" class="editable-field">We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.</span>
           </div>
           <div style="text-align:right;">
-            <div style="font-weight:700; color:var(--brand-navy); margin-bottom:24px;">for GENXIOT LLP</div>
+            <div style="font-weight:700; color:var(--brand-navy); margin-bottom:20px;">for GENXIOT LLP</div>
             <div style="border-top:1px solid #333; padding-top:2px; font-weight:700;" contenteditable="true" id="tiSigName" class="editable-field">Authorized Signatory</div>
             <div style="font-size:0.64rem; color:#475569;" contenteditable="true" id="tiSigDesig" class="editable-field">GENXIOT LLP</div>
           </div>
+        </div>
         </div>
       </div>
 
@@ -1271,19 +1274,19 @@
         </div>
 
         <!-- Section 4: Bilateral Handover Sign-off Block -->
-        <div style="margin-top:10px;">
-          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 4px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
+        <div style="margin-top:16px;">
+          <h4 style="font-size:0.76rem; font-weight:700; color:var(--brand-navy); margin:0 0 6px; border-bottom:1px solid var(--brand-navy); padding-bottom:2px; text-transform:uppercase; letter-spacing:0.04em;">
             4. Acceptance &amp; Handover Sign-Off
           </h4>
-          <div class="sig-section" style="margin-top:10px; gap:2.5rem;">
+          <div class="sig-section" style="margin-top:18px; gap:3rem;">
             <div class="sig-block">
-              <div class="sig-line"></div>
+              <div class="sig-line" style="height:46px; margin-bottom:6px;"></div>
               <p class="sig-name editable-field" contenteditable="true" id="certSigGenxName">Muhaimin A S</p>
               <p class="sig-org editable-field" contenteditable="true" id="certSigGenxDesig">Commissioning Engineer · GENXIOT LLP</p>
               <p style="font-size:0.68rem; color:#666; margin-top:2px;">Handed Over By · Signature &amp; Stamp</p>
             </div>
             <div class="sig-block">
-              <div class="sig-line"></div>
+              <div class="sig-line" style="height:46px; margin-bottom:6px;"></div>
               <p class="sig-name editable-field" contenteditable="true" id="certSigClientPerson">Authorized Representative</p>
               <p class="sig-org editable-field" contenteditable="true" id="certSigClientDesig">Biomedical Engineer / Nursing In-Charge</p>
               <p style="font-size:0.68rem; color:#666; margin-top:2px;" id="certSigClientName">Hospital Name</p>
