@@ -1415,11 +1415,6 @@ function restoreQuote(data) {
 
   if (data.finalInvoice && typeof restoreFinalInvoiceState === 'function') {
     restoreFinalInvoiceState(data.finalInvoice);
-  } else if (data.quoteRef && typeof restoreFinalInvoiceState === 'function') {
-    try {
-      const localInv = localStorage.getItem('genxiot_final_invoice_' + data.quoteRef.trim());
-      if (localInv) restoreFinalInvoiceState(JSON.parse(localInv));
-    } catch (e) {}
   }
 
   if (data.docType) {
@@ -4231,7 +4226,8 @@ async function importPoPdf(event) {
     const allLines = await _extractPdfLines(file);
     const fullText = allLines.join('\n');
 
-    const poNoMatch = fullText.match(/PO\.?\s*No\s*:?\s*([A-Z0-9\/_-]+)/i);
+    const rawPoNo = poNoMatch ? poNoMatch[1].trim() : '';
+    const poNoClean = rawPoNo.replace(/^([A-Z0-9]+-P)0(\d)/i, '$1O$2');
     const poDateMatch = fullText.match(/Date\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
     const totalMatch = fullText.match(/\bTotal\s+([\d,]+\.\d{2})\b/i);
 
@@ -4264,7 +4260,7 @@ async function importPoPdf(event) {
 
     window._lastImportedPo = {
       fileName: file.name,
-      poNo: poNoMatch ? poNoMatch[1].trim() : '',
+      poNo: poNoClean,
       poDateIso: poDateMatch ? `${poDateMatch[3]}-${poDateMatch[2]}-${poDateMatch[1]}` : '',
       poTotal: totalMatch ? parseFloat(totalMatch[1].replace(/,/g, '')) : 0,
       buyerGst,
@@ -4359,25 +4355,29 @@ async function importTallyPdf(event) {
       if (nums.length > 0) tallyTotal = Math.max(...nums);
     }
 
-    // Extract Tally Line Items
+    // Extract Tally Line Items (deduplicated multi-line descriptions)
     const items = [];
     for (let i = 0; i < allLines.length; i++) {
       // Look for lines containing HSN/SAC + Qty Nos + Rate + Nos + ... + LineTotal
       const m = allLines[i].match(/\b(\d{4,8})\s+([\d.]+)\s+Nos\s+([\d,]+\.\d{2})\s+Nos\s+(?:(\d+)\s*%\s+)?([\d,]+\.\d{2}).*?([\d,]+\.\d{2})$/);
       if (m) {
-        // Gather description from preceding lines back to Sl No
+        const prefix = allLines[i].substring(0, allLines[i].indexOf(m[1])).replace(/^\d+\s+/, '').trim();
         let descParts = [];
+        // Only walk backward if the current line has no description prefix (or to get wrapped lines above)
         for (let b = i - 1; b >= Math.max(0, i - 5); b--) {
-          if (/^(Sl|No\.|Terms of Delivery|State Name|Buyer)/i.test(allLines[b])) break;
+          if (/^(Sl|No\.|Terms of Delivery|State Name|Buyer|continued)/i.test(allLines[b])) break;
+          // Stop if previous line was another item's HSN/Rate row
+          if (/\b\d{4,8}\s+[\d.]+\s+Nos\b/.test(allLines[b])) break;
           const clean = allLines[b].replace(/^\d+\s+/, '').trim();
-          descParts.unshift(clean);
+          if (clean && clean !== prefix && !descParts.includes(clean)) {
+            descParts.unshift(clean);
+          }
           if (/^\d+\s+/.test(allLines[b])) break;
         }
-        const prefix = allLines[i].substring(0, allLines[i].indexOf(m[1])).replace(/^\d+\s+/, '').trim();
-        if (prefix) descParts.push(prefix);
+        if (prefix && !descParts.includes(prefix)) descParts.push(prefix);
 
         items.push({
-          desc: descParts.join(' ').trim() || 'Item',
+          desc: descParts.join(' ').replace(/\s{2,}/g, ' ').trim() || 'Item',
           hsn: m[1],
           qty: parseFloat(m[2]) || 1,
           rate: parseFloat(m[3].replace(/,/g, '')) || 0,
@@ -4686,21 +4686,23 @@ function restoreFinalInvoiceState(inv) {
 }
 
 function saveFinalizedInvoice() {
-  const qtn = (document.getElementById('quoteRef')?.value || 'DRAFT').trim();
-  const invState = collectFinalInvoiceState();
-  try {
-    localStorage.setItem('genxiot_final_invoice_' + qtn, JSON.stringify(invState));
-  } catch (e) { console.warn('localStorage invoice save skipped:', e); }
+  const cName = (document.getElementById('clientName')?.value || '').trim();
+  if (!cName) {
+    alert('Please enter a Hospital / Client Name before saving to Google Sheets.');
+    return;
+  }
 
   const statusSel = document.getElementById('dealStatus');
   if (statusSel && (statusSel.value === 'Pending' || statusSel.value === 'Active Option')) {
     statusSel.value = 'Closed Won';
   }
+
+  const invNo = (document.getElementById('invInputNo')?.value || '1').trim();
   if (typeof saveQuote === 'function') {
     saveQuote();
   }
   if (typeof showToast === 'function') {
-    showToast(`Finalized Tax Invoice #${invState.invInputNo || '1'} saved!`, 'success', 3000);
+    showToast(`Saving Finalized Tax Invoice #${invNo} to Google Sheets (accessible to anyone)...`, 'success', 3500);
   }
 }
 
@@ -4732,17 +4734,21 @@ function renderInstallAnnexure() {
     bom.forEach(item => {
       if (!item.qty || item.qty <= 0) return;
       const dInfo = getItemDisplayInfo(item, isDripoOnly);
-      const cleanName = dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim();
+      let cleanName = dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim();
+      if (item.code === 'ALAMO-GW' && item.qty === 1) {
+        cleanName = cleanName.replace(/\(one for local,\s*one for cloud\)/i, '').trim();
+      }
       let savedSn = window._certSerialNumbers[item.code] || '';
       if (!savedSn && item.code === 'ALAMO-CP-R' && importedSummary) {
         savedSn = importedSummary;
       }
 
+      const unitLbl = (item.qty === 1) ? 'No' : 'Nos';
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="padding:3px 4px; text-align:center; color:#64748b;">${idx++}</td>
         <td style="padding:3px 6px; font-weight:600; color:#1e293b;">${cleanName} <span style="font-size:0.62rem; color:#64748b; font-weight:400;">[${item.code}]</span></td>
-        <td style="padding:3px 4px; text-align:center; font-weight:600;">${item.qty} Nos</td>
+        <td style="padding:3px 4px; text-align:center; font-weight:600;">${item.qty} ${unitLbl}</td>
         <td contenteditable="true" class="cert-sn-cell" style="padding:3px 6px; color:#0f172a; outline:none;" oninput="window._certSerialNumbers['${item.code}'] = this.textContent">${savedSn}</td>
         <td class="no-print" style="padding:3px 4px; text-align:center; color:#94a3b8; font-size:0.65rem;">PO</td>
       `;
@@ -4776,10 +4782,18 @@ function renderInstallAnnexure() {
       `;
       devBody.appendChild(tr);
     } else {
-      window._importedDevices.forEach((dev, dIdx) => {
+      // Sort devices by Station then Room Number ascending (e.g. 401..419)
+      const sortedDevices = [...window._importedDevices].map((d, origIdx) => ({ d, origIdx }));
+      sortedDevices.sort((a, b) => {
+        const stCmp = String(a.d.station || '').localeCompare(String(b.d.station || ''), undefined, { numeric: true });
+        if (stCmp !== 0) return stCmp;
+        return String(a.d.room || '').localeCompare(String(b.d.room || ''), undefined, { numeric: true });
+      });
+
+      sortedDevices.forEach(({ d: dev, origIdx: dIdx }, dispIdx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td style="padding:3px 4px; text-align:center; color:#64748b;">${dIdx + 1}</td>
+          <td style="padding:3px 4px; text-align:center; color:#64748b;">${dispIdx + 1}</td>
           <td contenteditable="true" style="padding:3px 5px;" oninput="window._importedDevices[${dIdx}].station = this.textContent">${dev.station || '—'}</td>
           <td contenteditable="true" style="padding:3px 5px; font-family:Consolas, monospace; font-weight:600;" oninput="window._importedDevices[${dIdx}].serial = this.textContent">${dev.serial || ''}</td>
           <td contenteditable="true" style="padding:3px 5px; font-family:Consolas, monospace; font-size:0.62rem;" oninput="window._importedDevices[${dIdx}].buttonId = this.textContent">${dev.buttonId || '—'}</td>
@@ -4865,10 +4879,10 @@ async function importInstallationPdf(event) {
     const fullText = allLines.join('\n');
     const el = id => document.getElementById(id);
 
-    // 1. Extract Install Ref (e.g. INS-1126-Credence Hospital-)
+    // 1. Extract Install Ref & strip any trailing hyphen (e.g. INS-1126-Credence Hospital)
     const refMatch = fullText.match(/INS-[A-Za-z0-9\s-]+?(?=\s*•|\s*\d{4}-\d{2}-\d{2}|$)/m);
     if (refMatch && el('invInputInstRef')) {
-      el('invInputInstRef').value = refMatch[0].trim();
+      el('invInputInstRef').value = refMatch[0].replace(/[-–—\s]+$/, '').trim();
     }
 
     // 2. Extract Installation Date (YYYY-MM-DD)
@@ -4877,11 +4891,12 @@ async function importInstallationPdf(event) {
       el('invInputInstDate').value = dateMatch[1];
     }
 
-    // 3. Extract Installed By
+    // 3. Extract Installed By & fix common spelling typo (Muhainmin -> Muhaimin)
     for (let i = 0; i < allLines.length; i++) {
       if (/Installed By/i.test(allLines[i])) {
         const nextLine = allLines[i + 1] || '';
-        const engName = nextLine.replace(/Credence Hospital|Hospital \/ Customer/i, '').trim();
+        let engName = nextLine.replace(/Credence Hospital|Hospital \/ Customer/i, '').trim();
+        engName = engName.replace(/\bMuhainmin\b/gi, 'Muhaimin');
         if (engName && engName.length < 50) {
           if (el('certInstalledBy')) el('certInstalledBy').textContent = engName;
           if (el('certTrainerName')) el('certTrainerName').textContent = engName;
@@ -4923,9 +4938,11 @@ async function importInstallationPdf(event) {
       // Match: <#> <SerialNumber> <ButtonID> <Room> <Location> <Bed>
       const rowMatch = line.match(/^\d+\s+([A-Z0-9-]{6,})\s+([A-Z0-9]{10,})\s+(\S+)\s+(\S+)\s+(.+)$/);
       if (rowMatch) {
+        // Fix OCR/font 5 vs S in serial numbers like ALMS-2611-500003 -> ALMS-2611-S00003
+        const cleanSerial = rowMatch[1].replace(/^([A-Z]+-\d+-)5(\d{4,})$/i, '$1S$2');
         devices.push({
           station: currentStation,
-          serial: rowMatch[1],
+          serial: cleanSerial,
           buttonId: rowMatch[2],
           room: rowMatch[3],
           location: rowMatch[4],

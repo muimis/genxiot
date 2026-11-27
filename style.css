@@ -320,6 +320,7 @@ textarea { resize:vertical; }
   padding: 30px 40px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.06);
   border-radius: 4px;
+  font-family: 'Segoe UI', 'Noto Sans', 'Roboto', Arial, sans-serif;
 }
 .editable-field {
   border-bottom: 1px dashed #94a3b8;
@@ -1431,7 +1432,7 @@ tr.grp-row + tr {
 @media print {
   /* ── Reset ── */
   *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body, html { margin: 0; padding: 0; background: #fff; font-family: 'Roboto', Arial, sans-serif; }
+  body, html { margin: 0; padding: 0; background: #fff; font-family: 'Segoe UI', 'Noto Sans', 'Roboto', Arial, sans-serif; }
 
   /* ── Hide web UI ── */
   .no-print,
