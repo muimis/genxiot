@@ -1161,7 +1161,8 @@ function saveQuote() {
     brochureLayoutMode:  currentBrochureLayoutMode,
     showOptionalAddons:  document.getElementById('chkShowOptionalAddons')?.checked ?? true,
     selectedAddonCodes:  Array.from(selectedAddonCodes),
-    docType:             currentDocType
+    docType:             currentDocType,
+    finalInvoice:        (typeof collectFinalInvoiceState === 'function') ? collectFinalInvoiceState() : null
   };
 
   // ── Embed settings as first BOM entry (__SETTINGS__ meta item) ──────
@@ -1411,6 +1412,15 @@ function restoreQuote(data) {
     userCustomizedAddons = true;
   }
   renderOptionalAddonsPicker();
+
+  if (data.finalInvoice && typeof restoreFinalInvoiceState === 'function') {
+    restoreFinalInvoiceState(data.finalInvoice);
+  } else if (data.quoteRef && typeof restoreFinalInvoiceState === 'function') {
+    try {
+      const localInv = localStorage.getItem('genxiot_final_invoice_' + data.quoteRef.trim());
+      if (localInv) restoreFinalInvoiceState(JSON.parse(localInv));
+    } catch (e) {}
+  }
 
   if (data.docType) {
     currentDocType = data.docType;
@@ -4455,22 +4465,33 @@ function applyPoOverridesToInvoice() {
     el('certSigClientPerson').dataset.userEdited = 'true';
   }
   if (po.hwWarranty) {
-    if (el('invInputWarrHw')) el('invInputWarrHw').value = po.hwWarranty;
+    const hwClean = /2\s*\+\s*1/i.test(po.hwWarranty)
+      ? '2 Years Replacement Warranty + 1 Year CMC (Total 3 Years)'
+      : po.hwWarranty.replace(/\bwarr[a-z]*y\b/gi, 'Warranty');
+    if (el('invInputWarrHw')) el('invInputWarrHw').value = hwClean;
     if (el('certHwWarrText')) {
       delete el('certHwWarrText').dataset.userEdited;
-      el('certHwWarrText').textContent = po.hwWarranty;
+      el('certHwWarrText').textContent = `${hwClean} from the date of commissioning. Covers eligible manufacturing defects and internal electronic component failures.`;
     }
   }
   if (po.tvWarranty) {
-    if (el('invInputWarrTv')) el('invInputWarrTv').value = po.tvWarranty;
+    const tvClean = /1\s*\+\s*1/i.test(po.tvWarranty)
+      ? '1 Year Manufacturer Warranty + 1 Year Extended CMC (Total 2 Years)'
+      : po.tvWarranty.replace(/\bwarr[a-z]*y\b/gi, 'Warranty');
+    if (el('invInputWarrTv')) el('invInputWarrTv').value = tvClean;
     if (el('certTvWarrText')) {
       delete el('certTvWarrText').dataset.userEdited;
-      el('certTvWarrText').textContent = po.tvWarranty;
+      el('certTvWarrText').textContent = `${tvClean} from date of purchase / commissioning.`;
     }
   }
-  if (po.paymentTerms && el('tiPaymentTermsText')) {
-    el('tiPaymentTermsText').textContent = po.paymentTerms;
-    el('tiPaymentTermsText').dataset.userEdited = 'true';
+  if (po.paymentTerms) {
+    const pctMatch = po.paymentTerms.match(/(\d+)\s*%/);
+    const advPctNum = pctMatch ? parseInt(pctMatch[1], 10) : 50;
+    if (el('advPct')) el('advPct').value = advPctNum;
+    if (el('tiPaymentTermsText')) {
+      el('tiPaymentTermsText').textContent = `${advPctNum}% Advance / Balance Due on Completion (NEFT)`;
+      el('tiPaymentTermsText').dataset.userEdited = 'true';
+    }
   }
   updateTaxInvoiceView();
   if (typeof showToast === 'function') {
@@ -4519,6 +4540,165 @@ function applyTallyOverridesToInvoice() {
 
   if (typeof showToast === 'function') {
     showToast(`Applied Tally Invoice #${tally.invNo || ''} details & line items.`, 'success', 3000);
+  }
+}
+
+// ─── FINALIZED TAX INVOICE SAVE & RESTORE ────────────────────────────────────
+function collectFinalInvoiceState() {
+  const el = id => document.getElementById(id);
+  const val = id => el(id)?.value ?? '';
+  const chk = id => !!el(id)?.checked;
+  const txt = id => el(id)?.textContent ?? '';
+
+  // Capture custom/Tally invoice rows if active
+  let customRows = null;
+  if (window._tiUsingTallyItems && el('tiItemBody')) {
+    customRows = Array.from(el('tiItemBody').querySelectorAll('tr')).map(tr => {
+      const tds = tr.querySelectorAll('td');
+      return {
+        desc: tds[1]?.innerText?.trim() || '',
+        hsn: tds[2]?.textContent?.trim() || '',
+        qty: parseFloat((tds[3]?.textContent || '').replace(/[^0-9.]/g, '')) || 1,
+        rate: parseFloat((tds[4]?.textContent || '').replace(/[^0-9.]/g, '')) || 0,
+        discPct: parseFloat((tds[5]?.textContent || '').replace(/[^0-9.]/g, '')) || 0
+      };
+    });
+  }
+
+  return {
+    invInputNo: val('invInputNo'),
+    invInputDate: val('invInputDate'),
+    invInputInstDate: val('invInputInstDate'),
+    invInputPo: val('invInputPo'),
+    invInputPoDate: val('invInputPoDate'),
+    invInputInstRef: val('invInputInstRef'),
+    invInputWarrHw: val('invInputWarrHw'),
+    invInputWarrTv: val('invInputWarrTv'),
+    invInputCmc: val('invInputCmc'),
+    invIncludeCover: chk('invIncludeCover'),
+    invIncludeAnnexure: chk('invIncludeAnnexure'),
+    invShowAdvance: chk('invShowAdvance'),
+    invInputAdv: val('invInputAdv'),
+    tiSigName: txt('tiSigName'),
+    tiSigDesig: txt('tiSigDesig'),
+    tiDeliveryTerms: txt('tiDeliveryTerms'),
+    tiPaymentTermsText: txt('tiPaymentTermsText'),
+    tiDeclarationText: txt('tiDeclarationText'),
+    certInstalledBy: txt('certInstalledBy'),
+    certNetworkMode: txt('certNetworkMode'),
+    certTrainerName: txt('certTrainerName'),
+    certTrainerDesig: txt('certTrainerDesig'),
+    certTraineeName: txt('certTraineeName'),
+    certTraineeDesig: txt('certTraineeDesig'),
+    certSigGenxName: txt('certSigGenxName'),
+    certSigGenxDesig: txt('certSigGenxDesig'),
+    certSigClientPerson: txt('certSigClientPerson'),
+    certSigClientDesig: txt('certSigClientDesig'),
+    certHwWarrText: txt('certHwWarrText'),
+    certTvWarrText: txt('certTvWarrText'),
+    certCmcText: txt('certCmcText'),
+    serialNumbers: window._certSerialNumbers || {},
+    manualAnnexureItems: window._manualAnnexureItems || [],
+    importedDevices: window._importedDevices || [],
+    usingTallyItems: !!window._tiUsingTallyItems,
+    customRows
+  };
+}
+
+function restoreFinalInvoiceState(inv) {
+  if (!inv || typeof inv !== 'object') return;
+  const el = id => document.getElementById(id);
+  const setV = (id, v) => { if (el(id) && v !== undefined && v !== null) el(id).value = v; };
+  const setC = (id, v) => { if (el(id) && v !== undefined) el(id).checked = !!v; };
+  const setT = (id, v) => {
+    if (el(id) && v !== undefined && v !== null && String(v).trim() !== '') {
+      el(id).textContent = v;
+      el(id).dataset.userEdited = 'true';
+    }
+  };
+
+  setV('invInputNo', inv.invInputNo);
+  setV('invInputDate', inv.invInputDate);
+  setV('invInputInstDate', inv.invInputInstDate);
+  setV('invInputPo', inv.invInputPo);
+  setV('invInputPoDate', inv.invInputPoDate);
+  setV('invInputInstRef', inv.invInputInstRef);
+  setV('invInputWarrHw', inv.invInputWarrHw);
+  setV('invInputWarrTv', inv.invInputWarrTv);
+  setV('invInputCmc', inv.invInputCmc);
+  setC('invIncludeCover', inv.invIncludeCover !== undefined ? inv.invIncludeCover : true);
+  setC('invIncludeAnnexure', inv.invIncludeAnnexure !== undefined ? inv.invIncludeAnnexure : true);
+  setC('invShowAdvance', inv.invShowAdvance);
+  setV('invInputAdv', inv.invInputAdv);
+
+  setT('tiSigName', inv.tiSigName);
+  setT('tiSigDesig', inv.tiSigDesig);
+  setT('tiDeliveryTerms', inv.tiDeliveryTerms);
+  setT('tiPaymentTermsText', inv.tiPaymentTermsText);
+  setT('tiDeclarationText', inv.tiDeclarationText);
+  setT('certInstalledBy', inv.certInstalledBy);
+  setT('certNetworkMode', inv.certNetworkMode);
+  setT('certTrainerName', inv.certTrainerName);
+  setT('certTrainerDesig', inv.certTrainerDesig);
+  setT('certTraineeName', inv.certTraineeName);
+  setT('certTraineeDesig', inv.certTraineeDesig);
+  setT('certSigGenxName', inv.certSigGenxName);
+  setT('certSigGenxDesig', inv.certSigGenxDesig);
+  setT('certSigClientPerson', inv.certSigClientPerson);
+  setT('certSigClientDesig', inv.certSigClientDesig);
+  setT('certHwWarrText', inv.certHwWarrText);
+  setT('certTvWarrText', inv.certTvWarrText);
+  setT('certCmcText', inv.certCmcText);
+
+  if (inv.serialNumbers) window._certSerialNumbers = inv.serialNumbers;
+  if (Array.isArray(inv.manualAnnexureItems)) window._manualAnnexureItems = inv.manualAnnexureItems;
+  if (Array.isArray(inv.importedDevices)) window._importedDevices = inv.importedDevices;
+
+  if (inv.usingTallyItems && Array.isArray(inv.customRows) && inv.customRows.length > 0) {
+    window._lastImportedTally = window._lastImportedTally || { invNo: inv.invInputNo, items: inv.customRows };
+    window._lastImportedTally.items = inv.customRows;
+    window._tiUsingTallyItems = true;
+    if (el('tiItemBody')) {
+      const isInterState = !!window._tiIsInterState;
+      const tbody = el('tiItemBody');
+      tbody.innerHTML = '';
+      inv.customRows.forEach((it, idx) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #cbd5e1';
+        tr.innerHTML = `
+          <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${idx + 1}</td>
+          <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${it.desc}</strong></td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${it.hsn}</td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${it.qty}.00 Nos</td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(it.rate)}</td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${it.discPct > 0 ? it.discPct + '%' : '—'}</td>
+          <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">0.00</td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-cgst">0.00</td>
+          ${!isInterState ? `<td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" class="ti-cell-sgst">0.00</td>` : ''}
+          <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:700;" class="ti-cell-total">0.00</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+}
+
+function saveFinalizedInvoice() {
+  const qtn = (document.getElementById('quoteRef')?.value || 'DRAFT').trim();
+  const invState = collectFinalInvoiceState();
+  try {
+    localStorage.setItem('genxiot_final_invoice_' + qtn, JSON.stringify(invState));
+  } catch (e) { console.warn('localStorage invoice save skipped:', e); }
+
+  const statusSel = document.getElementById('dealStatus');
+  if (statusSel && (statusSel.value === 'Pending' || statusSel.value === 'Active Option')) {
+    statusSel.value = 'Closed Won';
+  }
+  if (typeof saveQuote === 'function') {
+    saveQuote();
+  }
+  if (typeof showToast === 'function') {
+    showToast(`Finalized Tax Invoice #${invState.invInputNo || '1'} saved!`, 'success', 3000);
   }
 }
 
