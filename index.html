@@ -443,7 +443,7 @@
           <select id="selAddCatalogue" onchange="addCatalogueItem(this.value); this.value='';" style="font-size:0.75rem; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: white; color: var(--ink); cursor: pointer; font-weight: 500;">
             <option value="">+ Add Product from Catalogue...</option>
             <option value="DRIPO-IM">💧 Dripo – Smart Infusion Monitor (₹4,500 / ₹4,000 / ₹3,500)</option>
-            <option value="ALAMO-NS-TV">📺 32" Smart Display (HSN: 85287390) (₹12,000)</option>
+            <option value="ALAMO-NS-TV">📺 32" Smart Display (HSN: 85287215) (₹12,000)</option>
             <option value="ALAMO-MINI">📟 Mini Station - Tetris Display (HSN: 85318000) (₹12,000)</option>
             <option value="ALAMO-GW">📡 Gateway (one for local, one for cloud) (HSN: 85176230) (₹12,000)</option>
             <option value="ALAMO-RPT">🔁 Repeater (HSN: 85176290) (₹4,000)</option>
@@ -853,11 +853,7 @@
           <input type="checkbox" id="invIncludeAnnexure" checked onchange="updateTaxInvoiceView()">
           Device Annexure
         </label>
-        <label style="margin:0; font-weight:600; color:#374151; display:flex; align-items:center; gap:4px; cursor:pointer;" title="Normally Tax Invoice shows Full Amount and Cover Page shows Advance/Balance">
-          <input type="checkbox" id="invShowAdvance" onchange="updateTaxInvoiceView()">
-          Advance on Invoice
-        </label>
-        <input type="number" id="invInputAdv" placeholder="Adv ₹ (Auto)" style="width:95px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
+        <input type="number" id="invInputAdv" placeholder="Adv ₹ (Auto)" title="Advance Received (shown on Cover Letter)" style="width:95px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
         <button type="button" class="btn btn-sm" style="background:#059669; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:0.73rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px; margin-left:4px;" onclick="saveFinalizedInvoice()" title="Save finalized Tax Invoice, serial numbers, warranty &amp; handover dossier to Quote/Sheets">
           <i data-lucide="save" size="13"></i> Save Finalized Invoice
         </button>
@@ -910,7 +906,6 @@
             <div class="party-name" id="cClientName">Hospital Name</div>
             <div class="party-sub" id="cClientLoc">Trivandrum, Kerala</div>
             <div class="party-sub" id="cClientGstRow" style="display:none;font-family:Consolas, 'Courier New', monospace;font-weight:400;font-size:0.72rem;letter-spacing:0.03em;">GSTIN: <span id="cClientGst"></span></div>
-            <div class="party-sub">Attn: <span id="cContactPerson">Medical Director</span></div>
           </div>
         </div>
 
@@ -1098,14 +1093,10 @@
               <span style="color:#475569;">Tax Amount (in words):</span><br>
               <strong id="tiWordsTax" style="color:#334155;">–</strong>
             </div>
-            <div style="margin-top:4px;" id="tiWordsBalanceWrap">
-              <span style="color:#475569;">Net Balance Due (in words):</span><br>
-              <strong id="tiWordsBalance" style="color:#047857;">–</strong>
-            </div>
           </div>
 
-          <!-- Right: Commercial Reconciliation Summary -->
-          <div style="width:280px; border:1px solid #cbd5e1; border-radius:4px; overflow:hidden; font-size:0.73rem;">
+          <!-- Right: Commercial Totals Summary -->
+          <div style="width:280px; border:1px solid #94a3b8; overflow:hidden; font-size:0.73rem;">
             <table style="width:100%; border-collapse:collapse;">
               <tr>
                 <td style="padding:4px 8px; border-bottom:1px solid #e2e8f0; background:#f1f5f9; font-weight:600;">Total Taxable Value</td>
@@ -1126,14 +1117,6 @@
               <tr id="tiRowTotal" style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem;">
                 <td style="padding:6px 8px;">TOTAL INVOICE VALUE (incl. GST)</td>
                 <td style="padding:6px 8px; text-align:right;" id="tiSummaryTotal">₹0.00</td>
-              </tr>
-              <tr id="tiRowAdvance" style="color:#b91c1c; display:none;">
-                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; font-weight:600;">Less: Advance Received</td>
-                <td style="padding:4px 8px; border-bottom:1px solid #cbd5e1; text-align:right; font-weight:600;" id="tiSummaryAdvance">-₹0.00</td>
-              </tr>
-              <tr id="tiRowBalance" style="background:var(--brand-navy); color:#fff; font-weight:700; font-size:0.80rem; display:none;">
-                <td style="padding:6px 8px;">FINAL BALANCE DUE</td>
-                <td style="padding:6px 8px; text-align:right;" id="tiSummaryBalance">₹0.00</td>
               </tr>
             </table>
           </div>
@@ -1264,7 +1247,7 @@
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; font-size:0.69rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:6px 10px;">
             <div>
               <strong>Trainer:</strong> <span contenteditable="true" id="certTrainerName" class="editable-field">Muhaimin A S</span><br>
-              <span style="color:#64748b;" contenteditable="true" id="certTrainerDesig" class="editable-field">Field Application Engineer · GENXIOT LLP</span>
+              <span style="color:#64748b;" contenteditable="true" id="certTrainerDesig" class="editable-field">Business Development Manager · GENXIOT LLP</span>
             </div>
             <div>
               <strong>Trainee / Staff Representative:</strong> <span contenteditable="true" id="certTraineeName" class="editable-field">Nursing / BioMed Representative</span><br>
@@ -1282,7 +1265,7 @@
             <div class="sig-block">
               <div class="sig-line" style="height:46px; margin-bottom:6px;"></div>
               <p class="sig-name editable-field" contenteditable="true" id="certSigGenxName">Muhaimin A S</p>
-              <p class="sig-org editable-field" contenteditable="true" id="certSigGenxDesig">Commissioning Engineer · GENXIOT LLP</p>
+              <p class="sig-org editable-field" contenteditable="true" id="certSigGenxDesig">Business Development Manager · GENXIOT LLP</p>
               <p style="font-size:0.68rem; color:#666; margin-top:2px;">Handed Over By · Signature &amp; Stamp</p>
             </div>
             <div class="sig-block">

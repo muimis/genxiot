@@ -195,7 +195,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  '32" Smart Display (HSN: 85287390)',
+    name:  '32" Smart Display (HSN: 85287215)',
     desc:  'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.',
     group: 'Nursing Station',
     mrp:   12000,
@@ -369,7 +369,7 @@ function getItemDisplayInfo(item, isDripo) {
         desc = 'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.';
       }
     } else if (item.code === 'ALAMO-NS-TV') {
-      name = '32" Smart Display (HSN: 85287390)';
+      name = '32" Smart Display (HSN: 85287215)';
       desc = 'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.';
     } else if (item.code === 'ALAMO-MINI') {
       name = 'Mini Station - Tetris (Alert System) (HSN: 85318000)';
@@ -3731,7 +3731,7 @@ function updateTaxInvoiceView() {
       'ALAMO-DL': '85318000',
       'ALAMO-WCP': '85365090',
       'ALAMO-PCR': '85365090',
-      'ALAMO-NS-TV': '85287390',
+      'ALAMO-NS-TV': '85287215',
       'ALAMO-GW': '85176230',
       'ALAMO-RPT': '85176290',
       'ALAMO-MINI': '85318000',
@@ -3945,29 +3945,11 @@ function updateTaxInvoiceView() {
     if (el('tiSummaryIgst')) el('tiSummaryIgst').textContent = '₹' + fmt(totIgst);
     if (el('tiSummaryTotal')) el('tiSummaryTotal').textContent = '₹' + fmt(totAmount);
 
-    // Advance & Balance Calculation (Cover Page always shows Reconciliation; Tax Invoice toggle is optional)
+    // Cover Page toggle & Advance calculation (Advance/Balance shown on Cover Letter ONLY, never on Tax Invoice)
     const incCover = el('invIncludeCover') ? el('invIncludeCover').checked : true;
     document.body.classList.toggle('include-cover-page', incCover);
     if (el('pageCover')) el('pageCover').style.display = incCover ? 'block' : 'none';
-
-    const showAdv = !!el('invShowAdvance')?.checked;
-    if (el('invInputAdv')) el('invInputAdv').style.display = (incCover || showAdv) ? '' : 'none';
-    if (el('tiRowAdvance')) el('tiRowAdvance').style.display = showAdv ? '' : 'none';
-    if (el('tiRowBalance')) el('tiRowBalance').style.display = showAdv ? '' : 'none';
-    if (el('tiWordsBalanceWrap')) el('tiWordsBalanceWrap').style.display = showAdv ? '' : 'none';
-
-    const tiRowTotal = el('tiRowTotal');
-    if (tiRowTotal) {
-      if (showAdv) {
-        tiRowTotal.style.background = '#f8fafc';
-        tiRowTotal.style.color = 'var(--brand-navy)';
-        tiRowTotal.style.fontSize = '0.73rem';
-      } else {
-        tiRowTotal.style.background = 'var(--brand-navy)';
-        tiRowTotal.style.color = '#fff';
-        tiRowTotal.style.fontSize = '0.80rem';
-      }
-    }
+    if (el('invInputAdv')) el('invInputAdv').style.display = incCover ? '' : 'none';
 
     const rawQuoteAdv = parseFloat(el('advPct')?.value);
     const quoteAdvPct = Math.max(0, Math.min(100, isNaN(rawQuoteAdv) ? 50 : rawQuoteAdv));
@@ -3978,20 +3960,14 @@ function updateTaxInvoiceView() {
       : Math.round(totAmount * (quoteAdvPct / 100) * 100) / 100;
     const balAmt = Math.round((totAmount - advAmt) * 100) / 100;
 
-    if (el('tiPaymentTermsText')) {
-      el('tiPaymentTermsText').textContent = showAdv
-        ? `${quoteAdvPct}% Advance / Balance on Install`
-        : 'As per Agreed Terms / Cover Letter';
+    if (el('tiPaymentTermsText') && !el('tiPaymentTermsText').dataset.userEdited) {
+      el('tiPaymentTermsText').textContent = `${quoteAdvPct}% Advance / Balance on Completion`;
     }
 
-    if (el('tiSummaryAdvance')) el('tiSummaryAdvance').textContent = '-₹' + fmt(advAmt);
-    if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
-
-    // Words
+    // Words (Pure Statutory Tax Invoice)
     const totalTaxAmt = isInterState ? totIgst : (totCgst + totSgst);
     if (el('tiWordsTotal')) el('tiWordsTotal').textContent = numberToWordsIndian(totAmount);
     if (el('tiWordsTax'))   el('tiWordsTax').textContent   = numberToWordsIndian(totalTaxAmt);
-    if (el('tiWordsBalance')) el('tiWordsBalance').textContent = numberToWordsIndian(balAmt);
 
     // Tally-style Tax Summary Breakdown
     if (el('tiBreakTaxable'))  el('tiBreakTaxable').textContent  = '₹' + fmt(totTaxable);
@@ -4031,26 +4007,29 @@ function updateTaxInvoiceView() {
       sigDesigEl.oninput = () => { sigDesigEl.dataset.userEdited = 'true'; };
     }
 
-    // Populate Integrated Cover Page (Page 1 of Dossier)
-    if (el('cInvNo')) el('cInvNo').textContent = invNo;
-    if (el('cDate')) el('cDate').textContent = invDateFmt;
-    if (el('cPoNo')) el('cPoNo').textContent = poNo;
-    if (el('cInstRef')) el('cInstRef').textContent = instRef;
-    if (el('cInstDate')) el('cInstDate').textContent = instDateFmt;
-    if (el('cClientName')) el('cClientName').textContent = clientName;
-    if (el('cClientLoc')) el('cClientLoc').textContent = clientLoc;
-    if (el('cContactPerson')) el('cContactPerson').textContent = (el('contactPerson')?.value || 'Director').trim();
-    if (el('cClientGstRow')) {
-      if (clientGst) {
-        el('cClientGstRow').style.display = '';
-        if (el('cClientGst')) el('cClientGst').textContent = clientGst;
-      } else {
-        el('cClientGstRow').style.display = 'none';
-      }
-    }
     if (el('cTotalAmt')) el('cTotalAmt').textContent = '₹' + fmt(totAmount);
     if (el('cAdvAmt'))   el('cAdvAmt').textContent   = '-₹' + fmt(advAmt);
     if (el('cBalAmt'))   el('cBalAmt').textContent   = '₹' + fmt(balAmt);
+  }
+
+  // ALWAYS Populate Integrated Cover Page Headings & Client Details (outside tbody branch!)
+  const incCoverAlways = el('invIncludeCover') ? el('invIncludeCover').checked : true;
+  document.body.classList.toggle('include-cover-page', incCoverAlways);
+  if (el('pageCover')) el('pageCover').style.display = incCoverAlways ? 'block' : 'none';
+  if (el('cInvNo')) el('cInvNo').textContent = invNo;
+  if (el('cDate')) el('cDate').textContent = invDateFmt;
+  if (el('cPoNo')) el('cPoNo').textContent = poNo;
+  if (el('cInstRef')) el('cInstRef').textContent = instRef;
+  if (el('cInstDate')) el('cInstDate').textContent = instDateFmt;
+  if (el('cClientName')) el('cClientName').textContent = clientName;
+  if (el('cClientLoc')) el('cClientLoc').textContent = clientLoc;
+  if (el('cClientGstRow')) {
+    if (clientGst) {
+      el('cClientGstRow').style.display = '';
+      if (el('cClientGst')) el('cClientGst').textContent = clientGst;
+    } else {
+      el('cClientGstRow').style.display = 'none';
+    }
   }
 
   // Populate Page 3: Handover Certificate
@@ -4174,14 +4153,13 @@ function recalcTaxInvoiceFromTable() {
   const advAmt = !isNaN(parsedAdvInput) ? parsedAdvInput : Math.round(totAmount * (quoteAdvPct / 100) * 100) / 100;
   const balAmt = Math.round((totAmount - advAmt) * 100) / 100;
 
-  if (el('tiSummaryAdvance')) el('tiSummaryAdvance').textContent = '-₹' + fmt(advAmt);
-  if (el('tiSummaryBalance')) el('tiSummaryBalance').textContent = '₹' + fmt(balAmt);
   if (el('tiWordsTotal')) el('tiWordsTotal').textContent = numberToWordsIndian(totAmount);
   if (el('tiWordsTax')) el('tiWordsTax').textContent = numberToWordsIndian(totalTaxAmt);
-  if (el('tiWordsBalance')) el('tiWordsBalance').textContent = numberToWordsIndian(balAmt);
   if (el('cTotalAmt')) el('cTotalAmt').textContent = '₹' + fmt(totAmount);
   if (el('cAdvAmt')) el('cAdvAmt').textContent = '-₹' + fmt(advAmt);
   if (el('cBalAmt')) el('cBalAmt').textContent = '₹' + fmt(balAmt);
+  if (el('cClientName') && el('tiBillName')) el('cClientName').textContent = el('tiBillName').textContent;
+  if (el('cClientLoc') && el('tiBillAddr')) el('cClientLoc').textContent = el('tiBillAddr').textContent;
   if (el('cInvNo') && el('tiInvNo')) el('cInvNo').textContent = el('tiInvNo').textContent;
   if (el('cDate') && el('tiInvDate')) el('cDate').textContent = el('tiInvDate').textContent;
   if (el('cPoNo') && el('tiPoNo')) el('cPoNo').textContent = el('tiPoNo').textContent;
@@ -4359,26 +4337,21 @@ async function importTallyPdf(event) {
       if (nums.length > 0) tallyTotal = Math.max(...nums);
     }
 
-    // Extract Tally Line Items (deduplicated multi-line descriptions)
+    // Extract Tally Line Items (walk FORWARD from each HSN/Qty line to gather wrapped description lines)
     const items = [];
+    const itemLineRegex = /\b(\d{4,8})\s+([\d.]+)\s+Nos\s+([\d,]+\.\d{2})\s+Nos\s+(?:(\d+)\s*%\s+)?([\d,]+\.\d{2}).*?([\d,]+\.\d{2})$/;
     for (let i = 0; i < allLines.length; i++) {
-      // Look for lines containing HSN/SAC + Qty Nos + Rate + Nos + ... + LineTotal
-      const m = allLines[i].match(/\b(\d{4,8})\s+([\d.]+)\s+Nos\s+([\d,]+\.\d{2})\s+Nos\s+(?:(\d+)\s*%\s+)?([\d,]+\.\d{2}).*?([\d,]+\.\d{2})$/);
+      const m = allLines[i].match(itemLineRegex);
       if (m) {
         const prefix = allLines[i].substring(0, allLines[i].indexOf(m[1])).replace(/^\d+\s+/, '').trim();
-        let descParts = [];
-        // Only walk backward if the current line has no description prefix (or to get wrapped lines above)
-        for (let b = i - 1; b >= Math.max(0, i - 5); b--) {
-          if (/^(Sl|No\.|Terms of Delivery|State Name|Buyer|continued)/i.test(allLines[b])) break;
-          // Stop if previous line was another item's HSN/Rate row
-          if (/\b\d{4,8}\s+[\d.]+\s+Nos\b/.test(allLines[b])) break;
-          const clean = allLines[b].replace(/^\d+\s+/, '').trim();
-          if (clean && clean !== prefix && !descParts.includes(clean)) {
-            descParts.unshift(clean);
-          }
-          if (/^\d+\s+/.test(allLines[b])) break;
+        const descParts = prefix ? [prefix] : [];
+        for (let f = i + 1; f < Math.min(i + 7, allLines.length); f++) {
+          const nxt = allLines[f].trim();
+          if (!nxt) continue;
+          if (itemLineRegex.test(nxt)) break;
+          if (/^(continued|Output\s+(?:CGST|SGST|IGST)|Total\b|This is a Computer|Amount Chargeable|Taxable\b|[\d,]+\.\d{2}$)/i.test(nxt)) break;
+          descParts.push(nxt);
         }
-        if (prefix && !descParts.includes(prefix)) descParts.push(prefix);
 
         items.push({
           desc: descParts.join(' ').replace(/\s{2,}/g, ' ').trim() || 'Item',
