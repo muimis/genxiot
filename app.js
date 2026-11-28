@@ -4211,6 +4211,7 @@ async function importPoPdf(event) {
     const allLines = await _extractPdfLines(file);
     const fullText = allLines.join('\n');
 
+    const poNoMatch = fullText.match(/PO\.?\s*No\s*:?\s*([A-Z0-9\/_-]+)/i);
     const rawPoNo = poNoMatch ? poNoMatch[1].trim() : '';
     const poNoClean = rawPoNo.replace(/^([A-Z0-9]+-P)0(\d)/i, '$1O$2');
     const poDateMatch = fullText.match(/Date\s*:?\s*(\d{2})\/(\d{2})\/(\d{4})/i);
@@ -4737,6 +4738,64 @@ function saveFinalizedInvoice() {
   }
   if (typeof showToast === 'function') {
     showToast(`Saving Finalized Tax Invoice #${invNo} to Google Sheets (accessible to anyone)...`, 'success', 3500);
+  }
+}
+
+function resetTaxInvoice(skipConfirm = false) {
+  if (!skipConfirm && !confirm('Reset all Tax Invoice edits, imported PO/Tally/Install data, and rebuild fresh from the current Quotation/BOQ?')) {
+    return;
+  }
+
+  window._tiUsingTallyItems = false;
+  window._lastImportedPo = null;
+  window._lastImportedTally = null;
+  window._importedDevices = [];
+  window._manualAnnexureItems = [];
+  window._certSerialNumbers = {};
+
+  const el = id => document.getElementById(id);
+  const clr = id => { if (el(id)) el(id).value = ''; };
+
+  clr('invInputNo');
+  clr('invInputDate');
+  clr('invInputInstDate');
+  clr('invInputPo');
+  clr('invInputPoDate');
+  clr('invInputInstRef');
+  clr('invInputAdv');
+  if (el('invInputWarrHw')) el('invInputWarrHw').value = '1 Year Standard Replacement';
+  if (el('invInputWarrTv')) el('invInputWarrTv').value = '1 Year Manufacturer Warranty';
+  if (el('invInputCmc'))    el('invInputCmc').value    = 'Post-warranty AMC/CMC optional';
+  if (el('invIncludeCover'))    el('invIncludeCover').checked = true;
+  if (el('invIncludeAnnexure')) el('invIncludeAnnexure').checked = true;
+
+  [
+    'tiSigName', 'tiSigDesig', 'tiDeliveryTerms', 'tiPaymentTermsText', 'tiDeclarationText',
+    'certInstalledBy', 'certNetworkMode', 'certTrainerName', 'certTrainerDesig',
+    'certTraineeName', 'certTraineeDesig', 'certSigGenxName', 'certSigGenxDesig',
+    'certSigClientPerson', 'certSigClientDesig', 'certHwWarrText', 'certTvWarrText', 'certCmcText'
+  ].forEach(id => {
+    if (el(id)) delete el(id).dataset.userEdited;
+  });
+
+  if (el('tiDeliveryTerms')) el('tiDeliveryTerms').textContent = 'Delivered & Installed at Site';
+  if (el('tiDeclarationText')) el('tiDeclarationText').textContent = 'We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct. Goods once sold are covered under applicable warranty terms.';
+  if (el('certInstalledBy')) el('certInstalledBy').textContent = 'Muhaimin A S';
+  if (el('certNetworkMode')) el('certNetworkMode').textContent = 'Offline / Local RF Network';
+  if (el('certTrainerName')) el('certTrainerName').textContent = 'Muhaimin A S';
+  if (el('certTrainerDesig')) el('certTrainerDesig').textContent = 'Business Development Manager · GENXIOT LLP';
+  if (el('certTraineeName')) el('certTraineeName').textContent = 'Nursing / BioMed Representative';
+  if (el('certTraineeDesig')) el('certTraineeDesig').textContent = 'Nursing In-Charge / Biomedical Dept.';
+  if (el('certSigGenxName')) el('certSigGenxName').textContent = 'Muhaimin A S';
+  if (el('certSigGenxDesig')) el('certSigGenxDesig').textContent = 'Business Development Manager · GENXIOT LLP';
+  if (el('certSigClientPerson')) el('certSigClientPerson').textContent = 'Authorized Representative';
+  if (el('certSigClientDesig')) el('certSigClientDesig').textContent = 'Biomedical Engineer / Nursing In-Charge';
+
+  if (el('poCrossCheckBanner')) el('poCrossCheckBanner').style.display = 'none';
+
+  _applyTaxInvoiceMode(true);
+  if (typeof showToast === 'function') {
+    showToast('Tax Invoice reset to fresh Quotation/BOQ defaults. Click "Save Finalized Invoice" when ready to overwrite Google Sheets.', 'success', 3500);
   }
 }
 

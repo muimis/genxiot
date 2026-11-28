@@ -854,8 +854,11 @@
           Device Annexure
         </label>
         <input type="number" id="invInputAdv" placeholder="Adv ₹ (Auto)" title="Advance Received (shown on Cover Letter)" style="width:95px; padding:3px 6px; border:1px solid #cbd5e1; border-radius:4px; font-weight:700; color:#b91c1c;" oninput="updateTaxInvoiceView()">
-        <button type="button" class="btn btn-sm" style="background:#059669; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:0.73rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px; margin-left:4px;" onclick="saveFinalizedInvoice()" title="Save finalized Tax Invoice, serial numbers, warranty &amp; handover dossier to Quote/Sheets">
+        <button type="button" class="btn btn-sm" style="background:#059669; color:#fff; border:none; padding:4px 10px; border-radius:4px; font-size:0.73rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:4px; margin-left:4px;" onclick="saveFinalizedInvoice()" title="Save finalized Tax Invoice, serial numbers, warranty &amp; handover dossier to Google Sheets">
           <i data-lucide="save" size="13"></i> Save Finalized Invoice
+        </button>
+        <button type="button" class="btn btn-sm" style="background:#dc2626; color:#fff; border:none; padding:4px 9px; border-radius:4px; font-size:0.73rem; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" onclick="resetTaxInvoice()" title="Clear imported PO/Tally/Install data &amp; manual invoice edits and rebuild fresh from Quotation">
+          <i data-lucide="rotate-ccw" size="13"></i> Reset Invoice
         </button>
       </div>
     </div>
@@ -1706,7 +1709,7 @@
   </div><!-- /modal-wrap -->
 </div><!-- /modal-bg -->
 
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 <script>
   lucide.createIcons();
 </script>
