@@ -89,7 +89,7 @@ const CATALOGUE = [
   // ── BED-DRIVEN ─────────────────────────────────
   {
     code:  'ALAMO-CP-R',
-    name:  'Bed Call Point (HSN: 85365090)',
+    name:  'Call Point Service and Nurse Call (HSN: 85365090)',
     desc:  'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.',
     group: 'Bed Components',
     mrp:   2400,
@@ -195,7 +195,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-NS-TV',
-    name:  '32" Smart Display (HSN: 85287215)',
+    name:  'Central Display 32" Bluetooth Smart TV (HSN: 85287215)',
     desc:  'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.',
     group: 'Nursing Station',
     mrp:   12000,
@@ -206,7 +206,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-GW',
-    name:  'Gateway (one for local, one for cloud) (HSN: 85176230)',
+    name:  'Gateway (Network Device) (HSN: 85176230)',
     desc:  'The local gateway links call points to the display. The cloud gateway links the system to the cloud software and needs internet or Wi-Fi. Local operation needs no internet. Includes B-type charger, product stand and screws for assembly.',
     group: 'Infrastructure & Network',
     mrp:   12000,
@@ -217,7 +217,7 @@ const CATALOGUE = [
   },
   {
     code:  'ALAMO-RPT',
-    name:  'Repeater (HSN: 85176290)',
+    name:  'Repeater (Networking Device) (HSN: 85176290)',
     desc:  'Extends local LoRa coverage between gateway and rooms. Includes B-type charger, stand and screws. Requires a 220V outlet. Quantity depends on the floor plan.',
     group: 'Infrastructure & Network',
     mrp:   4000,
@@ -365,20 +365,20 @@ function getItemDisplayInfo(item, isDripo) {
         name = 'Panel-Mount Call Terminal (HSN: 85365090)';
         desc = 'Panel-mount call terminal with LoRa wireless transmitter for new construction. Buttons: Call Nurse, Presence, Close, Call Assist. (Power source & mounting plate as per site specifications).';
       } else {
-        name = 'Bed Call Point (HSN: 85365090)';
+        name = 'Call Point Service and Nurse Call (HSN: 85365090)';
         desc = 'Wall-mounted bedside call unit with LoRa wireless transmitter. Buttons: Call Nurse, Housekeeping, Cancel, Acknowledge. Presence and Code Blue calls pre-configured. Accepts the patient pendant (item 2). Mounts with two ½-inch screws. Battery: 3 × AAA.';
       }
     } else if (item.code === 'ALAMO-NS-TV') {
-      name = '32" Smart Display (HSN: 85287215)';
+      name = 'Central Display 32" Bluetooth Smart TV (HSN: 85287215)';
       desc = 'Android display pre-loaded with Alamo Monitor software for live view of all call points with audio-visual alerts. Requires 220V. Mounting by hospital. Manufacturer\'s 1-year warranty.';
     } else if (item.code === 'ALAMO-MINI') {
       name = 'Mini Station - Tetris (Alert System) (HSN: 85318000)';
       desc = 'Tetris style mini indicator display. Works with Android app for adding call buttons. Can work without gateway.';
     } else if (item.code === 'ALAMO-GW') {
-      name = 'Gateway (one for local, one for cloud) (HSN: 85176230)';
+      name = 'Gateway (Network Device) (HSN: 85176230)';
       desc = 'The local gateway links call points to the display. The cloud gateway links the system to the cloud software and needs internet or Wi-Fi. Local operation needs no internet. Includes B-type charger, product stand and screws for assembly.';
     } else if (item.code === 'ALAMO-RPT') {
-      name = 'Repeater (HSN: 85176290)';
+      name = 'Repeater (Networking Device) (HSN: 85176290)';
       desc = 'Extends local LoRa coverage between gateway and rooms. Includes B-type charger, stand and screws. Requires a 220V outlet. Quantity depends on the floor plan.';
     } else if (item.code === 'ALAMO-CLOUD-SW') {
       name = 'Cloud Software (SAC: 9983)';
@@ -3874,9 +3874,9 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
-          <strong style="color:#1e293b;">COMPREHENSIVE MAINTENANCE CONTRACT (CMC - EXTENDED WARRANTY) PER YEAR</strong>
+          <strong style="color:#1e293b;">Alamo AMC / CMC Service (Per Year)</strong>
         </td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">998719</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">998313</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(cmcTaxable)}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">—</td>
@@ -3913,7 +3913,7 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
-          <strong style="color:#1e293b;">HANDLING, PACKAGING &amp; SHIPPING CHARGES</strong>
+          <strong style="color:#1e293b;">Shipping &amp; Handling Charges</strong>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">996799</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
@@ -4366,6 +4366,7 @@ async function importTallyPdf(event) {
           desc: official.name,
           rawDesc: rawDesc,
           hsn: official.hsn,
+          rawHsn: m[1],
           qty: parseFloat(m[2]) || 1,
           rate: parseFloat(m[3].replace(/,/g, '')) || 0,
           discPct: parseFloat(m[4]) || 0
@@ -4490,47 +4491,47 @@ function applyPoOverridesToInvoice() {
 
 function getOfficialInvoiceItem(rawDesc, codeHint, hsnHint) {
   const s = ((rawDesc || '') + ' ' + (codeHint || '')).toUpperCase();
-  if (/ALAMO-CP-R|ALMO-CP-R|BED CALL POINT/i.test(s)) {
-    return { name: 'NURSES CALL BELL - BED CALL POINT (SERVICE & NURSE CALL) [ALAMO-CP-R]', hsn: '85365090' };
+  if (/ALAMO-CP-R|ALMO-CP-R|EVECPRJ03A0001G|BED CALL POINT|CALL POINT SERVICE/i.test(s)) {
+    return { name: 'Call Point Service and Nurse Call [ALAMO-CP-R]', hsn: '85365090' };
   }
-  if (/ALAMO-PD-S|ALMO-PD-S|PENDANT SINGLE SWITCH/i.test(s)) {
-    return { name: 'NURSES CALL BELL - PENDANT SINGLE SWITCH (ACCESSORY) [ALAMO-PD-S]', hsn: '85365090' };
+  if (/ALAMO-PD-S|ALMO-PD-S|EVECPRJ03A0008C|PENDANT SINGLE SWITCH/i.test(s)) {
+    return { name: 'Pendant Single Switch (Accessory) [ALAMO-PD-S]', hsn: '85365090' };
   }
   if (/ALAMO-PD-D|ALMO-PD-D|DOUBLE BUTTON PENDANT/i.test(s)) {
-    return { name: 'NURSES CALL BELL - DOUBLE BUTTON PENDANT (ACCESSORY) [ALAMO-PD-D]', hsn: '85365090' };
+    return { name: 'Double Button Pendant (Accessory) [ALAMO-PD-D]', hsn: '85365090' };
   }
-  if (/ALAMO-GW|ALMO-GW|GATEWAY/i.test(s)) {
-    return { name: 'NURSES CALL BELL - BLUETOOTH GATEWAY (NETWORK DEVICE) [ALAMO-GW]', hsn: '85176230' };
+  if (/ALAMO-GW|ALMO-GW|EVECPRJ04A0001B|GATEWAY/i.test(s)) {
+    return { name: 'Gateway (Network Device) [ALAMO-GW]', hsn: '85176230' };
   }
-  if (/ALAMO-RPT|ALMO-RPT|REPEATER/i.test(s)) {
-    return { name: 'NURSES CALL BELL - SIGNAL REPEATER (NETWORKING DEVICE) [ALAMO-RPT]', hsn: '85176290' };
+  if (/ALAMO-RPT|ALMO-RPT|EVECPRJ03A0011B|REPEATER/i.test(s)) {
+    return { name: 'Repeater (Networking Device) [ALAMO-RPT]', hsn: '85176290' };
   }
-  if (/ALAMO-NS-TV|SMART TV|SMART DISPLAY|TELEVISION/i.test(s)) {
-    return { name: 'NURSES CALL BELL - CENTRAL DISPLAY 32" BLUETOOTH SMART TV [ALAMO-NS-TV]', hsn: '85287215' };
+  if (/ALAMO-NS-TV|SMART TV|SMART DISPLAY|CENTRAL DISPLAY|TELEVISION/i.test(s)) {
+    return { name: 'Central Display 32" Bluetooth Smart TV [ALAMO-NS-TV]', hsn: '85287215' };
   }
   if (/ALAMO-CP-B|WASHROOM CALL POINT/i.test(s)) {
-    return { name: 'NURSES CALL BELL - WASHROOM CALL POINT [ALAMO-CP-B]', hsn: '85365090' };
+    return { name: 'Washroom Call Point [ALAMO-CP-B]', hsn: '85365090' };
   }
   if (/ALAMO-PL|PULL CORD/i.test(s)) {
-    return { name: 'NURSES CALL BELL - WASHROOM PULL CORD [ALAMO-PL]', hsn: '85365090' };
+    return { name: 'Washroom Pull Cord [ALAMO-PL]', hsn: '85365090' };
   }
   if (/ALAMO-DL|CALL LIGHT|DOOR INDICATOR/i.test(s)) {
-    return { name: 'NURSES CALL BELL - CALL LIGHT V2 (DOOR INDICATOR) [ALAMO-DL]', hsn: '85318000' };
+    return { name: 'Call Light V2 (Door Indicator) [ALAMO-DL]', hsn: '85318000' };
   }
   if (/ALAMO-MINI|MINI STATION/i.test(s)) {
-    return { name: 'NURSES CALL BELL - MINI STATION TETRIS [ALAMO-MINI]', hsn: '85318000' };
+    return { name: 'Mini Station Tetris [ALAMO-MINI]', hsn: '85318000' };
   }
   if (/ALAMO-CLOUD-SW|CLOUD SOFTWARE/i.test(s)) {
-    return { name: 'ALAMO CLOUD MONITORING SOFTWARE [ALAMO-CLOUD-SW]', hsn: '9983' };
+    return { name: 'Alamo Cloud Monitoring Software [ALAMO-CLOUD-SW]', hsn: '9983' };
   }
   if (/DRIPO-IM|DRIPO/i.test(s)) {
-    return { name: 'DRIPO - SMART INFUSION MONITOR [DRIPO-IM]', hsn: '90189099' };
+    return { name: 'Dripo - Smart Infusion Monitor [DRIPO-IM]', hsn: '90189099' };
   }
-  if (/\bCMC\b|EXTENDED WARRANTY/i.test(s)) {
-    return { name: 'COMPREHENSIVE MAINTENANCE CONTRACT (CMC - EXTENDED WARRANTY) PER YEAR', hsn: '998719' };
+  if (/\bCMC\b|\bAMC\b|SRV-CMC-YR|EVECPRJ03A0003NS|EXTENDED WARRANTY/i.test(s)) {
+    return { name: 'Alamo AMC / CMC Service (Per Year)', hsn: '998313' };
   }
-  if (/HANDLING|SHIPPING|PACKAGING|FREIGHT|TRANSPORT/i.test(s)) {
-    return { name: 'HANDLING, PACKAGING & SHIPPING CHARGES', hsn: '996799' };
+  if (/HANDLING|SHIPPING|PACKAGING|FREIGHT|TRANSPORT|SRV-SHIP-HDL|SVC-FREIGHT/i.test(s)) {
+    return { name: 'Shipping & Handling Charges', hsn: '996799' };
   }
   const clean = (rawDesc || 'Item').replace(/\((?:HSN|SAC):.*?\)/gi, '').replace(/\s{2,}/g, ' ').trim();
   return { name: clean, hsn: hsnHint || '85365090' };
@@ -4556,14 +4557,18 @@ function applyTallyOverridesToInvoice() {
     const tbody = el('tiItemBody');
     tbody.innerHTML = '';
     tally.items.forEach((it, idx) => {
-      const official = getOfficialInvoiceItem(it.desc, '', it.hsn);
+      // Follow PO/Tally descriptions when a PO is attached; use GenXIoT official standard for no-PO invoices
+      const hasPo = !!window._lastImportedPo;
+      const official = getOfficialInvoiceItem(it.rawDesc || it.desc, '', it.hsn);
+      const itemDesc = hasPo ? (it.rawDesc || it.desc) : official.name;
+      const itemHsn = hasPo ? (it.rawHsn || it.hsn || official.hsn) : official.hsn;
       const unitLbl = (it.qty === 1) ? '1.00 No' : `${it.qty}.00 Nos`;
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #cbd5e1';
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${idx + 1}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${official.name}</strong></td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${official.hsn}</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${itemDesc}</strong></td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${itemHsn}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${unitLbl}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(it.rate)}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${it.discPct > 0 ? it.discPct + '%' : '—'}</td>
