@@ -4695,13 +4695,17 @@ function restoreFinalInvoiceState(inv) {
       const tbody = el('tiItemBody');
       tbody.innerHTML = '';
       inv.customRows.forEach((it, idx) => {
+        const official = (typeof getOfficialInvoiceItem === 'function')
+          ? getOfficialInvoiceItem(it.desc, '', it.hsn)
+          : { name: it.desc, hsn: it.hsn };
+        const unitLbl = (it.qty === 1) ? '1.00 No' : `${it.qty}.00 Nos`;
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #cbd5e1';
         tr.innerHTML = `
           <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${idx + 1}</td>
-          <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${it.desc}</strong></td>
-          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${it.hsn}</td>
-          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${it.qty}.00 Nos</td>
+          <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${official.name}</strong></td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${official.hsn}</td>
+          <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${unitLbl}</td>
           <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(it.rate)}</td>
           <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${it.discPct > 0 ? it.discPct + '%' : '—'}</td>
           <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">0.00</td>
