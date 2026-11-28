@@ -4357,9 +4357,15 @@ async function importTallyPdf(event) {
           descParts.push(nxt);
         }
 
+        const rawDesc = descParts.join(' ').replace(/\s{2,}/g, ' ').trim() || 'Item';
+        const official = (typeof getOfficialInvoiceItem === 'function')
+          ? getOfficialInvoiceItem(rawDesc, '', m[1])
+          : { name: rawDesc, hsn: m[1] };
+
         items.push({
-          desc: descParts.join(' ').replace(/\s{2,}/g, ' ').trim() || 'Item',
-          hsn: m[1],
+          desc: official.name,
+          rawDesc: rawDesc,
+          hsn: official.hsn,
           qty: parseFloat(m[2]) || 1,
           rate: parseFloat(m[3].replace(/,/g, '')) || 0,
           discPct: parseFloat(m[4]) || 0
@@ -4490,7 +4496,7 @@ function getOfficialInvoiceItem(rawDesc, codeHint, hsnHint) {
   if (/ALAMO-PD-S|ALMO-PD-S|PENDANT SINGLE SWITCH/i.test(s)) {
     return { name: 'NURSES CALL BELL - PENDANT SINGLE SWITCH (ACCESSORY) [ALAMO-PD-S]', hsn: '85365090' };
   }
-  if (/ALAMO-PD-D|DOUBLE BUTTON PENDANT/i.test(s)) {
+  if (/ALAMO-PD-D|ALMO-PD-D|DOUBLE BUTTON PENDANT/i.test(s)) {
     return { name: 'NURSES CALL BELL - DOUBLE BUTTON PENDANT (ACCESSORY) [ALAMO-PD-D]', hsn: '85365090' };
   }
   if (/ALAMO-GW|ALMO-GW|GATEWAY/i.test(s)) {
@@ -4523,7 +4529,7 @@ function getOfficialInvoiceItem(rawDesc, codeHint, hsnHint) {
   if (/\bCMC\b|EXTENDED WARRANTY/i.test(s)) {
     return { name: 'COMPREHENSIVE MAINTENANCE CONTRACT (CMC - EXTENDED WARRANTY) PER YEAR', hsn: '998719' };
   }
-  if (/HANDLING|SHIPPING|PACKAGING/i.test(s)) {
+  if (/HANDLING|SHIPPING|PACKAGING|FREIGHT|TRANSPORT/i.test(s)) {
     return { name: 'HANDLING, PACKAGING & SHIPPING CHARGES', hsn: '996799' };
   }
   const clean = (rawDesc || 'Item').replace(/\((?:HSN|SAC):.*?\)/gi, '').replace(/\s{2,}/g, ' ').trim();
