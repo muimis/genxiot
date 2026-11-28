@@ -3758,8 +3758,12 @@ function updateTaxInvoiceView() {
       if (!item.qty || item.qty === 0) return;
 
       const code = item.code;
-      const hsn = hsnMap[code] || '85365090';
+      const rawHsn = hsnMap[code] || '85365090';
       const displayInfo = getItemDisplayInfo(item, isDripoOnlyQuote);
+      const official = (typeof getOfficialInvoiceItem === 'function')
+        ? getOfficialInvoiceItem(displayInfo.name, code, rawHsn)
+        : { name: displayInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim() + ` [${code}]`, hsn: rawHsn };
+      const hsn = official.hsn;
       
       const qty = item.qty;
       const rate = item.rate;
@@ -3788,8 +3792,7 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
-          <strong style="color:#1e293b;">${displayInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim()}</strong>
-          <span style="font-size:0.65rem; color:#64748b; font-family:Consolas, monospace;"> [${code}]</span>
+          <strong style="color:#1e293b;">${official.name}</strong>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${hsn}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${qty}.00 Nos</td>
@@ -3871,7 +3874,7 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
-          <strong style="color:#1e293b;">CMC (COMPREHENSIVE EXTENDED WARRANTY) — ${extDuration}</strong>
+          <strong style="color:#1e293b;">COMPREHENSIVE MAINTENANCE CONTRACT (CMC - EXTENDED WARRANTY) PER YEAR</strong>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">998719</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
@@ -3910,7 +3913,7 @@ function updateTaxInvoiceView() {
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${sr++}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field">
-          <strong style="color:#1e293b;">HANDLING CHARGES / SHIPPING CHARGES</strong>
+          <strong style="color:#1e293b;">HANDLING, PACKAGING &amp; SHIPPING CHARGES</strong>
         </td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">996799</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">1.00 Nos</td>
@@ -4478,6 +4481,54 @@ function applyPoOverridesToInvoice() {
   }
 }
 
+function getOfficialInvoiceItem(rawDesc, codeHint, hsnHint) {
+  const s = ((rawDesc || '') + ' ' + (codeHint || '')).toUpperCase();
+  if (/ALAMO-CP-R|ALMO-CP-R|BED CALL POINT/i.test(s)) {
+    return { name: 'NURSES CALL BELL - BED CALL POINT (SERVICE & NURSE CALL) [ALAMO-CP-R]', hsn: '85365090' };
+  }
+  if (/ALAMO-PD-S|ALMO-PD-S|PENDANT SINGLE SWITCH/i.test(s)) {
+    return { name: 'NURSES CALL BELL - PENDANT SINGLE SWITCH (ACCESSORY) [ALAMO-PD-S]', hsn: '85365090' };
+  }
+  if (/ALAMO-PD-D|DOUBLE BUTTON PENDANT/i.test(s)) {
+    return { name: 'NURSES CALL BELL - DOUBLE BUTTON PENDANT (ACCESSORY) [ALAMO-PD-D]', hsn: '85365090' };
+  }
+  if (/ALAMO-GW|ALMO-GW|GATEWAY/i.test(s)) {
+    return { name: 'NURSES CALL BELL - BLUETOOTH GATEWAY (NETWORK DEVICE) [ALAMO-GW]', hsn: '85176230' };
+  }
+  if (/ALAMO-RPT|ALMO-RPT|REPEATER/i.test(s)) {
+    return { name: 'NURSES CALL BELL - SIGNAL REPEATER (NETWORKING DEVICE) [ALAMO-RPT]', hsn: '85176290' };
+  }
+  if (/ALAMO-NS-TV|SMART TV|SMART DISPLAY|TELEVISION/i.test(s)) {
+    return { name: 'NURSES CALL BELL - CENTRAL DISPLAY 32" BLUETOOTH SMART TV [ALAMO-NS-TV]', hsn: '85287215' };
+  }
+  if (/ALAMO-CP-B|WASHROOM CALL POINT/i.test(s)) {
+    return { name: 'NURSES CALL BELL - WASHROOM CALL POINT [ALAMO-CP-B]', hsn: '85365090' };
+  }
+  if (/ALAMO-PL|PULL CORD/i.test(s)) {
+    return { name: 'NURSES CALL BELL - WASHROOM PULL CORD [ALAMO-PL]', hsn: '85365090' };
+  }
+  if (/ALAMO-DL|CALL LIGHT|DOOR INDICATOR/i.test(s)) {
+    return { name: 'NURSES CALL BELL - CALL LIGHT V2 (DOOR INDICATOR) [ALAMO-DL]', hsn: '85318000' };
+  }
+  if (/ALAMO-MINI|MINI STATION/i.test(s)) {
+    return { name: 'NURSES CALL BELL - MINI STATION TETRIS [ALAMO-MINI]', hsn: '85318000' };
+  }
+  if (/ALAMO-CLOUD-SW|CLOUD SOFTWARE/i.test(s)) {
+    return { name: 'ALAMO CLOUD MONITORING SOFTWARE [ALAMO-CLOUD-SW]', hsn: '9983' };
+  }
+  if (/DRIPO-IM|DRIPO/i.test(s)) {
+    return { name: 'DRIPO - SMART INFUSION MONITOR [DRIPO-IM]', hsn: '90189099' };
+  }
+  if (/\bCMC\b|EXTENDED WARRANTY/i.test(s)) {
+    return { name: 'COMPREHENSIVE MAINTENANCE CONTRACT (CMC - EXTENDED WARRANTY) PER YEAR', hsn: '998719' };
+  }
+  if (/HANDLING|SHIPPING|PACKAGING/i.test(s)) {
+    return { name: 'HANDLING, PACKAGING & SHIPPING CHARGES', hsn: '996799' };
+  }
+  const clean = (rawDesc || 'Item').replace(/\((?:HSN|SAC):.*?\)/gi, '').replace(/\s{2,}/g, ' ').trim();
+  return { name: clean, hsn: hsnHint || '85365090' };
+}
+
 function applyTallyOverridesToInvoice() {
   const tally = window._lastImportedTally;
   if (!tally) return;
@@ -4498,13 +4549,15 @@ function applyTallyOverridesToInvoice() {
     const tbody = el('tiItemBody');
     tbody.innerHTML = '';
     tally.items.forEach((it, idx) => {
+      const official = getOfficialInvoiceItem(it.desc, '', it.hsn);
+      const unitLbl = (it.qty === 1) ? '1.00 No' : `${it.qty}.00 Nos`;
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #cbd5e1';
       tr.innerHTML = `
         <td style="padding:4px 3px; border:1px solid #cbd5e1; text-align:center; color:#64748b;">${idx + 1}</td>
-        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${it.desc}</strong></td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${it.hsn}</td>
-        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${it.qty}.00 Nos</td>
+        <td style="padding:4px 6px; border:1px solid #cbd5e1;" contenteditable="true" class="editable-field"><strong style="color:#1e293b;">${official.name}</strong></td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-family:Consolas, monospace;" contenteditable="true" class="editable-field">${official.hsn}</td>
+        <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center; font-weight:600;" contenteditable="true" class="editable-field ti-cell-qty" onblur="recalcTaxInvoiceFromTable()">${unitLbl}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:right;" contenteditable="true" class="editable-field ti-cell-rate" onblur="recalcTaxInvoiceFromTable()">${fmt(it.rate)}</td>
         <td style="padding:4px 4px; border:1px solid #cbd5e1; text-align:center;" contenteditable="true" class="editable-field ti-cell-disc" onblur="recalcTaxInvoiceFromTable()">${it.discPct > 0 ? it.discPct + '%' : '—'}</td>
         <td style="padding:4px 6px; border:1px solid #cbd5e1; text-align:right; font-weight:600;" class="ti-cell-taxable">0.00</td>
@@ -4711,10 +4764,9 @@ function renderInstallAnnexure() {
     bom.forEach(item => {
       if (!item.qty || item.qty <= 0) return;
       const dInfo = getItemDisplayInfo(item, isDripoOnly);
-      let cleanName = dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim();
-      if (item.code === 'ALAMO-GW' && item.qty === 1) {
-        cleanName = cleanName.replace(/\(one for local,\s*one for cloud\)/i, '').trim();
-      }
+      const official = (typeof getOfficialInvoiceItem === 'function')
+        ? getOfficialInvoiceItem(dInfo.name, item.code, '')
+        : { name: `${dInfo.name.replace(/\((?:HSN|SAC):.*?\)/i, '').trim()} [${item.code}]` };
       let savedSn = window._certSerialNumbers[item.code] || '';
       if (!savedSn && item.code === 'ALAMO-CP-R' && importedSummary) {
         savedSn = importedSummary;
@@ -4724,7 +4776,7 @@ function renderInstallAnnexure() {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="padding:3px 4px; text-align:center; color:#64748b;">${idx++}</td>
-        <td style="padding:3px 6px; font-weight:600; color:#1e293b;">${cleanName} <span style="font-size:0.62rem; color:#64748b; font-weight:400;">[${item.code}]</span></td>
+        <td style="padding:3px 6px; font-weight:600; color:#1e293b;">${official.name}</td>
         <td style="padding:3px 4px; text-align:center; font-weight:600;">${item.qty} ${unitLbl}</td>
         <td contenteditable="true" class="cert-sn-cell" style="padding:3px 6px; color:#0f172a; outline:none;" oninput="window._certSerialNumbers['${item.code}'] = this.textContent">${savedSn}</td>
         <td class="no-print" style="padding:3px 4px; text-align:center; color:#94a3b8; font-size:0.65rem;">PO</td>
